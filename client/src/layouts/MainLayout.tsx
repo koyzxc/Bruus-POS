@@ -11,6 +11,7 @@ type MainLayoutProps = {
   activeCategory: string;
   setActiveCategory: (category: string) => void;
   activeSection: "MENU" | "INV" | "SALES";
+  onOpenInventoryForm?: () => void;
 };
 
 export default function MainLayout({
@@ -18,6 +19,7 @@ export default function MainLayout({
   activeCategory,
   setActiveCategory,
   activeSection,
+  onOpenInventoryForm,
 }: MainLayoutProps) {
   // Fetch low stock items
   const { data: lowStockItems } = useQuery<Inventory[]>({

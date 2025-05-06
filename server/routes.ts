@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@db";
 import { products, insertProductSchema, inventory, insertInventorySchema } from "@shared/schema";
 import multer from "multer";
+import { eq } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
 import express from "express";
@@ -296,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update the inventory item
       const updatedItem = await db.update(inventory)
         .set(validationResult.data)
-        .where(({ id }) => id.equals(inventoryId))
+        .where(eq(inventory.id, inventoryId))
         .returning();
       
       res.json(updatedItem[0]);

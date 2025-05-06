@@ -29,28 +29,18 @@ export default function InventoryPage() {
     setIsInventoryFormOpen(true);
   };
   
+  const handleOpenInventoryForm = () => {
+    setSelectedInventoryItem(undefined);
+    setIsInventoryFormOpen(true);
+  };
+  
   return (
     <MainLayout
       activeCategory={activeCategory}
       setActiveCategory={setActiveCategory}
       activeSection="INV"
+      onOpenInventoryForm={handleOpenInventoryForm}
     >
-      {/* Sidebar Management Buttons */}
-      {canManageProducts && (
-        <div className="mb-4 space-y-3">
-          <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 space-x-0 md:space-x-3">
-            <ProductManagement />
-            
-            <Button
-              onClick={() => setIsInventoryFormOpen(true)}
-              className="bg-[#F15A29] hover:bg-[#D84A19] text-white flex items-center gap-2"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Add New Ingredient
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Inventory Form Dialog */}
       {isInventoryFormOpen && (

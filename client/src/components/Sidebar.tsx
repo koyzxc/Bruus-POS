@@ -1,20 +1,29 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import Logo from "./Logo";
+import ProductManagement from "@/components/ProductManagement";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import ProductForm from "@/components/ProductForm";
+import InventoryForm from "@/components/InventoryForm";
 
 type SidebarProps = {
   activeCategory: string;
   setActiveCategory: (category: string) => void;
   activeSection?: "MENU" | "INV" | "SALES";
+  onOpenInventoryForm?: () => void;
 };
 
-export default function Sidebar({ activeCategory, setActiveCategory, activeSection }: SidebarProps) {
-  const { logoutMutation } = useAuth();
+export default function Sidebar({ activeCategory, setActiveCategory, activeSection, onOpenInventoryForm }: SidebarProps) {
+  const { user, logoutMutation } = useAuth();
+  const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false);
   
   const handleSignOut = () => {
     logoutMutation.mutate();
   };
   
   const categories = ["COFFEE", "SHAKE", "FOOD", "OTHERS"];
+  const canManageProducts = user && (user.role === "owner" || user.role === "barista");
   
   return (
     <div className="bg-[#F15A29] text-white md:w-64 flex-shrink-0">
@@ -41,9 +50,26 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
             ))}
           </nav>
         ) : (
-          <div className="text-center text-white opacity-80 mt-4 mb-10">
-            {activeSection === "INV" ? "Inventory Management" : "Sales Analytics"}
-          </div>
+          <>
+            <div className="text-center text-white opacity-80 mt-4 mb-6">
+              {activeSection === "INV" ? "Inventory Management" : "Sales Analytics"}
+            </div>
+            
+            {/* Show management buttons in Inventory section */}
+            {activeSection === "INV" && canManageProducts && (
+              <div className="space-y-3 mt-6">
+                <ProductManagement />
+                
+                <Button
+                  onClick={onOpenInventoryForm}
+                  className="w-full bg-[#FFE6C7] text-[#333333] hover:bg-[#F5D7B5] flex items-center justify-center gap-2"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Add New Ingredient
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
       
@@ -55,6 +81,13 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
           SIGN OUT
         </button>
       </div>
+      
+      {isInventoryFormOpen && (
+        <InventoryForm
+          isOpen={isInventoryFormOpen}
+          onClose={() => setIsInventoryFormOpen(false)}
+        />
+      )}
     </div>
   );
 }
