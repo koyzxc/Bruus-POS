@@ -171,7 +171,7 @@ export default function InventoryPage() {
                     </TableCell>
                     <TableCell className="py-4 px-6 text-right w-1/4">
                       <span className={`font-medium ${
-                        item.currentStock <= item.minimumThreshold ? "text-red-500" : ""
+                        parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
                       }`}>
                         {item.currentStock} {item.unit || ""}
                       </span>

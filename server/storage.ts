@@ -9,6 +9,13 @@ import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@db";
 
+// Define SizeOption type for product size variants
+type SizeOption = {
+  id: number;
+  size: string;
+  price: string;
+};
+
 const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
@@ -71,12 +78,50 @@ class DatabaseStorage implements IStorage {
   }
   
   // Products methods
-  async getProductsByCategory(category: string): Promise<typeof products.$inferSelect[]> {
+  async getProductsByCategory(category: string): Promise<any[]> {
     const categoryRecord = await db.select().from(categories).where(eq(categories.name, category));
     
     if (!categoryRecord[0]) return [];
     
-    return db.select().from(products).where(eq(products.categoryId, categoryRecord[0].id));
+    // Get all products in the category
+    const allProducts = await db.select().from(products).where(eq(products.categoryId, categoryRecord[0].id));
+    
+    // Group products by name to combine M and L sizes
+    const productMap = new Map();
+    
+    allProducts.forEach(product => {
+      const key = product.name;
+      
+      if (!productMap.has(key)) {
+        // Create a new product group with sizes array
+        productMap.set(key, {
+          ...product,
+          sizeOptions: [{
+            id: product.id,
+            size: product.size,
+            price: product.price
+          }]
+        });
+      } else {
+        // Add size option to existing product
+        const existingProduct = productMap.get(key);
+        existingProduct.sizeOptions.push({
+          id: product.id,
+          size: product.size,
+          price: product.price
+        });
+        
+        // Sort size options (M first, then L)
+        existingProduct.sizeOptions.sort((a: SizeOption, b: SizeOption) => {
+          if (a.size === "M") return -1;
+          if (b.size === "M") return 1;
+          return 0;
+        });
+      }
+    });
+    
+    // Convert map to array
+    return Array.from(productMap.values());
   }
   
   async getProductById(id: number): Promise<typeof products.$inferSelect | undefined> {

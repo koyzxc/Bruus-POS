@@ -21,12 +21,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
+type SizeOption = {
+  id: number;
+  size: string;
+  price: string;
+};
+
+type ProductWithSizes = Product & {
+  sizeOptions?: SizeOption[];
+};
+
 type ProductCardProps = {
-  product: Product;
+  product: ProductWithSizes;
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -35,10 +52,15 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isIngredientsDialogOpen, setIsIngredientsDialogOpen] = useState(false);
+  const [selectedSizeOption, setSelectedSizeOption] = useState<SizeOption | null>(
+    product.sizeOptions && product.sizeOptions.length > 0 
+      ? product.sizeOptions[0] 
+      : null
+  );
   
   // Fetch product ingredients
   const { data: ingredients, isLoading: loadingIngredients } = useQuery<any[]>({
-    queryKey: [`/api/products/${product.id}/ingredients`, product.id],
+    queryKey: [`/api/products/${selectedSizeOption?.id || product.id}/ingredients`, selectedSizeOption?.id || product.id],
     enabled: isIngredientsDialogOpen,
   });
   
@@ -70,23 +92,48 @@ export default function ProductCard({ product }: ProductCardProps) {
   });
   
   const confirmDelete = () => {
-    deleteMutation.mutate(product.id);
+    // Delete all size variants
+    if (product.sizeOptions && product.sizeOptions.length > 0) {
+      product.sizeOptions.forEach(option => {
+        deleteMutation.mutate(option.id);
+      });
+    } else {
+      deleteMutation.mutate(product.id);
+    }
   };
   
-  const handleClick = (e: React.MouseEvent) => {
-    // Don't add to cart if clicked on a button
-    if ((e.target as HTMLElement).closest('button')) {
-      e.stopPropagation();
-      return;
+  const handleAddToCart = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    
+    // If we have size options, use the selected one
+    if (selectedSizeOption) {
+      const productToAdd = {
+        ...product,
+        id: selectedSizeOption.id,
+        price: selectedSizeOption.price,
+        size: selectedSizeOption.size
+      };
+      addItem(productToAdd);
+    } else {
+      // Otherwise use the product as is
+      addItem(product);
     }
-    addItem(product);
   };
+  
+  const handleSizeChange = (size: string) => {
+    if (product.sizeOptions) {
+      const option = product.sizeOptions.find(opt => opt.size === size);
+      if (option) {
+        setSelectedSizeOption(option);
+      }
+    }
+  };
+  
+  // Get the current price to display
+  const currentPrice = selectedSizeOption ? selectedSizeOption.price : product.price;
   
   return (
-    <div 
-      className="product-card rounded-xl overflow-hidden bg-white shadow-md hover:shadow-lg transition duration-300 cursor-pointer relative"
-      onClick={handleClick}
-    >
+    <div className="product-card rounded-xl overflow-hidden bg-white shadow-md hover:shadow-lg transition duration-300 relative">
       {/* Admin controls overlay */}
       {user && (user.role === "owner" || user.role === "barista") && (
         <div className="absolute top-2 right-2 z-10 flex gap-1">
@@ -94,7 +141,10 @@ export default function ProductCard({ product }: ProductCardProps) {
             size="icon"
             variant="ghost"
             className="h-8 w-8 rounded-full bg-white bg-opacity-70 hover:bg-opacity-100 shadow-sm"
-            onClick={() => setIsIngredientsDialogOpen(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsIngredientsDialogOpen(true);
+            }}
           >
             <Info className="h-4 w-4 text-blue-600" />
           </Button>
@@ -104,7 +154,10 @@ export default function ProductCard({ product }: ProductCardProps) {
               size="icon"
               variant="ghost"
               className="h-8 w-8 rounded-full bg-white bg-opacity-70 hover:bg-opacity-100 shadow-sm"
-              onClick={() => setIsDeleteDialogOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteDialogOpen(true);
+              }}
             >
               <Trash2 className="h-4 w-4 text-red-500" />
             </Button>
@@ -121,16 +174,50 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
       <div className="p-3 text-center">
         <h3 className="text-base md:text-lg font-medium uppercase tracking-wide">
-          {product.name} 
-          {product.size && (
-            <span className="text-xs md:text-sm ml-1 bg-gray-100 px-1.5 py-0.5 rounded-sm font-normal">
-              {product.size}
-            </span>
-          )}
+          {product.name}
         </h3>
-        <p className="text-base md:text-lg font-semibold text-gray-700 mt-1">
-          ₱{parseFloat(product.price).toFixed(2)}
+        
+        {/* Size options */}
+        {product.sizeOptions && product.sizeOptions.length > 1 ? (
+          <div className="mt-1">
+            <Select 
+              value={selectedSizeOption?.size || "M"} 
+              onValueChange={handleSizeChange}
+            >
+              <SelectTrigger className="h-7 w-24 mx-auto text-xs">
+                <SelectValue placeholder="Size" />
+              </SelectTrigger>
+              <SelectContent>
+                {product.sizeOptions.map(option => (
+                  <SelectItem key={option.id} value={option.size}>
+                    {option.size} - ₱{parseFloat(option.price).toFixed(2)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          product.size && (
+            <div className="mt-1">
+              <span className="text-xs md:text-sm bg-gray-100 px-2 py-1 rounded-sm font-normal">
+                {product.size}
+              </span>
+            </div>
+          )
+        )}
+        
+        <p className="text-base md:text-lg font-semibold text-gray-700 mt-2">
+          ₱{parseFloat(currentPrice).toFixed(2)}
         </p>
+        
+        {/* Add to cart button */}
+        <Button 
+          className="mt-2 w-full bg-[#F15A29] hover:bg-[#d94f24] text-white"
+          size="sm"
+          onClick={handleAddToCart}
+        >
+          Add to Order
+        </Button>
       </div>
       
       {/* Ingredients Dialog */}
@@ -171,7 +258,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete this product?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the product
+              This action cannot be undone. This will permanently delete all size variants of
               "{product.name}".
             </AlertDialogDescription>
           </AlertDialogHeader>
