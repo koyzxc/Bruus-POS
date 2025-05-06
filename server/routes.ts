@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
 import { db } from "@db";
-import { products, insertProductSchema, inventory, insertInventorySchema, productIngredients } from "@shared/schema";
+import { products, insertProductSchema, inventory, insertInventorySchema, productIngredients, orderItems } from "@shared/schema";
 import multer from "multer";
 import { eq } from "drizzle-orm";
 import path from "path";
@@ -233,6 +233,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existingProduct = await storage.getProductById(productId);
       if (!existingProduct) {
         return res.status(404).json({ message: "Product not found" });
+      }
+      
+      // Check if product is used in any order items
+      const orderItemsWithProduct = await db.select()
+        .from(orderItems)
+        .where(eq(orderItems.productId, productId));
+      
+      if (orderItemsWithProduct.length > 0) {
+        console.log(`Cannot delete product ID ${productId} as it is used in ${orderItemsWithProduct.length} order items`);
+        return res.status(400).json({ 
+          message: "Cannot delete product as it is used in one or more orders. This product has sales history." 
+        });
       }
       
       // First delete product ingredients to avoid foreign key constraints
