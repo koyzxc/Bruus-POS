@@ -93,7 +93,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: req.body.name,
         price: req.body.price, // Keep as string for validation
         imageUrl,
-        categoryId: parseInt(req.body.categoryId)
+        categoryId: parseInt(req.body.categoryId),
+        size: req.body.size || "M" // M = medium (default), L = large
       };
       
       // Log the data for debugging
@@ -104,7 +105,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: productData.name,
         price: String(productData.price),  // Ensure it's a string as per schema
         imageUrl: productData.imageUrl,
-        categoryId: parseInt(String(productData.categoryId))
+        categoryId: parseInt(String(productData.categoryId)),
+        size: productData.size || "M"
       };
       
       console.log("Product validation data:", JSON.stringify(productValidationData));
@@ -167,7 +169,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         price: parseFloat(req.body.price),
         imageUrl,
-        categoryId: parseInt(req.body.categoryId)
+        categoryId: parseInt(req.body.categoryId),
+        size: req.body.size || existingProduct.size || "M"
       };
       
       const updatedProduct = await storage.updateProduct(productId, productData);

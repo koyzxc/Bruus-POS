@@ -63,39 +63,45 @@ async function seed() {
       await db.insert(products).values([
         {
           name: "AMERICANO",
-          price: 115,
+          price: "115",
           imageUrl: "https://images.unsplash.com/photo-1521302080334-4bebac2763a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
           categoryId: categoryMap["COFFEE"],
+          size: "M",
         },
         {
           name: "CAPPUCCINO",
-          price: 130,
+          price: "130",
           imageUrl: "https://images.unsplash.com/photo-1534778101976-62847782c213?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
           categoryId: categoryMap["COFFEE"],
+          size: "M",
         },
         {
           name: "LATTE",
-          price: 80,
+          price: "80",
           imageUrl: "https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
           categoryId: categoryMap["COFFEE"],
+          size: "M",
         },
         {
           name: "FLAT WHITE",
-          price: 120,
+          price: "120",
           imageUrl: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
           categoryId: categoryMap["COFFEE"],
+          size: "M",
         },
         {
           name: "CAFE AU LAIT",
-          price: 160,
+          price: "160",
           imageUrl: "https://pixabay.com/get/g687e08a35dce1ef090c4a9014a2cecefe1a0cbf0703889dbd243eacd26a307f0b91c1991dfb4b458c20cbf2c60a58659bb7abf84fa2a16bf9a2e606af0c26658_1280.jpg",
           categoryId: categoryMap["COFFEE"],
+          size: "M",
         },
         {
           name: "ESPRESSO",
-          price: 200,
+          price: "200",
           imageUrl: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
           categoryId: categoryMap["COFFEE"],
+          size: "M",
         },
       ]);
       

@@ -213,6 +213,7 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     formData.append("name", values.name);
     formData.append("price", values.price);
     formData.append("categoryId", values.categoryId);
+    formData.append("size", values.size);
     
     // Add image if provided
     if (values.image && values.image.length > 0) {
