@@ -13,6 +13,7 @@ import { PlusCircle, Edit, MoreHorizontal } from "lucide-react";
 export default function InventoryPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
   const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false);
+  const [selectedInventoryItem, setSelectedInventoryItem] = useState<Inventory | undefined>(undefined);
   const { user } = useAuth();
   
   // Fetch inventory data
@@ -22,6 +23,11 @@ export default function InventoryPage() {
   
   // Check if user is authorized to manage products
   const canManageProducts = user && (user.role === "owner" || user.role === "barista");
+  
+  const handleEditInventory = (item: Inventory) => {
+    setSelectedInventoryItem(item);
+    setIsInventoryFormOpen(true);
+  };
   
   return (
     <MainLayout
@@ -50,7 +56,11 @@ export default function InventoryPage() {
       {isInventoryFormOpen && (
         <InventoryForm 
           isOpen={isInventoryFormOpen} 
-          onClose={() => setIsInventoryFormOpen(false)} 
+          onClose={() => {
+            setIsInventoryFormOpen(false);
+            setSelectedInventoryItem(undefined);
+          }} 
+          inventoryItem={selectedInventoryItem}
         />
       )}
       
@@ -80,7 +90,21 @@ export default function InventoryPage() {
               inventoryItems?.map((item) => {
                 return (
                   <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6]">
-                    <TableCell className="py-4 px-6">{item.name}</TableCell>
+                    <TableCell className="py-4 px-6">
+                      <div className="flex justify-between items-center">
+                        <span>{item.name}</span>
+                        {canManageProducts && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditInventory(item)}
+                            className="ml-2"
+                          >
+                            <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="py-4 px-6 text-right">
                       <span className={`font-medium ${
                         item.currentStock <= item.minimumThreshold ? "text-red-500" : ""

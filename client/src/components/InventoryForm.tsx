@@ -64,20 +64,33 @@ const unitOptions = [
   { value: "box", label: "Box" },
 ];
 
-export default function InventoryForm({ isOpen, onClose }: InventoryFormProps) {
+export default function InventoryForm({ isOpen, onClose, inventoryItem }: InventoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isEditing = !!inventoryItem;
   
   // Initialize form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      currentStock: "",
-      minimumThreshold: "",
-      unit: "",
+      name: inventoryItem?.name || "",
+      currentStock: inventoryItem?.currentStock?.toString() || "",
+      minimumThreshold: inventoryItem?.minimumThreshold?.toString() || "",
+      unit: inventoryItem?.unit || "",
     },
   });
+
+  // Set form values when editing an existing item
+  useEffect(() => {
+    if (inventoryItem) {
+      form.reset({
+        name: inventoryItem.name,
+        currentStock: inventoryItem.currentStock.toString(),
+        minimumThreshold: inventoryItem.minimumThreshold.toString(),
+        unit: inventoryItem.unit,
+      });
+    }
+  }, [inventoryItem, form]);
   
   // Create mutation for adding inventory items
   const createMutation = useMutation({
@@ -103,20 +116,52 @@ export default function InventoryForm({ isOpen, onClose }: InventoryFormProps) {
     },
   });
   
+  // Update mutation for editing inventory items
+  const updateMutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      const response = await apiRequest("PUT", `/api/inventory/${inventoryItem?.id}`, data);
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Inventory item updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
+      form.reset();
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update inventory item",
+        variant: "destructive",
+      });
+    },
+  });
+  
   // Handle form submission
   const onSubmit = (values: FormValues) => {
-    createMutation.mutate(values);
+    if (isEditing && inventoryItem) {
+      updateMutation.mutate(values);
+    } else {
+      createMutation.mutate(values);
+    }
   };
   
-  const isSubmitting = createMutation.isPending;
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Ingredient</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Ingredient" : "Add New Ingredient"}</DialogTitle>
           <DialogDescription>
-            Add a new ingredient to your inventory with stock levels and measurement units.
+            {isEditing 
+              ? "Update ingredient details and stock levels." 
+              : "Add a new ingredient to your inventory with stock levels and measurement units."
+            }
           </DialogDescription>
         </DialogHeader>
         
@@ -223,10 +268,10 @@ export default function InventoryForm({ isOpen, onClose }: InventoryFormProps) {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
+                    {isEditing ? "Updating..." : "Adding..."}
                   </>
                 ) : (
-                  "Add Ingredient"
+                  isEditing ? "Update Ingredient" : "Add Ingredient"
                 )}
               </Button>
             </DialogFooter>

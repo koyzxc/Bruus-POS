@@ -250,6 +250,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Update inventory item
+  app.put("/api/inventory/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to update inventory items" });
+    }
+    
+    // Allow both owners and baristas to manage inventory
+    if (req.user.role !== "owner" && req.user.role !== "barista") {
+      return res.status(403).json({ message: "You don't have permission to manage inventory" });
+    }
+    
+    try {
+      const inventoryId = parseInt(req.params.id);
+      
+      // Check if inventory item exists
+      const existingItem = await db.query.inventory.findFirst({
+        where: (inv, { eq }) => eq(inv.id, inventoryId)
+      });
+      
+      if (!existingItem) {
+        return res.status(404).json({ message: "Inventory item not found" });
+      }
+      
+      // Format the data properly for update
+      const inventoryData = {
+        name: req.body.name,
+        currentStock: req.body.currentStock,
+        minimumThreshold: req.body.minimumThreshold,
+        unit: req.body.unit
+      };
+      
+      console.log("Inventory update data:", JSON.stringify(inventoryData));
+      
+      // Validate inventory data
+      const validationResult = insertInventorySchema.safeParse(inventoryData);
+      if (!validationResult.success) {
+        console.error("Inventory validation error:", JSON.stringify(validationResult.error.errors));
+        return res.status(400).json({
+          message: "Invalid inventory data",
+          errors: validationResult.error.errors
+        });
+      }
+      
+      // Update the inventory item
+      const updatedItem = await db.update(inventory)
+        .set(validationResult.data)
+        .where(({ id }) => id.equals(inventoryId))
+        .returning();
+      
+      res.json(updatedItem[0]);
+    } catch (error) {
+      console.error("Error updating inventory item:", error);
+      res.status(500).json({ message: "Failed to update inventory item" });
+    }
+  });
+  
   // Get product ingredients
   app.get("/api/products/:id/ingredients", async (req, res) => {
     try {
