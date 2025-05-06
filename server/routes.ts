@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
 import { db } from "@db";
-import { products, insertProductSchema, inventory, insertInventorySchema } from "@shared/schema";
+import { products, insertProductSchema, inventory, insertInventorySchema, productIngredients } from "@shared/schema";
 import multer from "multer";
 import { eq } from "drizzle-orm";
 import path from "path";
@@ -189,6 +189,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update product" });
     }
   });
+  
+  // Delete product endpoint
+  app.delete("/api/products/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to delete a product" });
+    }
+    
+    // Allow both owners and baristas to delete products
+    if (req.user.role !== "owner" && req.user.role !== "barista") {
+      return res.status(403).json({ message: "You don't have permission to delete products" });
+    }
+    
+    try {
+      const productId = parseInt(req.params.id);
+      
+      // Check if product exists
+      const existingProduct = await storage.getProductById(productId);
+      if (!existingProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      
+      // First delete product ingredients to avoid foreign key constraints
+      await db.delete(productIngredients).where(eq(productIngredients.productId, productId));
+      
+      // Then delete the product
+      await db.delete(products).where(eq(products.id, productId));
+      
+      res.status(200).json({ message: "Product deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      res.status(500).json({ message: "Failed to delete product" });
+    }
+  });
 
   // Inventory API
   app.get("/api/inventory", async (req, res) => {
@@ -304,6 +337,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating inventory item:", error);
       res.status(500).json({ message: "Failed to update inventory item" });
+    }
+  });
+  
+  // Delete inventory item
+  app.delete("/api/inventory/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to delete inventory items" });
+    }
+    
+    // Allow both owners and baristas to manage inventory
+    if (req.user.role !== "owner" && req.user.role !== "barista") {
+      return res.status(403).json({ message: "You don't have permission to delete inventory items" });
+    }
+    
+    try {
+      const inventoryId = parseInt(req.params.id);
+      
+      // Check if inventory item exists
+      const existingItem = await db.query.inventory.findFirst({
+        where: (inv, { eq }) => eq(inv.id, inventoryId)
+      });
+      
+      if (!existingItem) {
+        return res.status(404).json({ message: "Inventory item not found" });
+      }
+      
+      // Check if this inventory item is used in any product ingredients
+      const usedInProduct = await db.query.productIngredients.findFirst({
+        where: (pi, { eq }) => eq(pi.inventoryId, inventoryId)
+      });
+      
+      if (usedInProduct) {
+        return res.status(400).json({ 
+          message: "Cannot delete inventory item as it is used in one or more products. Remove it from products first." 
+        });
+      }
+      
+      // Delete the inventory item
+      await db.delete(inventory).where(eq(inventory.id, inventoryId));
+      
+      res.status(200).json({ message: "Inventory item deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting inventory item:", error);
+      res.status(500).json({ message: "Failed to delete inventory item" });
     }
   });
   

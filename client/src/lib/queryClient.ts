@@ -29,7 +29,15 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+    // Handle query keys that contain additional parameters
+    let url = queryKey[0] as string;
+    
+    // Special handling for products by category
+    if (url === '/api/products' && queryKey.length > 1 && queryKey[1]) {
+      url = `${url}/${queryKey[1]}`;
+    }
+    
+    const res = await fetch(url, {
       credentials: "include",
     });
 
