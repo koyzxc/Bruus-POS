@@ -29,12 +29,11 @@ export default function InventoryPage() {
       setActiveCategory={setActiveCategory}
       activeSection="INV"
     >
-      {/* Product Management Panel */}
-      {canManageProducts && <ProductManagement />}
-      
-      {/* Add Ingredient Button */}
+      {/* Product and Inventory Management Buttons */}
       {canManageProducts && (
-        <div className="flex justify-end mt-6 mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <ProductManagement />
+          
           <Button
             onClick={() => setIsInventoryFormOpen(true)}
             className="bg-[#F15A29] hover:bg-[#D84A19] text-white flex items-center gap-2"

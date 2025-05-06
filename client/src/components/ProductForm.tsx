@@ -227,12 +227,21 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
       formData.append("ingredients", ingredientsJson);
     }
     
-    if (product?.id) {
-      // Update existing product
-      updateMutation.mutate({ id: product.id, data: formData });
-    } else {
-      // Create new product
-      createMutation.mutate(formData);
+    try {
+      if (product?.id) {
+        // Update existing product
+        updateMutation.mutate({ id: product.id, data: formData });
+      } else {
+        // Create new product
+        createMutation.mutate(formData);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast({
+        title: "Error",
+        description: "There was a problem submitting the form. Please try again.",
+        variant: "destructive",
+      });
     }
   };
   

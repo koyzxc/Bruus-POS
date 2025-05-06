@@ -95,18 +95,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         categoryId: parseInt(req.body.categoryId)
       };
       
+      // Log the data for debugging
+      console.log("Product data before validation:", JSON.stringify(productData));
+      
+      // Make sure price and categoryId are in the correct format
+      const productValidationData = {
+        name: productData.name,
+        price: String(productData.price),  // Ensure it's a string as per schema
+        imageUrl: productData.imageUrl,
+        categoryId: parseInt(String(productData.categoryId))
+      };
+      
+      console.log("Product validation data:", JSON.stringify(productValidationData));
+      
       // Validate product data
-      const validationResult = insertProductSchema.safeParse(productData);
+      const validationResult = insertProductSchema.safeParse(productValidationData);
       if (!validationResult.success) {
         console.error("Product validation error:", JSON.stringify(validationResult.error.errors));
-        console.error("Product data received:", JSON.stringify(productData));
         return res.status(400).json({ 
           message: "Invalid product data", 
           errors: validationResult.error.errors 
         });
       }
       
-      const product = await storage.createProduct(productData);
+      // Use the validated data for DB insertion
+      const product = await storage.createProduct(productValidationData);
       
       // Add ingredients if provided
       if (req.body.ingredients && Array.isArray(req.body.ingredients)) {

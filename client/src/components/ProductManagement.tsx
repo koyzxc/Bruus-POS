@@ -26,12 +26,12 @@ export default function ProductManagement() {
   };
   
   return (
-    <div className="mb-4">
+    <>
       <Button 
         onClick={handleAddProduct}
-        className="bg-[#F15A29] hover:bg-[#D84A19] text-white"
+        className="bg-[#F15A29] hover:bg-[#D84A19] text-white flex items-center gap-2"
       >
-        <PlusCircle className="mr-2 h-4 w-4" />
+        <PlusCircle className="h-4 w-4" />
         Add New Product
       </Button>
       
@@ -42,6 +42,6 @@ export default function ProductManagement() {
           product={selectedProduct}
         />
       )}
-    </div>
+    </>
   );
 }
