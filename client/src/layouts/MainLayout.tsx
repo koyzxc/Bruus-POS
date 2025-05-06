@@ -31,6 +31,7 @@ export default function MainLayout({
       <Sidebar
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
+        activeSection={activeSection}
       />
       
       {/* Middle Content */}
@@ -44,23 +45,25 @@ export default function MainLayout({
         </div>
       </div>
       
-      {/* Right Order Panel */}
-      <div className="bg-[#FFE6C7] md:w-72 flex-shrink-0">
-        <div className="p-4 h-full flex flex-col">
-          <OrderPanel />
-          
-          {/* Low Stock Alerts */}
-          <div className="mt-auto">
-            {lowStockItems && lowStockItems.length > 0 && (
-              <div className="mb-4">
-                {lowStockItems.map((item) => (
-                  <LowStockAlert key={item.id} item={item} />
-                ))}
-              </div>
-            )}
+      {/* Right Order Panel - Only show for MENU section */}
+      {activeSection === "MENU" && (
+        <div className="bg-[#FFE6C7] md:w-72 flex-shrink-0">
+          <div className="p-4 h-full flex flex-col">
+            <OrderPanel />
+            
+            {/* Low Stock Alerts */}
+            <div className="mt-auto">
+              {lowStockItems && lowStockItems.length > 0 && (
+                <div className="mb-4">
+                  {lowStockItems.map((item) => (
+                    <LowStockAlert key={item.id} item={item} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

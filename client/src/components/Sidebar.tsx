@@ -4,9 +4,10 @@ import Logo from "./Logo";
 type SidebarProps = {
   activeCategory: string;
   setActiveCategory: (category: string) => void;
+  activeSection?: "MENU" | "INV" | "SALES";
 };
 
-export default function Sidebar({ activeCategory, setActiveCategory }: SidebarProps) {
+export default function Sidebar({ activeCategory, setActiveCategory, activeSection }: SidebarProps) {
   const { logoutMutation } = useAuth();
   
   const handleSignOut = () => {
@@ -24,19 +25,26 @@ export default function Sidebar({ activeCategory, setActiveCategory }: SidebarPr
       <div className="p-4">
         <h2 className="text-2xl font-bold mb-6 text-center">DASHBOARD</h2>
         
-        <nav className="space-y-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={`category-btn ${
-                activeCategory === category ? "active" : "inactive"
-              }`}
-              onClick={() => setActiveCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </nav>
+        {/* Only show categories in MENU section */}
+        {activeSection === "MENU" || !activeSection ? (
+          <nav className="space-y-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`category-btn ${
+                  activeCategory === category ? "active" : "inactive"
+                }`}
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </nav>
+        ) : (
+          <div className="text-center text-white opacity-80 mt-4 mb-10">
+            {activeSection === "INV" ? "Inventory Management" : "Sales Analytics"}
+          </div>
+        )}
       </div>
       
       <div className="mt-auto p-4">
