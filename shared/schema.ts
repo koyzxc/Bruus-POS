@@ -89,6 +89,9 @@ export const orderItems = pgTable("order_items", {
   productId: integer("product_id").references(() => products.id).notNull(),
   quantity: integer("quantity").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  // Store product details to preserve them even if product is deleted
+  productName: text("product_name"),
+  size: text("size"),
 });
 
 export const insertOrderItemSchema = createInsertSchema(orderItems);

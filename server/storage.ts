@@ -269,11 +269,17 @@ class DatabaseStorage implements IStorage {
       
       // Insert order items
       for (const item of items) {
+        // Get product details to store in order items (for sales history)
+        const product = await this.getProductById(item.productId);
+        
         await db.insert(orderItems).values({
           orderId: order.id,
           productId: item.productId,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
+          // Store product details for data preservation
+          productName: product?.name || item.name || 'Unknown Product',
+          size: product?.size || item.size || 'M'
         });
         
         // Update inventory based on product ingredients
@@ -297,24 +303,27 @@ class DatabaseStorage implements IStorage {
       const order = orderResult[0];
       
       // Get the order items with product details
+      // Using LEFT JOIN to handle deleted products
       const orderItemsResult = await db.select({
         id: orderItems.id,
         orderId: orderItems.orderId,
         productId: orderItems.productId,
         quantity: orderItems.quantity,
         price: orderItems.price,
+        productName: orderItems.productName,
+        productSize: orderItems.size,
         product: {
           id: products.id,
-          name: products.name,
-          price: products.price,
-          imageUrl: products.imageUrl,
+          name: sql`COALESCE(${products.name}, ${orderItems.productName}, 'Deleted Product')`,
+          price: sql`COALESCE(${products.price}, ${orderItems.price})`,
+          imageUrl: products.imageUrl || '/placeholder.png',
           categoryId: products.categoryId,
-          createdAt: products.createdAt,
-          size: products.size
+          createdAt: products.createdAt || new Date(),
+          size: sql`COALESCE(${products.size}, ${orderItems.size}, 'M')`
         }
       })
       .from(orderItems)
-      .innerJoin(products, eq(orderItems.productId, products.id))
+      .leftJoin(products, eq(orderItems.productId, products.id))
       .where(eq(orderItems.orderId, orderId));
       
       return {
