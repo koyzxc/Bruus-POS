@@ -1,33 +1,25 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { InsertUser } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Coffee } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["owner", "barista"]),
-});
-
 export default function AuthPage() {
-  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const { user, loginMutation, registerMutation } = useAuth();
+  const { user, loginMutation } = useAuth();
   const [, navigate] = useLocation();
 
-  // Create forms
+  // Create form
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -36,22 +28,9 @@ export default function AuthPage() {
     },
   });
 
-  const registerForm = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-      role: "barista",
-    },
-  });
-
-  // Handle form submissions
+  // Handle form submission
   const onLoginSubmit = (values: z.infer<typeof loginSchema>) => {
     loginMutation.mutate(values);
-  };
-
-  const onRegisterSubmit = (values: z.infer<typeof registerSchema>) => {
-    registerMutation.mutate(values as InsertUser);
   };
 
   // Redirect if user is already logged in
@@ -62,63 +41,68 @@ export default function AuthPage() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="p-8 text-center">
-          <div className="mb-6">
-            <div className="bg-black rounded-t-full inline-block px-12 pt-8 pb-2">
-              <h1 className="text-4xl font-serif font-bold text-white">Bruus</h1>
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left side with login form */}
+      <div className="flex items-center justify-center p-6 md:w-1/2 bg-white">
+        <Card className="w-full max-w-md border-0 shadow-xl">
+          <CardHeader className="text-center">
+            <div className="flex flex-col items-center mb-6">
+              <div className="bg-black rounded-t-full px-12 pt-6 pb-2">
+                <h1 className="text-4xl font-serif font-bold text-white">Bruus</h1>
+              </div>
+              <div className="mt-2">
+                <h2 className="text-2xl font-bold">By SidePocket.</h2>
+              </div>
             </div>
-            <div className="mt-2">
-              <h2 className="text-2xl font-bold">By SidePocket.</h2>
-            </div>
-          </div>
-
-          <div className="bg-[#FFE6C7] rounded-xl p-4 mb-8">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register")}>
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="register">Register</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login">
-                <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                    <FormField
-                      control={loginForm.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-center font-medium">Username</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={loginForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-center font-medium">Password</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="password"
-                              {...field}
-                              className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
+            <CardTitle className="text-2xl text-center font-semibold text-[#F15A29]">Welcome Back</CardTitle>
+            <CardDescription className="text-center">
+              Sign in to your account to continue
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-[#FFE6C7] rounded-xl p-5">
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Username</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
+                            placeholder="Enter your username"
+                            autoComplete="username"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            {...field}
+                            className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
+                            placeholder="Enter your password"
+                            autoComplete="current-password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="pt-2">
                     <Button
                       type="submit"
                       className="w-full bg-[#F15A29] hover:bg-[#D84A19] text-white py-2 rounded transition duration-300 font-medium"
@@ -133,95 +117,34 @@ export default function AuthPage() {
                         "Sign In"
                       )}
                     </Button>
-                  </form>
-                </Form>
-              </TabsContent>
-              
-              <TabsContent value="register">
-                <Form {...registerForm}>
-                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                    <FormField
-                      control={registerForm.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-center font-medium">Username</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={registerForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-center font-medium">Password</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="password"
-                              {...field}
-                              className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={registerForm.control}
-                      name="role"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-center font-medium">Role</FormLabel>
-                          <FormControl>
-                            <select
-                              {...field}
-                              className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
-                            >
-                              <option value="owner">Owner</option>
-                              <option value="barista">Barista</option>
-                            </select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <Button
-                      type="submit"
-                      className="w-full bg-[#F15A29] hover:bg-[#D84A19] text-white py-2 rounded transition duration-300 font-medium"
-                      disabled={registerMutation.isPending}
-                    >
-                      {registerMutation.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Registering...
-                        </>
-                      ) : (
-                        "Register"
-                      )}
-                    </Button>
-                  </form>
-                </Form>
-              </TabsContent>
-            </Tabs>
-          </div>
+                  </div>
+                  
+                  <div className="text-center text-sm text-gray-600 mt-4">
+                    <p className="font-medium">Default Accounts:</p>
+                    <p>Username: <span className="font-semibold">owner</span> / Password: <span className="font-semibold">password123</span></p>
+                    <p>Username: <span className="font-semibold">barista</span> / Password: <span className="font-semibold">password123</span></p>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Right side with hero section */}
+      <div className="hidden md:flex md:w-1/2 bg-[#804000] text-white">
+        <div className="p-12 flex flex-col justify-center items-center text-center">
+          <Coffee size={80} strokeWidth={1.5} className="mb-6" />
+          <h2 className="text-4xl font-bold mb-4">Bruus POS System</h2>
+          <p className="text-xl mb-6">Unified POS and Inventory Platform with Automated Alerts</p>
+          <ul className="text-left space-y-4 list-disc pl-5">
+            <li>Manage inventory with real-time tracking</li>
+            <li>Process coffee orders quickly</li>
+            <li>View sales data and analytics</li>
+            <li>Receive alerts for low stock items</li>
+            <li>Role-based access control</li>
+          </ul>
         </div>
-        
-        {/* Coffee beans image at the bottom */}
-        <img 
-          src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-          alt="Coffee beans" 
-          className="w-full h-32 object-cover"
-        />
       </div>
     </div>
   );
