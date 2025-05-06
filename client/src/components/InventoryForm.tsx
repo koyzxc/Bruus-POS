@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Inventory } from "@shared/schema";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -50,6 +51,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface InventoryFormProps {
   isOpen: boolean;
   onClose: () => void;
+  inventoryItem?: Inventory; // Optional for editing
 }
 
 const unitOptions = [

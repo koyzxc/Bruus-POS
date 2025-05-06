@@ -47,9 +47,9 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
         )}
       </div>
       
-      <div className="mt-auto p-4">
+      <div className="fixed bottom-0 left-0 p-4 w-64">
         <button
-          className="w-full py-3 bg-[#FFE6C7] text-[#333333] rounded font-medium hover:bg-[#F5D7B5] transition duration-300"
+          className="w-full py-2 bg-[#FFE6C7] text-[#333333] rounded font-medium hover:bg-[#F5D7B5] transition duration-300"
           onClick={handleSignOut}
         >
           SIGN OUT
