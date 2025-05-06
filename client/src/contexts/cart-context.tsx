@@ -51,14 +51,17 @@ function OrderCompletionModal({
   onConfirmPayment,
   isProcessing,
 }: OrderCompletionModalProps) {
-  const [amountPaid, setAmountPaid] = useState<string>(total.toString());
+  const [amountPaid, setAmountPaid] = useState<string>("");
   const change = Math.max(0, parseFloat(amountPaid || "0") - total);
   const isValid = !isNaN(parseFloat(amountPaid)) && parseFloat(amountPaid) >= total;
   
-  // Reset amount when dialog opens
+  // Reset amount when dialog opens or total changes
   React.useEffect(() => {
     if (isOpen) {
       setAmountPaid(total.toString());
+    } else {
+      // Clear the input when dialog closes
+      setAmountPaid("");
     }
   }, [isOpen, total]);
 
