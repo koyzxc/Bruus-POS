@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
 import { db } from "@db";
-import { products, insertProductSchema } from "@shared/schema";
+import { products, insertProductSchema, inventory, insertInventorySchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -192,6 +192,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Failed to fetch low stock items" });
+    }
+  });
+  
+  // Create inventory item
+  app.post("/api/inventory", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to add inventory items" });
+    }
+    
+    // Allow both owners and baristas to manage inventory
+    if (req.user.role !== "owner" && req.user.role !== "barista") {
+      return res.status(403).json({ message: "You don't have permission to manage inventory" });
+    }
+    
+    try {
+      const inventoryData = {
+        ...req.body,
+        currentStock: req.body.currentStock,
+        minimumThreshold: req.body.minimumThreshold,
+        unit: req.body.unit
+      };
+      
+      // Validate inventory data
+      const validationResult = insertInventorySchema.safeParse(inventoryData);
+      if (!validationResult.success) {
+        return res.status(400).json({
+          message: "Invalid inventory data",
+          errors: validationResult.error.errors
+        });
+      }
+      
+      const newItem = await db.insert(inventory).values(inventoryData).returning();
+      res.status(201).json(newItem[0]);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to create inventory item" });
     }
   });
   
