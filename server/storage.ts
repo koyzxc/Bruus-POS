@@ -157,28 +157,41 @@ class DatabaseStorage implements IStorage {
   
   async updateInventoryForOrder(productId: number, quantity: number): Promise<void> {
     try {
+      console.log(`Updating inventory for product ID ${productId}, quantity ${quantity}`);
+      
       // Get the product ingredients
       const ingredients = await this.getProductIngredients(productId);
+      console.log(`Found ${ingredients.length} ingredients for product ID ${productId}`);
       
       // If no ingredients defined, use default fallback behavior
       if (ingredients.length === 0) {
+        console.log("No ingredients defined, using default fallback behavior");
+        
         // Default fallback: reduce coffee beans and cups
         const coffeeBeansInventory = await db.select().from(inventory).where(eq(inventory.name, "COFFEE BEANS"));
         const cupsInventory = await db.select().from(inventory).where(eq(inventory.name, "CUPS"));
         
         if (coffeeBeansInventory[0]) {
+          const currentStock = Number(coffeeBeansInventory[0].currentStock);
+          const newStock = (currentStock - (0.05 * quantity)).toFixed(2);
+          console.log(`Reducing COFFEE BEANS from ${currentStock} to ${newStock}`);
+          
           await db.update(inventory)
             .set({
-              currentStock: Number(coffeeBeansInventory[0].currentStock) - (0.05 * quantity),
+              currentStock: String(newStock),
               updatedAt: new Date()
             })
             .where(eq(inventory.id, coffeeBeansInventory[0].id));
         }
         
         if (cupsInventory[0]) {
+          const currentStock = Number(cupsInventory[0].currentStock);
+          const newStock = (currentStock - quantity).toFixed(2);
+          console.log(`Reducing CUPS from ${currentStock} to ${newStock}`);
+          
           await db.update(inventory)
             .set({
-              currentStock: Number(cupsInventory[0].currentStock) - quantity,
+              currentStock: String(newStock),
               updatedAt: new Date()
             })
             .where(eq(inventory.id, cupsInventory[0].id));
@@ -192,9 +205,13 @@ class DatabaseStorage implements IStorage {
         const inventoryItem = await db.select().from(inventory).where(eq(inventory.id, ingredient.inventoryId));
         
         if (inventoryItem[0]) {
+          const currentStock = Number(inventoryItem[0].currentStock);
+          const newStock = (currentStock - totalQuantityUsed).toFixed(2);
+          console.log(`Reducing ${ingredient.inventoryName} from ${currentStock} to ${newStock}`);
+          
           await db.update(inventory)
             .set({
-              currentStock: Number(inventoryItem[0].currentStock) - totalQuantityUsed,
+              currentStock: String(newStock),
               updatedAt: new Date()
             })
             .where(eq(inventory.id, ingredient.inventoryId));
@@ -256,27 +273,19 @@ class DatabaseStorage implements IStorage {
         product: {
           id: products.id,
           name: products.name,
+          price: products.price,
           imageUrl: products.imageUrl,
-          categoryId: products.categoryId
+          categoryId: products.categoryId,
+          createdAt: products.createdAt
         }
       })
       .from(orderItems)
       .innerJoin(products, eq(orderItems.productId, products.id))
       .where(eq(orderItems.orderId, orderId));
       
-      // Map the items to the expected format
-      const items = orderItemsResult.map(item => ({
-        id: item.id,
-        orderId: item.orderId,
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-        product: item.product
-      }));
-      
       return {
         order,
-        items,
+        items: orderItemsResult as any, // Type casting to resolve type mismatch
         amountPaid: Number(order.amountPaid || 0),
         change: Number(order.change || 0)
       };
