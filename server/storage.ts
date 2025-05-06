@@ -299,18 +299,31 @@ class DatabaseStorage implements IStorage {
   }
   
   // Sales methods
-  async getSalesData(): Promise<any[]> {
+  async getSalesData(fromDate?: Date, toDate?: Date): Promise<any[]> {
     try {
-      // Get all order items joined with products
-      const orderRecords = await db.select({
+      // Build the query with date filter if provided
+      let query = db.select({
         productId: products.id,
         productName: products.name,
         price: products.price,
         size: products.size,
-        quantity: orderItems.quantity
+        quantity: orderItems.quantity,
+        createdAt: orders.createdAt
       })
       .from(orderItems)
-      .innerJoin(products, eq(orderItems.productId, products.id));
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .innerJoin(orders, eq(orderItems.orderId, orders.id));
+      
+      // Add date filtering if provided
+      if (fromDate) {
+        query = query.where(gte(orders.createdAt, fromDate));
+      }
+      
+      if (toDate) {
+        query = query.where(lte(orders.createdAt, toDate));
+      }
+      
+      const orderRecords = await query;
       
       // Aggregate by product
       const salesMap = new Map();

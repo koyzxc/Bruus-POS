@@ -461,10 +461,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const salesData = await storage.getSalesData();
+      const fromDate = req.query.from ? new Date(req.query.from as string) : undefined;
+      const toDate = req.query.to ? new Date(req.query.to as string) : undefined;
+      
+      console.log(`Fetching sales data with date range: ${fromDate?.toISOString()} to ${toDate?.toISOString()}`);
+      
+      const salesData = await storage.getSalesData(fromDate, toDate);
       res.json(salesData);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching sales data:", error);
       res.status(500).json({ message: "Failed to fetch sales data" });
     }
   });
