@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import ProductForm from "@/components/ProductForm";
 import InventoryForm from "@/components/InventoryForm";
+import { useQuery } from "@tanstack/react-query";
+import { Inventory } from "@shared/schema";
+import { LowStockAlert } from "@/components/LowStockAlert";
 
 type SidebarProps = {
   activeCategory: string;
@@ -17,6 +20,12 @@ type SidebarProps = {
 export default function Sidebar({ activeCategory, setActiveCategory, activeSection, onOpenInventoryForm }: SidebarProps) {
   const { user, logoutMutation } = useAuth();
   const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false);
+  
+  // Fetch low stock items for alerts
+  const { data: lowStockItems } = useQuery<Inventory[]>({
+    queryKey: ["/api/inventory/low-stock"],
+    enabled: true,
+  });
   
   const handleSignOut = () => {
     logoutMutation.mutate();
@@ -76,6 +85,15 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
       </div>
       
       <div className="fixed bottom-0 left-0 p-4 w-64 md:w-72">
+        {/* Low Stock Alerts above sign out button */}
+        {lowStockItems && lowStockItems.length > 0 && (
+          <div className="mb-4 max-h-[140px] overflow-y-auto">
+            {lowStockItems.map((item) => (
+              <LowStockAlert key={item.id} item={item} />
+            ))}
+          </div>
+        )}
+        
         <button
           className="w-full py-3 bg-[#FFE6C7] text-[#333333] rounded font-medium hover:bg-[#F5D7B5] transition duration-300 text-base"
           onClick={handleSignOut}
