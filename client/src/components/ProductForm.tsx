@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -32,7 +32,14 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
+
+// Ingredient schema
+const ingredientSchema = z.object({
+  inventoryId: z.string().min(1, "Ingredient is required"),
+  quantityUsed: z.string().min(1, "Quantity is required"),
+});
 
 // Form schema
 const formSchema = z.object({
@@ -40,6 +47,7 @@ const formSchema = z.object({
   price: z.string().min(1, "Price is required"),
   categoryId: z.string().min(1, "Category is required"),
   image: z.instanceof(FileList).optional(),
+  ingredients: z.array(ingredientSchema).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -144,14 +152,46 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     },
   });
   
+  // Fetch product ingredients if editing
+  const { data: productIngredients, isLoading: ingredientsLoading } = useQuery({
+    queryKey: ["/api/products", product?.id, "ingredients"],
+    queryFn: async () => {
+      if (!product?.id) return [];
+      const res = await fetch(`/api/products/${product.id}/ingredients`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!product?.id, // Only run if product id exists
+  });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: product?.name || "",
       price: product?.price?.toString() || "",
       categoryId: product?.categoryId?.toString() || "",
+      ingredients: [],
     },
   });
+  
+  // Field array for ingredients
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "ingredients",
+  });
+  
+  // Update form with ingredients data when available
+  useEffect(() => {
+    if (productIngredients?.length > 0) {
+      // Reset ingredients field with loaded data
+      productIngredients.forEach((ingredient: any) => {
+        append({
+          inventoryId: ingredient.inventoryId.toString(),
+          quantityUsed: ingredient.quantityUsed.toString(),
+        });
+      });
+    }
+  }, [productIngredients, append]);
   
   // Handle image change
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,6 +218,13 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     } else if (product?.imageUrl && !imagePreview?.startsWith("blob:")) {
       // Keep existing image URL if no new image is selected
       formData.append("imageUrl", product.imageUrl);
+    }
+    
+    // Add ingredients if provided
+    if (values.ingredients && values.ingredients.length > 0) {
+      // Convert ingredients to JSON string
+      const ingredientsJson = JSON.stringify(values.ingredients);
+      formData.append("ingredients", ingredientsJson);
     }
     
     if (product?.id) {
@@ -312,6 +359,105 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
                   </FormItem>
                 )}
               />
+              
+              {/* Ingredients Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-md font-medium">Ingredients</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => append({ inventoryId: "", quantityUsed: "" })}
+                    className="flex items-center gap-1"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    Add Ingredient
+                  </Button>
+                </div>
+                
+                {fields.length === 0 && (
+                  <p className="text-sm text-gray-500 italic">No ingredients added yet</p>
+                )}
+                
+                {fields.map((field, index) => (
+                  <Card key={field.id} className="shadow-sm">
+                    <CardContent className="pt-4 pb-2">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                        {/* Ingredient Select */}
+                        <div className="sm:col-span-6">
+                          <FormField
+                            control={form.control}
+                            name={`ingredients.${index}.inventoryId`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Ingredient</FormLabel>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select ingredient" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {inventoryItems?.map((item: any) => (
+                                      <SelectItem
+                                        key={item.id}
+                                        value={item.id.toString()}
+                                      >
+                                        {item.name} ({item.unit})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        {/* Quantity Field */}
+                        <div className="sm:col-span-4">
+                          <FormField
+                            control={form.control}
+                            name={`ingredients.${index}.quantityUsed`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Quantity</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    placeholder="Amount"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        {/* Delete button */}
+                        <div className="sm:col-span-2 flex items-end">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="mb-2 h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => remove(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
               
               <DialogFooter className="pt-4">
                 <Button

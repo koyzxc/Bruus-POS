@@ -28,8 +28,7 @@ export default function DashboardPage() {
     </div>
   );
   
-  // Check if user is authorized to manage products
-  const canManageProducts = user && (user.role === "owner" || user.role === "barista");
+  // We'll move the product management to the inventory page
   
   return (
     <MainLayout
