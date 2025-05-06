@@ -169,22 +169,8 @@ class DatabaseStorage implements IStorage {
       if (ingredients.length === 0) {
         console.log("No ingredients defined, using default fallback behavior");
         
-        // Default fallback: reduce coffee beans and cups
-        const coffeeBeansInventory = await db.select().from(inventory).where(eq(inventory.name, "COFFEE BEANS"));
+        // Default fallback: reduce cups (one cup per order)
         const cupsInventory = await db.select().from(inventory).where(eq(inventory.name, "CUPS"));
-        
-        if (coffeeBeansInventory[0]) {
-          const currentStock = Number(coffeeBeansInventory[0].currentStock);
-          const newStock = (currentStock - (0.05 * quantity)).toFixed(2);
-          console.log(`Reducing COFFEE BEANS from ${currentStock} to ${newStock}`);
-          
-          await db.update(inventory)
-            .set({
-              currentStock: String(newStock),
-              updatedAt: new Date()
-            })
-            .where(eq(inventory.id, coffeeBeansInventory[0].id));
-        }
         
         if (cupsInventory[0]) {
           const currentStock = Number(cupsInventory[0].currentStock);
@@ -209,7 +195,7 @@ class DatabaseStorage implements IStorage {
         if (inventoryItem[0]) {
           const currentStock = Number(inventoryItem[0].currentStock);
           const newStock = (currentStock - totalQuantityUsed).toFixed(2);
-          console.log(`Reducing ${ingredient.inventoryName} from ${currentStock} to ${newStock}`);
+          console.log(`Reducing ${ingredient.inventoryName} from ${currentStock} to ${newStock} (used ${totalQuantityUsed} ${inventoryItem[0].unit})`);
           
           await db.update(inventory)
             .set({
