@@ -125,14 +125,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const product = await storage.createProduct(productValidationData);
       
       // Add ingredients if provided
-      if (req.body.ingredients && Array.isArray(req.body.ingredients)) {
-        await storage.addProductIngredients(
-          product.id, 
-          req.body.ingredients.map((ing: any) => ({
-            inventoryId: parseInt(ing.inventoryId),
-            quantityUsed: parseFloat(ing.quantityUsed)
-          }))
-        );
+      if (req.body.ingredients) {
+        try {
+          // Parse ingredients if it's a JSON string
+          const ingredients = typeof req.body.ingredients === 'string' 
+            ? JSON.parse(req.body.ingredients) 
+            : req.body.ingredients;
+
+          if (Array.isArray(ingredients)) {
+            await storage.addProductIngredients(
+              product.id, 
+              ingredients.map((ing: any) => ({
+                inventoryId: parseInt(ing.inventoryId),
+                quantityUsed: parseFloat(ing.quantityUsed)
+              }))
+            );
+          }
+        } catch (error) {
+          console.error("Error processing ingredients:", error);
+        }
       }
       
       res.status(201).json(product);
@@ -176,14 +187,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedProduct = await storage.updateProduct(productId, productData);
       
       // Update ingredients if provided
-      if (req.body.ingredients && Array.isArray(req.body.ingredients)) {
-        await storage.updateProductIngredients(
-          productId, 
-          req.body.ingredients.map((ing: any) => ({
-            inventoryId: parseInt(ing.inventoryId),
-            quantityUsed: parseFloat(ing.quantityUsed)
-          }))
-        );
+      if (req.body.ingredients) {
+        try {
+          // Parse ingredients if it's a JSON string
+          const ingredients = typeof req.body.ingredients === 'string' 
+            ? JSON.parse(req.body.ingredients) 
+            : req.body.ingredients;
+            
+          if (Array.isArray(ingredients)) {
+            await storage.updateProductIngredients(
+              productId, 
+              ingredients.map((ing: any) => ({
+                inventoryId: parseInt(ing.inventoryId),
+                quantityUsed: parseFloat(ing.quantityUsed)
+              }))
+            );
+          }
+        } catch (error) {
+          console.error("Error processing ingredients:", error);
+        }
       }
       
       res.json(updatedProduct);
