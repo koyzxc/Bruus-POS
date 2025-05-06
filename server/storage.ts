@@ -89,7 +89,8 @@ class DatabaseStorage implements IStorage {
       name: productData.name,
       price: productData.price,
       imageUrl: productData.imageUrl,
-      categoryId: productData.categoryId
+      categoryId: productData.categoryId,
+      size: productData.size || "M"
     }).returning();
     
     return product;
@@ -101,7 +102,8 @@ class DatabaseStorage implements IStorage {
         name: productData.name,
         price: productData.price,
         imageUrl: productData.imageUrl,
-        categoryId: productData.categoryId
+        categoryId: productData.categoryId,
+        size: productData.size || "M"
       })
       .where(eq(products.id, id))
       .returning();
@@ -276,7 +278,8 @@ class DatabaseStorage implements IStorage {
           price: products.price,
           imageUrl: products.imageUrl,
           categoryId: products.categoryId,
-          createdAt: products.createdAt
+          createdAt: products.createdAt,
+          size: products.size
         }
       })
       .from(orderItems)
@@ -303,6 +306,7 @@ class DatabaseStorage implements IStorage {
         productId: products.id,
         productName: products.name,
         price: products.price,
+        size: products.size,
         quantity: orderItems.quantity
       })
       .from(orderItems)
@@ -312,13 +316,15 @@ class DatabaseStorage implements IStorage {
       const salesMap = new Map();
       
       for (const record of orderRecords) {
-        const key = record.productId;
+        // Create a unique key from product ID and size
+        const key = `${record.productId}-${record.size || "M"}`;
         if (!salesMap.has(key)) {
           salesMap.set(key, {
             id: record.productId,
             productId: record.productId,
             productName: record.productName,
             price: Number(record.price),
+            size: record.size || "M",
             volume: 0,
             totalSales: 0
           });
