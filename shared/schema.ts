@@ -44,15 +44,6 @@ export const products = pgTable("products", {
 export const insertProductSchema = createInsertSchema(products);
 export type Product = typeof products.$inferSelect;
 
-// Relations for products and categories
-export const categoriesRelations = relations(categories, ({ many }) => ({
-  products: many(products),
-}));
-
-export const productsRelations = relations(products, ({ one }) => ({
-  category: one(categories, { fields: [products.categoryId], references: [categories.id] }),
-}));
-
 // Inventory table
 export const inventory = pgTable("inventory", {
   id: serial("id").primaryKey(),
@@ -66,10 +57,23 @@ export const inventory = pgTable("inventory", {
 export const insertInventorySchema = createInsertSchema(inventory);
 export type Inventory = typeof inventory.$inferSelect;
 
+// Product Ingredients table (connects products to inventory items)
+export const productIngredients = pgTable("product_ingredients", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  inventoryId: integer("inventory_id").references(() => inventory.id).notNull(),
+  quantityUsed: decimal("quantity_used", { precision: 10, scale: 2 }).notNull(),
+});
+
+export const insertProductIngredientSchema = createInsertSchema(productIngredients);
+export type ProductIngredient = typeof productIngredients.$inferSelect;
+
 // Orders table
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }),
+  change: decimal("change", { precision: 10, scale: 2 }),
   userId: integer("user_id").references(() => users.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -88,6 +92,26 @@ export const orderItems = pgTable("order_items", {
 
 export const insertOrderItemSchema = createInsertSchema(orderItems);
 export type OrderItem = typeof orderItems.$inferSelect;
+
+// Relations for products and categories
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  products: many(products),
+}));
+
+export const productsRelations = relations(products, ({ one, many }) => ({
+  category: one(categories, { fields: [products.categoryId], references: [categories.id] }),
+  ingredients: many(productIngredients),
+}));
+
+// Relations for inventory and product ingredients
+export const inventoryRelations = relations(inventory, ({ many }) => ({
+  usedInProducts: many(productIngredients),
+}));
+
+export const productIngredientsRelations = relations(productIngredients, ({ one }) => ({
+  product: one(products, { fields: [productIngredients.productId], references: [products.id] }),
+  ingredient: one(inventory, { fields: [productIngredients.inventoryId], references: [inventory.id] }),
+}));
 
 // Relations for orders and order items
 export const ordersRelations = relations(orders, ({ many, one }) => ({
@@ -108,4 +132,12 @@ export type SalesData = {
   price: number;
   volume: number;
   totalSales: number;
+};
+
+// Order summary type for checkout process
+export type OrderSummary = {
+  order: Order;
+  items: (OrderItem & { product: Product })[];
+  amountPaid: number;
+  change: number;
 };
