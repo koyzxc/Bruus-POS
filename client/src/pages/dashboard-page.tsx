@@ -2,14 +2,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import ProductCard from "@/components/ProductCard";
-import ProductManagement from "@/components/ProductManagement";
 import { Product } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/use-auth";
 
 export default function DashboardPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
-  const { user } = useAuth();
   
   // Fetch products by category
   const { data: products, isLoading } = useQuery<Product[]>({
@@ -28,17 +25,12 @@ export default function DashboardPage() {
     </div>
   );
   
-  // We'll move the product management to the inventory page
-  
   return (
     <MainLayout
       activeCategory={activeCategory}
       setActiveCategory={setActiveCategory}
       activeSection="MENU"
     >
-      {/* Product Management Panel */}
-      {canManageProducts && <ProductManagement />}
-      
       {/* Products Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {isLoading

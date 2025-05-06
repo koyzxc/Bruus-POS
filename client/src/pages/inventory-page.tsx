@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
+import ProductManagement from "@/components/ProductManagement";
 import { Inventory } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function InventoryPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
+  const { user } = useAuth();
   
   // Fetch inventory data
   const { data: inventoryItems, isLoading } = useQuery<Inventory[]>({
     queryKey: ["/api/inventory"],
   });
+  
+  // Check if user is authorized to manage products
+  const canManageProducts = user && (user.role === "owner" || user.role === "barista");
   
   return (
     <MainLayout
@@ -19,7 +25,10 @@ export default function InventoryPage() {
       setActiveCategory={setActiveCategory}
       activeSection="INV"
     >
-      <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+      {/* Product Management Panel */}
+      {canManageProducts && <ProductManagement />}
+      
+      <div className="bg-white rounded-xl overflow-hidden shadow-lg mt-6">
         <Table>
           <TableHeader>
             <TableRow>
