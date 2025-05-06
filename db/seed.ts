@@ -23,7 +23,7 @@ async function seed() {
       await db.insert(users).values([
         {
           username: "owner",
-          password: await hashPassword("password123"),
+          password: await hashPassword("password"),
           role: "owner",
         },
         {

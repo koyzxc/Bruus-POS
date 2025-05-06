@@ -45,6 +45,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve static files from the 'public' directory
   app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
+  // Categories API
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await db.query.categories.findMany({
+        orderBy: (categories, { asc }) => [asc(categories.displayOrder)]
+      });
+      res.json(categories);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
   // Products API
   app.get("/api/products/:category?", async (req, res) => {
     try {
@@ -63,8 +76,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "You must be logged in to create a product" });
     }
     
-    if (req.user.role !== "owner") {
-      return res.status(403).json({ message: "Only owners can create products" });
+    // Allow both owners and baristas to create products
+    if (req.user.role !== "owner" && req.user.role !== "barista") {
+      return res.status(403).json({ message: "You don't have permission to create products" });
     }
     
     try {
@@ -115,8 +129,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "You must be logged in to update a product" });
     }
     
-    if (req.user.role !== "owner") {
-      return res.status(403).json({ message: "Only owners can update products" });
+    // Allow both owners and baristas to update products
+    if (req.user.role !== "owner" && req.user.role !== "barista") {
+      return res.status(403).json({ message: "You don't have permission to update products" });
     }
     
     try {
