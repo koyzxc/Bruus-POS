@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import ProductManagement from "@/components/ProductManagement";
 import InventoryForm from "@/components/InventoryForm";
@@ -8,13 +8,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, MoreHorizontal } from "lucide-react";
+import { PlusCircle, Edit, Trash2 } from "lucide-react";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function InventoryPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
   const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false);
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<Inventory | undefined>(undefined);
+  const [inventoryToDelete, setInventoryToDelete] = useState<Inventory | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
   
   // Fetch inventory data
   const { data: inventoryItems, isLoading } = useQuery<Inventory[]>({
@@ -32,6 +47,45 @@ export default function InventoryPage() {
   const handleOpenInventoryForm = () => {
     setSelectedInventoryItem(undefined);
     setIsInventoryFormOpen(true);
+  };
+  
+  // Delete mutation for inventory items (owner only)
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/inventory/${id}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete inventory item");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
+      toast({
+        title: "Success",
+        description: "Inventory item deleted successfully",
+      });
+      setIsDeleteDialogOpen(false);
+      setInventoryToDelete(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const handleDeleteInventory = (item: Inventory) => {
+    setInventoryToDelete(item);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = () => {
+    if (inventoryToDelete) {
+      deleteMutation.mutate(inventoryToDelete.id);
+    }
   };
   
   return (

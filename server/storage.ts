@@ -4,7 +4,7 @@ import {
   productIngredients, OrderSummary, Product 
 } from "@shared/schema";
 import { User, InsertUser } from "@shared/schema";
-import { eq, and, gt, lte, inArray, sql } from "drizzle-orm";
+import { eq, and, gt, gte, lte, inArray, sql } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@db";
@@ -38,7 +38,7 @@ export interface IStorage {
   getOrderDetails: (orderId: number) => Promise<OrderSummary | undefined>;
   
   // Sales methods
-  getSalesData: () => Promise<any[]>;
+  getSalesData: (fromDate?: Date, toDate?: Date) => Promise<any[]>;
   
   // Session store
   sessionStore: session.Store;
@@ -301,8 +301,19 @@ class DatabaseStorage implements IStorage {
   // Sales methods
   async getSalesData(fromDate?: Date, toDate?: Date): Promise<any[]> {
     try {
-      // Build the query with date filter if provided
-      let query = db.select({
+      // Build query conditions
+      const conditions = [];
+      
+      if (fromDate) {
+        conditions.push(gte(orders.createdAt, fromDate));
+      }
+      
+      if (toDate) {
+        conditions.push(lte(orders.createdAt, toDate));
+      }
+      
+      // Build the query with date filters
+      const query = db.select({
         productId: products.id,
         productName: products.name,
         price: products.price,
@@ -314,16 +325,10 @@ class DatabaseStorage implements IStorage {
       .innerJoin(products, eq(orderItems.productId, products.id))
       .innerJoin(orders, eq(orderItems.orderId, orders.id));
       
-      // Add date filtering if provided
-      if (fromDate) {
-        query = query.where(gte(orders.createdAt, fromDate));
-      }
-      
-      if (toDate) {
-        query = query.where(lte(orders.createdAt, toDate));
-      }
-      
-      const orderRecords = await query;
+      // Apply conditions if any
+      const orderRecords = conditions.length > 0
+        ? await query.where(and(...conditions))
+        : await query;
       
       // Aggregate by product
       const salesMap = new Map();
