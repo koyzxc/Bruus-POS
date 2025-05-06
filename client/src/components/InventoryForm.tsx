@@ -55,13 +55,10 @@ interface InventoryFormProps {
 const unitOptions = [
   { value: "ml", label: "Milliliter (ml)" },
   { value: "oz", label: "Ounce (oz)" },
-  { value: "pc", label: "Piece (pc)" },
   { value: "pcs", label: "Pieces (pcs)" },
   { value: "cup", label: "Cup" },
-  { value: "cups", label: "Cups" },
   { value: "kg", label: "Kilogram (kg)" },
   { value: "g", label: "Gram (g)" },
-  { value: "lb", label: "Pound (lb)" },
   { value: "box", label: "Box" },
 ];
 

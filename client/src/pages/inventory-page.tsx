@@ -76,13 +76,6 @@ export default function InventoryPage() {
                 ))
             ) : (
               inventoryItems?.map((item) => {
-                const getUnit = (name: string) => {
-                  if (["MILK", "WHIP CREAM"].includes(name)) return "BOX";
-                  if (["JAVA CHIP", "SUGAR", "COFFEE BEANS"].includes(name)) return "KL";
-                  if (["CUPS"].includes(name)) return "PCS";
-                  return "UNIT";
-                };
-                
                 return (
                   <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6]">
                     <TableCell className="py-4 px-6">{item.name}</TableCell>
@@ -90,7 +83,7 @@ export default function InventoryPage() {
                       <span className={`font-medium ${
                         item.currentStock <= item.minimumThreshold ? "text-red-500" : ""
                       }`}>
-                        {item.currentStock} {getUnit(item.name)}
+                        {item.currentStock} {item.unit || ""}
                       </span>
                     </TableCell>
                   </TableRow>
