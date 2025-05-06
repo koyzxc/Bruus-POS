@@ -31,10 +31,10 @@ export default function DashboardPage() {
       setActiveCategory={setActiveCategory}
       activeSection="MENU"
     >
-      {/* Products Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      {/* Products Grid - Optimized for iPad */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {isLoading
-          ? Array(6)
+          ? Array(8)
               .fill(null)
               .map((_, i) => <ProductSkeleton key={i} />)
           : products?.map((product) => (

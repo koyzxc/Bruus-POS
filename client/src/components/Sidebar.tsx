@@ -26,7 +26,7 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
   const canManageProducts = user && (user.role === "owner" || user.role === "barista");
   
   return (
-    <div className="bg-[#F15A29] text-white md:w-64 flex-shrink-0">
+    <div className="bg-[#F15A29] text-white w-64 md:w-72 flex-shrink-0">
       <div className="p-4 text-center border-b border-[#FF7A47]">
         <Logo />
       </div>
@@ -73,9 +73,9 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
         )}
       </div>
       
-      <div className="fixed bottom-0 left-0 p-4 w-64">
+      <div className="fixed bottom-0 left-0 p-4 w-64 md:w-72">
         <button
-          className="w-full py-2 bg-[#FFE6C7] text-[#333333] rounded font-medium hover:bg-[#F5D7B5] transition duration-300"
+          className="w-full py-3 bg-[#FFE6C7] text-[#333333] rounded font-medium hover:bg-[#F5D7B5] transition duration-300 text-base"
           onClick={handleSignOut}
         >
           SIGN OUT
