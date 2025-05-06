@@ -54,6 +54,13 @@ function OrderCompletionModal({
   const [amountPaid, setAmountPaid] = useState<string>(total.toString());
   const change = Math.max(0, parseFloat(amountPaid || "0") - total);
   const isValid = !isNaN(parseFloat(amountPaid)) && parseFloat(amountPaid) >= total;
+  
+  // Reset amount when dialog opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setAmountPaid(total.toString());
+    }
+  }, [isOpen, total]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
