@@ -62,7 +62,7 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
                 
                 <Button
                   onClick={onOpenInventoryForm}
-                  className="w-full bg-[#FFE6C7] text-[#333333] hover:bg-[#F5D7B5] flex items-center justify-center gap-2"
+                  className="w-full bg-[#F15A29] hover:bg-[#D84A19] text-white flex items-center justify-center gap-2"
                 >
                   <PlusCircle className="h-4 w-4" />
                   Add New Ingredient
