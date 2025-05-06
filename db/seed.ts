@@ -1,7 +1,16 @@
 import { db } from "./index";
-import { users, categories, products, inventory } from "@shared/schema";
+import { 
+  users, 
+  categories, 
+  inventory, 
+  products, 
+  productIngredients, 
+  orders, 
+  orderItems 
+} from "@shared/schema";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
+import { eq } from "drizzle-orm";
 
 const scryptAsync = promisify(scrypt);
 
@@ -11,241 +20,399 @@ async function hashPassword(password: string) {
   return `${buf.toString("hex")}.${salt}`;
 }
 
-async function seed() {
-  try {
-    console.log("Starting database seed...");
+async function deleteAllOrderData() {
+  console.log("Deleting all order items...");
+  await db.delete(orderItems);
+  
+  console.log("Deleting all orders...");
+  await db.delete(orders);
+  
+  console.log("All order data deleted");
+}
 
-    // Check if we already have users
-    const existingUsers = await db.select().from(users);
-    if (existingUsers.length === 0) {
-      console.log("Seeding users...");
-      // Create default users (owner and barista)
-      await db.insert(users).values([
-        {
-          username: "owner",
-          password: await hashPassword("password"),
-          role: "owner",
-        },
-        {
-          username: "barista",
-          password: await hashPassword("password123"),
-          role: "barista",
-        },
-      ]);
+async function deleteAllProductData() {
+  console.log("Deleting all product ingredients...");
+  await db.delete(productIngredients);
+  
+  console.log("Deleting all products...");
+  await db.delete(products);
+  
+  console.log("All product data deleted");
+}
+
+async function deleteAllInventory() {
+  console.log("Deleting all inventory items...");
+  await db.delete(inventory);
+  console.log("All inventory items deleted");
+}
+
+async function createInventoryItems() {
+  console.log("Creating inventory items...");
+  
+  // Coffee ingredients
+  await db.insert(inventory).values([
+    { name: "Coffee Beans", currentStock: "2000.00", minimumThreshold: "500.00", unit: "g" },
+    { name: "Milk", currentStock: "5000.00", minimumThreshold: "1000.00", unit: "ml" },
+    { name: "Sugar", currentStock: "3000.00", minimumThreshold: "500.00", unit: "g" },
+    { name: "Cups", currentStock: "100", minimumThreshold: "20", unit: "pcs" },
+    { name: "Water", currentStock: "10000.00", minimumThreshold: "2000.00", unit: "ml" }
+  ]);
+  
+  // Coffee flavorings
+  await db.insert(inventory).values([
+    { name: "Chocolate Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
+    { name: "Caramel Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
+    { name: "Vanilla Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
+    { name: "Whipped Cream", currentStock: "1000.00", minimumThreshold: "200.00", unit: "g" }
+  ]);
+  
+  // Shake ingredients
+  await db.insert(inventory).values([
+    { name: "Ice", currentStock: "5000.00", minimumThreshold: "1000.00", unit: "g" },
+    { name: "Chocolate Powder", currentStock: "1000.00", minimumThreshold: "200.00", unit: "g" },
+    { name: "Strawberry Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
+    { name: "Banana", currentStock: "30", minimumThreshold: "10", unit: "pcs" },
+    { name: "Matcha Powder", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" }
+  ]);
+  
+  // Food ingredients
+  await db.insert(inventory).values([
+    { name: "Bread", currentStock: "20", minimumThreshold: "5", unit: "pcs" },
+    { name: "Butter", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" },
+    { name: "Chicken", currentStock: "2000.00", minimumThreshold: "500.00", unit: "g" },
+    { name: "Lettuce", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" },
+    { name: "Tomato", currentStock: "10", minimumThreshold: "3", unit: "pcs" },
+    { name: "Cheese", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" },
+    { name: "Eggs", currentStock: "24", minimumThreshold: "6", unit: "pcs" }
+  ]);
+  
+  // Others
+  await db.insert(inventory).values([
+    { name: "Yakult", currentStock: "24", minimumThreshold: "6", unit: "pcs" },
+    { name: "Bottled Water", currentStock: "36", minimumThreshold: "12", unit: "pcs" },
+    { name: "Juice Concentrate", currentStock: "2000.00", minimumThreshold: "500.00", unit: "ml" }
+  ]);
+  
+  console.log("Inventory items created");
+}
+
+async function createProductsWithIngredients() {
+  console.log("Creating products with ingredients...");
+  
+  // Get category IDs
+  const categoryResults = await db.select().from(categories);
+  const categoryIdMap = new Map();
+  categoryResults.forEach(cat => {
+    categoryIdMap.set(cat.name, cat.id);
+  });
+  
+  // Get inventory item IDs
+  const inventoryResults = await db.select().from(inventory);
+  const inventoryIdMap = new Map();
+  inventoryResults.forEach(item => {
+    inventoryIdMap.set(item.name, item.id);
+  });
+  
+  // Helper function to create a product with ingredients
+  async function createProduct(name: string, price: string, category: string, size: string, imageUrl: string, ingredients: Array<{name: string, quantity: string}>) {
+    const [product] = await db.insert(products).values({
+      name: name,
+      price: price,
+      categoryId: categoryIdMap.get(category),
+      size: size,
+      imageUrl: imageUrl
+    }).returning();
+    
+    // Add ingredients
+    for (const ingredient of ingredients) {
+      const inventoryId = inventoryIdMap.get(ingredient.name);
+      if (inventoryId) {
+        await db.insert(productIngredients).values({
+          productId: product.id,
+          inventoryId: inventoryId,
+          quantityUsed: ingredient.quantity
+        });
+      } else {
+        console.warn(`Ingredient ${ingredient.name} not found in inventory`);
+      }
     }
+    
+    return product;
+  }
+  
+  // Coffee products
+  console.log("Creating coffee products...");
+  
+  // Americano
+  await createProduct(
+    "Americano", "120", "COFFEE", "M",
+    "/uploads/image-1746290296174-253574841.webp",
+    [
+      { name: "Coffee Beans", quantity: "20" },
+      { name: "Water", quantity: "200" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  await createProduct(
+    "Americano", "150", "COFFEE", "L",
+    "/uploads/image-1746290296174-253574841.webp",
+    [
+      { name: "Coffee Beans", quantity: "30" },
+      { name: "Water", quantity: "300" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  // Latte
+  await createProduct(
+    "Latte", "140", "COFFEE", "M",
+    "/uploads/image-1746290312323-935963628.webp",
+    [
+      { name: "Coffee Beans", quantity: "20" },
+      { name: "Milk", quantity: "150" },
+      { name: "Water", quantity: "50" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  await createProduct(
+    "Latte", "170", "COFFEE", "L",
+    "/uploads/image-1746290312323-935963628.webp",
+    [
+      { name: "Coffee Beans", quantity: "30" },
+      { name: "Milk", quantity: "200" },
+      { name: "Water", quantity: "100" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  // Cappuccino
+  await createProduct(
+    "Cappuccino", "140", "COFFEE", "M",
+    "/uploads/image-1746290358432-583255790.webp",
+    [
+      { name: "Coffee Beans", quantity: "20" },
+      { name: "Milk", quantity: "100" },
+      { name: "Water", quantity: "100" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  await createProduct(
+    "Cappuccino", "170", "COFFEE", "L",
+    "/uploads/image-1746290358432-583255790.webp",
+    [
+      { name: "Coffee Beans", quantity: "30" },
+      { name: "Milk", quantity: "150" },
+      { name: "Water", quantity: "150" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  // Mocha
+  await createProduct(
+    "Mocha", "150", "COFFEE", "M",
+    "/uploads/image-1746290378903-793498495.webp",
+    [
+      { name: "Coffee Beans", quantity: "20" },
+      { name: "Milk", quantity: "100" },
+      { name: "Chocolate Syrup", quantity: "30" },
+      { name: "Water", quantity: "50" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  await createProduct(
+    "Mocha", "180", "COFFEE", "L",
+    "/uploads/image-1746290378903-793498495.webp",
+    [
+      { name: "Coffee Beans", quantity: "30" },
+      { name: "Milk", quantity: "150" },
+      { name: "Chocolate Syrup", quantity: "45" },
+      { name: "Water", quantity: "75" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  // Shake products
+  console.log("Creating shake products...");
+  
+  // Chocolate Shake
+  await createProduct(
+    "Chocolate Shake", "150", "SHAKE", "M",
+    "/uploads/image-1746290340862-967622625.webp",
+    [
+      { name: "Chocolate Powder", quantity: "30" },
+      { name: "Milk", quantity: "200" },
+      { name: "Ice", quantity: "100" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  await createProduct(
+    "Chocolate Shake", "180", "SHAKE", "L",
+    "/uploads/image-1746290340862-967622625.webp",
+    [
+      { name: "Chocolate Powder", quantity: "45" },
+      { name: "Milk", quantity: "300" },
+      { name: "Ice", quantity: "150" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  // Matcha Shake
+  await createProduct(
+    "Matcha Shake", "160", "SHAKE", "M",
+    "/uploads/image-1746290423442-680398075.webp",
+    [
+      { name: "Matcha Powder", quantity: "30" },
+      { name: "Milk", quantity: "200" },
+      { name: "Ice", quantity: "100" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  await createProduct(
+    "Matcha Shake", "190", "SHAKE", "L",
+    "/uploads/image-1746290423442-680398075.webp",
+    [
+      { name: "Matcha Powder", quantity: "45" },
+      { name: "Milk", quantity: "300" },
+      { name: "Ice", quantity: "150" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  // Strawberry Shake
+  await createProduct(
+    "Strawberry Shake", "150", "SHAKE", "M",
+    "/uploads/image-1746290440722-238593064.webp",
+    [
+      { name: "Strawberry Syrup", quantity: "30" },
+      { name: "Milk", quantity: "200" },
+      { name: "Ice", quantity: "100" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  await createProduct(
+    "Strawberry Shake", "180", "SHAKE", "L",
+    "/uploads/image-1746290440722-238593064.webp",
+    [
+      { name: "Strawberry Syrup", quantity: "45" },
+      { name: "Milk", quantity: "300" },
+      { name: "Ice", quantity: "150" },
+      { name: "Cups", quantity: "1" }
+    ]
+  );
+  
+  // Food products
+  console.log("Creating food products...");
+  
+  // Sandwich
+  await createProduct(
+    "Chicken Sandwich", "150", "FOOD", "M",
+    "/uploads/image-1746290456052-764177293.webp",
+    [
+      { name: "Bread", quantity: "2" },
+      { name: "Chicken", quantity: "100" },
+      { name: "Lettuce", quantity: "20" },
+      { name: "Tomato", quantity: "0.5" },
+      { name: "Cheese", quantity: "30" }
+    ]
+  );
+  
+  // Omelette
+  await createProduct(
+    "Cheese Omelette", "130", "FOOD", "M",
+    "/uploads/image-1746290478913-435559022.webp",
+    [
+      { name: "Eggs", quantity: "3" },
+      { name: "Cheese", quantity: "50" },
+      { name: "Butter", quantity: "10" }
+    ]
+  );
+  
+  // Others products
+  console.log("Creating other products...");
+  
+  // Yakult
+  await createProduct(
+    "Yakult", "40", "OTHERS", "M",
+    "/uploads/image-1746290499653-553397050.webp",
+    [
+      { name: "Yakult", quantity: "1" }
+    ]
+  );
+  
+  // Bottled Water
+  await createProduct(
+    "Bottled Water", "25", "OTHERS", "M",
+    "/uploads/image-1746290520042-918835649.webp",
+    [
+      { name: "Bottled Water", quantity: "1" }
+    ]
+  );
+  
+  console.log("All products created with ingredients");
+}
 
-    // Check if we already have categories
+async function seed() {
+  console.log("Starting database seed...");
+
+  try {
+    // Categories
+    console.log("Seeding categories...");
     const existingCategories = await db.select().from(categories);
+    
     if (existingCategories.length === 0) {
-      console.log("Seeding categories...");
-      // Create product categories
       await db.insert(categories).values([
         { name: "COFFEE", displayOrder: 1 },
         { name: "SHAKE", displayOrder: 2 },
         { name: "FOOD", displayOrder: 3 },
-        { name: "OTHERS", displayOrder: 4 },
+        { name: "OTHERS", displayOrder: 4 }
       ]);
+      console.log("Categories seeded successfully");
+    } else {
+      console.log("Categories already exist, skipping");
     }
-
-    // Get category IDs
-    const categoryRows = await db.select().from(categories);
-    const categoryMap = categoryRows.reduce((acc, cat) => {
-      acc[cat.name] = cat.id;
-      return acc;
-    }, {} as Record<string, number>);
-
-    // Check if we already have products
-    const existingProducts = await db.select().from(products);
-    if (existingProducts.length === 0 && Object.keys(categoryMap).length > 0) {
-      console.log("Seeding products...");
-      
-      // Coffee products
-      await db.insert(products).values([
-        {
-          name: "AMERICANO",
-          price: "115",
-          imageUrl: "https://images.unsplash.com/photo-1521302080334-4bebac2763a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["COFFEE"],
-          size: "M",
+    
+    // Users
+    console.log("Seeding users...");
+    const existingUsers = await db.select().from(users);
+    
+    if (existingUsers.length === 0) {
+      await db.insert(users).values([
+        { 
+          username: "owner", 
+          password: await hashPassword("password"), 
+          role: "owner" 
         },
-        {
-          name: "CAPPUCCINO",
-          price: "130",
-          imageUrl: "https://images.unsplash.com/photo-1534778101976-62847782c213?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["COFFEE"],
-          size: "M",
-        },
-        {
-          name: "LATTE",
-          price: "80",
-          imageUrl: "https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["COFFEE"],
-          size: "M",
-        },
-        {
-          name: "FLAT WHITE",
-          price: "120",
-          imageUrl: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["COFFEE"],
-          size: "M",
-        },
-        {
-          name: "CAFE AU LAIT",
-          price: "160",
-          imageUrl: "https://pixabay.com/get/g687e08a35dce1ef090c4a9014a2cecefe1a0cbf0703889dbd243eacd26a307f0b91c1991dfb4b458c20cbf2c60a58659bb7abf84fa2a16bf9a2e606af0c26658_1280.jpg",
-          categoryId: categoryMap["COFFEE"],
-          size: "M",
-        },
-        {
-          name: "ESPRESSO",
-          price: "200",
-          imageUrl: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["COFFEE"],
-          size: "M",
-        },
+        { 
+          username: "barista", 
+          password: await hashPassword("password123"), 
+          role: "barista" 
+        }
       ]);
-      
-      // Shake products
-      await db.insert(products).values([
-        {
-          name: "CHOCOLATE",
-          price: "150",
-          imageUrl: "https://images.unsplash.com/photo-1541658016709-82535e94bc69?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["SHAKE"],
-          size: "M",
-        },
-        {
-          name: "VANILLA BISCOFF",
-          price: "160",
-          imageUrl: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["SHAKE"],
-          size: "M",
-        },
-        {
-          name: "BLACK FOREST",
-          price: "170",
-          imageUrl: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["SHAKE"],
-          size: "M",
-        },
-        {
-          name: "FLAT WHITE",
-          price: "155",
-          imageUrl: "https://images.unsplash.com/photo-1638176052533-5654d38deces?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["SHAKE"],
-          size: "M",
-        },
-        {
-          name: "CAFE MOCHA",
-          price: "165",
-          imageUrl: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["SHAKE"],
-          size: "M",
-        },
-        {
-          name: "JAVA CHIP",
-          price: "180",
-          imageUrl: "https://images.unsplash.com/photo-1578314675249-a6910f80cc39?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["SHAKE"],
-          size: "M",
-        },
-      ]);
-      
-      // Food products
-      await db.insert(products).values([
-        {
-          name: "BAVARIAN",
-          price: "95",
-          imageUrl: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["FOOD"],
-          size: "M",
-        },
-        {
-          name: "WHITE CHOCO",
-          price: "105",
-          imageUrl: "https://images.unsplash.com/photo-1608198093002-ad4e005484ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["FOOD"],
-          size: "M",
-        },
-        {
-          name: "MATCHA",
-          price: "115",
-          imageUrl: "https://images.unsplash.com/photo-1622630998477-20aa696ecb05?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["FOOD"],
-          size: "M",
-        },
-        {
-          name: "BUTTER BLONDIE",
-          price: "100",
-          imageUrl: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["FOOD"],
-          size: "M",
-        },
-        {
-          name: "STRAWBERRY",
-          price: "110",
-          imageUrl: "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["FOOD"],
-          size: "M",
-        },
-        {
-          name: "CHARCOAL",
-          price: "120",
-          imageUrl: "https://images.unsplash.com/photo-1568254183919-78a4f43a2877?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80",
-          categoryId: categoryMap["FOOD"],
-          size: "M",
-        },
-      ]);
+      console.log("Users seeded successfully");
+    } else {
+      console.log("Users already exist, skipping");
     }
-
-    // Check if we already have inventory items
-    const existingInventoryItems = await db.select().from(inventory);
-    if (existingInventoryItems.length === 0) {
-      console.log("Seeding inventory...");
-      // Create inventory items
-      await db.insert(inventory).values([
-        {
-          name: "MILK",
-          currentStock: "3",
-          minimumThreshold: "2",
-          unit: "BOX",
-        },
-        {
-          name: "JAVA CHIP",
-          currentStock: "1",
-          minimumThreshold: "1",
-          unit: "KL",
-        },
-        {
-          name: "WHIP CREAM",
-          currentStock: "3",
-          minimumThreshold: "1",
-          unit: "BOX",
-        },
-        {
-          name: "SUGAR",
-          currentStock: "2",
-          minimumThreshold: "1",
-          unit: "KL",
-        },
-        {
-          name: "COFFEE BEANS",
-          currentStock: "1",
-          minimumThreshold: "2",
-          unit: "KL",
-        },
-        {
-          name: "CUPS",
-          currentStock: "100",
-          minimumThreshold: "50",
-          unit: "PCS",
-        },
-      ]);
-    }
-
-    console.log("Database seed completed successfully!");
+    
+    // Delete existing data for fresh start
+    await deleteAllOrderData();
+    await deleteAllProductData();
+    await deleteAllInventory();
+    
+    // Create new inventory and products
+    await createInventoryItems();
+    await createProductsWithIngredients();
+    
+    console.log("Database seeding completed successfully");
   } catch (error) {
-    console.error("Error during database seed:", error);
+    console.error("Error seeding database:", error);
+    process.exit(1);
   }
 }
 

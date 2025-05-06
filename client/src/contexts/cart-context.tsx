@@ -58,12 +58,10 @@ function OrderCompletionModal({
   // Reset amount when dialog opens or total changes
   React.useEffect(() => {
     if (isOpen) {
-      setAmountPaid(total.toString());
-    } else {
-      // Clear the input when dialog closes
+      // Initialize with empty string instead of pre-filling
       setAmountPaid("");
     }
-  }, [isOpen, total]);
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
