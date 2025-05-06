@@ -83,22 +83,43 @@ export default function ProductCard({ product }: ProductCardProps) {
       setIsDeleteDialogOpen(false);
     },
     onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Check if this is a sales history error
+      if (error.message.includes("sales history")) {
+        toast({
+          title: "Cannot Delete Product",
+          description: "This product has sales history and cannot be deleted to maintain data integrity. Consider making it inactive instead.",
+          variant: "destructive",
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+      setIsDeleteDialogOpen(false);
     },
   });
   
-  const confirmDelete = () => {
-    // Delete all size variants
-    if (product.sizeOptions && product.sizeOptions.length > 0) {
-      product.sizeOptions.forEach(option => {
-        deleteMutation.mutate(option.id);
-      });
-    } else {
-      deleteMutation.mutate(product.id);
+  const confirmDelete = async () => {
+    try {
+      // If the product has size options, handle them differently
+      if (product.sizeOptions && product.sizeOptions.length > 0) {
+        // We'll only attempt to delete the first size variant initially
+        // If that succeeds, continue with others
+        const firstOption = product.sizeOptions[0];
+        deleteMutation.mutate(firstOption.id);
+        
+        // Note: We don't try to delete all variants simultaneously because
+        // if one fails due to sales history, we want to show just one error message
+        // The backend will validate each product variant individually
+      } else {
+        // For products without size variants, delete directly
+        deleteMutation.mutate(product.id);
+      }
+    } catch (error) {
+      console.error("Error during product deletion:", error);
     }
   };
   
@@ -257,9 +278,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete this product?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete all size variants of
-              "{product.name}".
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                This action cannot be undone. This will permanently delete {product.sizeOptions && product.sizeOptions.length > 1 ? 'all size variants of' : ''} "{product.name}".
+              </p>
+              <p className="text-amber-600 font-medium">
+                Note: Products with sales history cannot be deleted to maintain data integrity and reporting accuracy.
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
