@@ -344,16 +344,17 @@ class DatabaseStorage implements IStorage {
       }
       
       // Build the query with date filters
+      // Using left join on products in case products are deleted
       const query = db.select({
-        productId: products.id,
-        productName: products.name,
-        price: products.price,
-        size: products.size,
+        productId: orderItems.productId,
+        productName: sql`COALESCE(${products.name}, ${orderItems.productName}, 'Deleted Product')`,
+        price: sql`COALESCE(${products.price}, ${orderItems.price})`,
+        size: sql`COALESCE(${products.size}, ${orderItems.size}, 'M')`,
         quantity: orderItems.quantity,
         createdAt: orders.createdAt
       })
       .from(orderItems)
-      .innerJoin(products, eq(orderItems.productId, products.id))
+      .leftJoin(products, eq(orderItems.productId, products.id))
       .innerJoin(orders, eq(orderItems.orderId, orders.id));
       
       // Apply conditions if any
