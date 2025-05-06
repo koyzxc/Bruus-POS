@@ -52,17 +52,18 @@ export default function MainLayout({
       {activeSection === "MENU" && (
         <div className="bg-[#FFE6C7] w-72 md:w-80 flex-shrink-0">
           <div className="p-4 h-full flex flex-col">
-            <OrderPanel />
-            
             {/* Low Stock Alerts */}
-            <div className="mt-auto">
-              {lowStockItems && lowStockItems.length > 0 && (
-                <div className="mb-4">
-                  {lowStockItems.map((item) => (
-                    <LowStockAlert key={item.id} item={item} />
-                  ))}
-                </div>
-              )}
+            {lowStockItems && lowStockItems.length > 0 && (
+              <div className="mb-4 max-h-[140px] overflow-y-auto">
+                {lowStockItems.map((item) => (
+                  <LowStockAlert key={item.id} item={item} />
+                ))}
+              </div>
+            )}
+            
+            {/* Order Panel */}
+            <div className="flex-grow flex flex-col">
+              <OrderPanel />
             </div>
           </div>
         </div>
