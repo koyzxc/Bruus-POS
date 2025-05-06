@@ -137,16 +137,30 @@ export default function InventoryPage() {
                     <TableCell className="py-4 px-6">
                       <div className="flex justify-between items-center">
                         <span>{item.name}</span>
-                        {canManageProducts && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEditInventory(item)}
-                            className="ml-2"
-                          >
-                            <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
-                          </Button>
-                        )}
+                        <div className="flex">
+                          {canManageProducts && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEditInventory(item)}
+                              className="ml-2"
+                            >
+                              <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
+                            </Button>
+                          )}
+                          
+                          {/* Delete button - owner only */}
+                          {user?.role === "owner" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteInventory(item)}
+                              className="ml-2"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell className="py-4 px-6 text-right">
@@ -171,6 +185,28 @@ export default function InventoryPage() {
           </TableBody>
         </Table>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the inventory item
+              "{inventoryToDelete?.name}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 }
