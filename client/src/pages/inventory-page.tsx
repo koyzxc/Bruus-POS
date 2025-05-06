@@ -112,20 +112,20 @@ export default function InventoryPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-left py-4 px-6 font-bold text-lg">NAME OF THE INGREDIENT</TableHead>
-              <TableHead className="text-right py-4 px-6 font-bold text-lg">STOCKS</TableHead>
+              <TableHead className="text-left py-4 px-6 font-bold text-lg sticky top-0 bg-white z-10">NAME OF THE INGREDIENT</TableHead>
+              <TableHead className="text-right py-4 px-6 font-bold text-lg sticky top-0 bg-white z-10">STOCKS</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="max-h-[calc(100vh-240px)] block overflow-y-auto">
             {isLoading ? (
               Array(6)
                 .fill(null)
                 .map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="py-4 px-6">
+                  <TableRow key={i} className="table w-full table-fixed">
+                    <TableCell className="py-4 px-6 w-3/4">
                       <Skeleton className="h-6 w-3/4" />
                     </TableCell>
-                    <TableCell className="py-4 px-6 text-right">
+                    <TableCell className="py-4 px-6 text-right w-1/4">
                       <Skeleton className="h-6 w-20 ml-auto" />
                     </TableCell>
                   </TableRow>
@@ -133,8 +133,8 @@ export default function InventoryPage() {
             ) : (
               inventoryItems?.map((item) => {
                 return (
-                  <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6]">
-                    <TableCell className="py-4 px-6">
+                  <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6] table w-full table-fixed">
+                    <TableCell className="py-4 px-6 w-3/4">
                       <div className="flex justify-between items-center">
                         <span>{item.name}</span>
                         <div className="flex">
@@ -142,7 +142,10 @@ export default function InventoryPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleEditInventory(item)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditInventory(item);
+                              }}
                               className="ml-2"
                             >
                               <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
@@ -154,7 +157,10 @@ export default function InventoryPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleDeleteInventory(item)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteInventory(item);
+                              }}
                               className="ml-2"
                             >
                               <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
@@ -163,7 +169,7 @@ export default function InventoryPage() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-6 text-right">
+                    <TableCell className="py-4 px-6 text-right w-1/4">
                       <span className={`font-medium ${
                         item.currentStock <= item.minimumThreshold ? "text-red-500" : ""
                       }`}>
@@ -176,7 +182,7 @@ export default function InventoryPage() {
             )}
             
             {!isLoading && (!inventoryItems || inventoryItems.length === 0) && (
-              <TableRow>
+              <TableRow className="table w-full">
                 <TableCell colSpan={2} className="text-center py-10 text-gray-500">
                   No inventory items found
                 </TableCell>

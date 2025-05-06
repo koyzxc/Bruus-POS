@@ -220,11 +220,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return [...prevItems, { product, quantity: 1 }];
       }
     });
-
-    toast({
-      title: "Added to order",
-      description: `${product.name} added to your order`,
-    });
+    
+    // Remove the toast notification when adding products
   };
 
   // Remove item from cart

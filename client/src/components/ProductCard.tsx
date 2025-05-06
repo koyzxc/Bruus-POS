@@ -135,7 +135,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       
       {/* Ingredients Dialog */}
       <Dialog open={isIngredientsDialogOpen} onOpenChange={setIsIngredientsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>{product.name} Ingredients</DialogTitle>
             <DialogDescription>
@@ -146,7 +146,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {loadingIngredients ? (
               <p>Loading ingredients...</p>
             ) : ingredients && Array.isArray(ingredients) && ingredients.length > 0 ? (
-              <ul className="space-y-2">
+              <ul className="space-y-2 max-h-60 overflow-y-auto">
                 {ingredients.map((ing: any) => (
                   <li key={ing.id || ing.inventoryId} className="flex justify-between items-center border-b pb-2">
                     <span>
