@@ -5,8 +5,9 @@ import { Loader2 } from "lucide-react";
 export default function OrderPanel() {
   const { items, total, removeItem, processOrder, isProcessing } = useCart();
   
-  const formattedPrice = (price: number) => {
-    return `₱ ${price.toFixed(2)}`;
+  const formattedPrice = (price: number | string) => {
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return `₱ ${numericPrice.toFixed(2)}`;
   };
 
   return (
@@ -18,7 +19,11 @@ export default function OrderPanel() {
             <ul className="space-y-2">
               {items.map((item) => (
                 <li key={item.product.id} className="flex justify-between">
-                  <span>{item.product.name} (x{item.quantity})</span>
+                  <span>
+                    {item.product.name}
+                    {item.product.size && <span className="text-xs ml-1 bg-gray-100 px-1 py-0.5 rounded-sm">{item.product.size}</span>}
+                    <span className="ml-1">(x{item.quantity})</span>
+                  </span>
                   <button 
                     className="text-sm text-red-500 hover:text-red-700"
                     onClick={() => removeItem(item.product.id)}
@@ -39,8 +44,11 @@ export default function OrderPanel() {
             <ul className="space-y-2">
               {items.map((item) => (
                 <li key={item.product.id} className="flex justify-between">
-                  <span>{item.product.name}</span>
-                  <span>{formattedPrice(item.product.price * item.quantity)}</span>
+                  <span>
+                    {item.product.name}
+                    {item.product.size && <span className="text-xs ml-1 bg-gray-100 px-1 py-0.5 rounded-sm">{item.product.size}</span>}
+                  </span>
+                  <span>{formattedPrice(parseFloat(item.product.price) * item.quantity)}</span>
                 </li>
               ))}
             </ul>

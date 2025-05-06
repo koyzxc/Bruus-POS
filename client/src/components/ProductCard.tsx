@@ -21,7 +21,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         />
       </div>
       <div className="p-2 text-center">
-        <h3 className="font-medium uppercase tracking-wide">{product.name}</h3>
+        <h3 className="font-medium uppercase tracking-wide">{product.name} {product.size && <span className="text-xs ml-1 bg-gray-100 px-1 py-0.5 rounded-sm">{product.size}</span>}</h3>
+        <p className="text-sm text-gray-700 mt-1">₱{parseFloat(product.price).toFixed(2)}</p>
       </div>
     </div>
   );
