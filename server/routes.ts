@@ -89,8 +89,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const productData = {
-        ...req.body,
-        price: parseFloat(req.body.price),
+        name: req.body.name,
+        price: req.body.price, // Keep as string for validation
         imageUrl,
         categoryId: parseInt(req.body.categoryId)
       };
@@ -98,6 +98,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate product data
       const validationResult = insertProductSchema.safeParse(productData);
       if (!validationResult.success) {
+        console.error("Product validation error:", JSON.stringify(validationResult.error.errors));
+        console.error("Product data received:", JSON.stringify(productData));
         return res.status(400).json({ 
           message: "Invalid product data", 
           errors: validationResult.error.errors 
@@ -207,26 +209,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
+      // Format the data properly for insertion
       const inventoryData = {
-        ...req.body,
+        name: req.body.name,
         currentStock: req.body.currentStock,
         minimumThreshold: req.body.minimumThreshold,
         unit: req.body.unit
       };
       
+      console.log("Inventory data received:", JSON.stringify(inventoryData));
+      
       // Validate inventory data
       const validationResult = insertInventorySchema.safeParse(inventoryData);
       if (!validationResult.success) {
+        console.error("Inventory validation error:", JSON.stringify(validationResult.error.errors));
         return res.status(400).json({
           message: "Invalid inventory data",
           errors: validationResult.error.errors
         });
       }
       
-      const newItem = await db.insert(inventory).values(inventoryData).returning();
+      const newItem = await db.insert(inventory).values(validationResult.data).returning();
       res.status(201).json(newItem[0]);
     } catch (error) {
-      console.error(error);
+      console.error("Error creating inventory item:", error);
       res.status(500).json({ message: "Failed to create inventory item" });
     }
   });
