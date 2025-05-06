@@ -139,7 +139,12 @@ function OrderSummaryModal({
                     <div className="w-8 h-8 rounded overflow-hidden">
                       <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
                     </div>
-                    <span className="font-medium">{item.product.name}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{item.product.name}</span>
+                      {item.product.size && (
+                        <span className="text-xs text-gray-500">Size: {item.product.size}</span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <div>{item.quantity} × ₱{Number(item.price).toFixed(2)}</div>
