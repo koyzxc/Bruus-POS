@@ -196,9 +196,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "You must be logged in to delete a product" });
     }
     
-    // Allow both owners and baristas to delete products
-    if (req.user.role !== "owner" && req.user.role !== "barista") {
-      return res.status(403).json({ message: "You don't have permission to delete products" });
+    // Only owners can delete products
+    if (req.user.role !== "owner") {
+      return res.status(403).json({ message: "Only owners can delete products" });
     }
     
     try {
@@ -346,9 +346,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "You must be logged in to delete inventory items" });
     }
     
-    // Allow both owners and baristas to manage inventory
-    if (req.user.role !== "owner" && req.user.role !== "barista") {
-      return res.status(403).json({ message: "You don't have permission to delete inventory items" });
+    // Only owners can delete inventory items
+    if (req.user.role !== "owner") {
+      return res.status(403).json({ message: "Only owners can delete inventory items" });
     }
     
     try {

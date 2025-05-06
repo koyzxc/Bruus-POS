@@ -46,6 +46,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   price: z.string().min(1, "Price is required"),
   categoryId: z.string().min(1, "Category is required"),
+  size: z.string().min(1, "Size is required").default("M"),
   image: z.instanceof(FileList).optional(),
   ingredients: z.array(ingredientSchema).optional(),
 });
@@ -170,6 +171,7 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
       name: product?.name || "",
       price: product?.price?.toString() || "",
       categoryId: product?.categoryId?.toString() || "",
+      size: product?.size || "M",
       ingredients: [],
     },
   });
@@ -329,6 +331,31 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
                             {category.name}
                           </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="size"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Size</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || "M"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a size" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="M">Medium (M)</SelectItem>
+                        <SelectItem value="L">Large (L)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

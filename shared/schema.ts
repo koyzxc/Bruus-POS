@@ -38,6 +38,7 @@ export const products = pgTable("products", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   imageUrl: text("image_url").notNull(),
   categoryId: integer("category_id").references(() => categories.id).notNull(),
+  size: text("size").default("M").notNull(), // M = medium, L = large
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
