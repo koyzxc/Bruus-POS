@@ -34,6 +34,7 @@ export default function MainLayout({
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
         activeSection={activeSection}
+        onOpenInventoryForm={onOpenInventoryForm}
       />
       
       {/* Middle Content */}
