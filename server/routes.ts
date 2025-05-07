@@ -521,38 +521,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      // Begin a transaction
-      await db.transaction(async (tx) => {
-        // Step 1: Get the Coffee Matcha product ID
-        const productId = 38; // Specific ID for Coffee Matcha based on our API call
+      // For this special case, we'll use raw SQL to bypass the foreign key constraints
+      // since we need to forcefully delete a product that has order history
+      const client = await pool.connect();
+      
+      try {
+        await client.query('BEGIN');
         
-        // Step 2: First null out references to this product in order_items
-        // Using undefined instead of null to satisfy the type requirements
-        await tx.update(orderItems)
-          .set({ productId: undefined })
-          .where(eq(orderItems.productId, productId));
+        // Coffee Matcha products have IDs 38 and 40 based on our database
+        const coffeeMatchaIds = [38, 40]; // IDs for both size variants
         
-        console.log(`Nullified order_items references to Coffee Matcha product ID ${productId}`);
+        // First identify and save the order_items referencing these products
+        const { rows: orderItemsToUpdate } = await client.query(
+          'SELECT id FROM order_items WHERE product_id = ANY($1)', 
+          [coffeeMatchaIds]
+        );
         
-        // Step 3: Delete any ingredients associated with the product
-        await tx.delete(productIngredients)
-          .where(eq(productIngredients.productId, productId));
+        if (orderItemsToUpdate.length > 0) {
+          console.log(`Found ${orderItemsToUpdate.length} order items referencing Coffee Matcha products`);
           
-        console.log(`Deleted ingredients for Coffee Matcha product ID ${productId}`);
-        
-        // Step 4: Finally delete the actual product
-        const deleted = await tx.delete(products)
-          .where(eq(products.id, productId))
-          .returning();
+          // Set the references to NULL directly in the database
+          await client.query(
+            'UPDATE order_items SET product_id = NULL WHERE product_id = ANY($1)',
+            [coffeeMatchaIds]
+          );
           
-        if (deleted.length === 0) {
-          throw new Error("Coffee Matcha product not found");
+          console.log('Updated order_items to set product_id to NULL');
         }
         
-        console.log(`Successfully deleted Coffee Matcha product ID ${productId}`);
-      });
-      
-      res.json({ success: true, message: "Coffee Matcha product and its sales history have been removed" });
+        // Delete any product ingredients
+        const { rowCount: deletedIngredients } = await client.query(
+          'DELETE FROM product_ingredients WHERE product_id = ANY($1)',
+          [coffeeMatchaIds]
+        );
+        
+        console.log(`Deleted ${deletedIngredients} ingredient records for Coffee Matcha products`);
+        
+        // Finally delete the products
+        const { rowCount: deletedProducts } = await client.query(
+          'DELETE FROM products WHERE id = ANY($1)',
+          [coffeeMatchaIds]
+        );
+        
+        if (deletedProducts === 0) {
+          throw new Error('No Coffee Matcha products found to delete');
+        }
+        
+        console.log(`Successfully deleted ${deletedProducts} Coffee Matcha product variants`);
+        
+        await client.query('COMMIT');
+        res.json({ 
+          success: true, 
+          message: `Coffee Matcha products and their sales history references have been removed (${deletedProducts} variants)` 
+        });
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
     } catch (error) {
       console.error("Error deleting Coffee Matcha product:", error);
       res.status(500).json({ message: "Failed to delete Coffee Matcha product" });
