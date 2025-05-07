@@ -162,14 +162,18 @@ export default function InventoryPage() {
       </div>
       
       <div className="bg-white rounded-xl overflow-hidden shadow-lg mt-2">
-        <div className="overflow-x-hidden">
+        <div className="relative">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="text-left py-4 px-6 font-bold text-lg bg-white z-10">NAME OF THE INGREDIENT</TableHead>
-                <TableHead className="text-right py-4 px-6 font-bold text-lg bg-white z-10 w-[180px]">STOCKS</TableHead>
+                <TableHead className="text-left py-4 px-6 font-bold text-lg">NAME OF THE INGREDIENT</TableHead>
+                <TableHead className="text-right py-4 px-6 font-bold text-lg w-[180px]">STOCKS</TableHead>
               </TableRow>
             </TableHeader>
+          </Table>
+        </div>
+        <div className="max-h-[calc(100vh-240px)] overflow-y-auto overflow-x-hidden">
+          <Table>
             <TableBody>
               {isLoading ? (
                 Array(6)
