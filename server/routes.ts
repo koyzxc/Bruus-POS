@@ -527,8 +527,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const productId = 38; // Specific ID for Coffee Matcha based on our API call
         
         // Step 2: First null out references to this product in order_items
+        // Using undefined instead of null to satisfy the type requirements
         await tx.update(orderItems)
-          .set({ productId: null })
+          .set({ productId: undefined })
           .where(eq(orderItems.productId, productId));
         
         console.log(`Nullified order_items references to Coffee Matcha product ID ${productId}`);
