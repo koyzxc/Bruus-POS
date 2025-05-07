@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import Logo from "./Logo";
-import ProductManagement from "@/components/ProductManagement";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import ProductForm from "@/components/ProductForm";
@@ -67,17 +66,24 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
             {/* Show management buttons in Inventory section */}
             {activeSection === "INV" && canManageProducts && (
               <div className="space-y-3 mt-6">
-                <ProductManagement />
+                <Button
+                  onClick={() => {
+                    const event = new CustomEvent('addNewProduct');
+                    window.dispatchEvent(event);
+                  }}
+                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border border-white flex items-center justify-start gap-2 pl-4"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Add New Product
+                </Button>
                 
-                <div className="mt-3"> {/* Added consistent margin to match ProductManagement */}
-                  <Button
-                    onClick={onOpenInventoryForm}
-                    className="w-full bg-[#F15A29] hover:bg-[#D84A19] text-white flex items-center justify-center gap-2"
-                  >
-                    <PlusCircle className="h-4 w-4" />
-                    Add New Ingredient
-                  </Button>
-                </div>
+                <Button
+                  onClick={onOpenInventoryForm}
+                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border border-white flex items-center justify-start gap-2 pl-4"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Add New Ingredient
+                </Button>
               </div>
             )}
           </>

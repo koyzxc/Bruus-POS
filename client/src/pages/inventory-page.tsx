@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
-import ProductManagement from "@/components/ProductManagement";
+import ProductForm from "@/components/ProductForm";
 import InventoryForm from "@/components/InventoryForm";
 import { Inventory } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,6 +63,22 @@ export default function InventoryPage() {
     setIsInventoryFormOpen(true);
   };
   
+  // State for product form
+  const [showProductForm, setShowProductForm] = useState(false);
+  
+  // Listen for addNewProduct event from sidebar
+  useEffect(() => {
+    const handleAddNewProduct = () => {
+      setShowProductForm(true);
+    };
+    
+    window.addEventListener('addNewProduct', handleAddNewProduct);
+    
+    return () => {
+      window.removeEventListener('addNewProduct', handleAddNewProduct);
+    };
+  }, []);
+  
   // Delete mutation for inventory items (owner only)
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -122,19 +138,16 @@ export default function InventoryPage() {
         />
       )}
       
-      {/* Top controls - Add button and Search */}
-      <div className="mb-4 flex justify-between items-center">
-        {canManageProducts && (
-          <Button
-            onClick={handleOpenInventoryForm}
-            className="bg-[#F15A29] hover:bg-[#D84A19] text-white"
-            size="sm"
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Ingredient
-          </Button>
-        )}
-
+      {/* Product Form Dialog */}
+      {showProductForm && (
+        <ProductForm
+          isOpen={showProductForm}
+          onClose={() => setShowProductForm(false)}
+        />
+      )}
+      
+      {/* Top controls - Only Search */}
+      <div className="mb-4 flex justify-end items-center">
         {/* Search Bar */}
         <div className="relative w-1/3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
