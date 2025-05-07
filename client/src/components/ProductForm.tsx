@@ -104,10 +104,10 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: product?.name || "",
-      mediumPrice: product?.size === "M" ? product?.price?.toString() : "",
+      mediumPrice: product?.size === "M" && product.price ? product.price.toString() : "",
       hasLargeSize: false,
-      largePrice: product?.size === "L" ? product?.price?.toString() : "",
-      categoryId: product?.categoryId?.toString() || "",
+      largePrice: product?.size === "L" && product.price ? product.price.toString() : "",
+      categoryId: product?.categoryId ? product.categoryId.toString() : "",
       mediumIngredients: [],
       largeIngredients: [],
     },
@@ -263,9 +263,10 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     formData.append("size", size);
     
     // Add image if provided
-    if (form.getValues("image") && form.getValues("image").length > 0) {
-      formData.append("image", form.getValues("image")[0]);
-    } else if (product?.imageUrl && !imagePreview?.startsWith("blob:")) {
+    const imageFiles = form.getValues("image");
+    if (imageFiles && imageFiles.length > 0) {
+      formData.append("image", imageFiles[0]);
+    } else if (product?.imageUrl && imagePreview && !imagePreview.startsWith("blob:")) {
       // Keep existing image URL if no new image is selected
       formData.append("imageUrl", product.imageUrl);
     }
@@ -281,7 +282,7 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     }
     
     try {
-      if (isUpdating) {
+      if (isUpdating && product && product.id) {
         // Update the existing product
         await updateMutation.mutateAsync({ id: product.id, formData });
       } else {
