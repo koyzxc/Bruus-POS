@@ -22,6 +22,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -30,25 +31,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Loader2, PlusCircle, Trash2 } from "lucide-react";
-
-// Ingredient schema
-const ingredientSchema = z.object({
-  inventoryId: z.string().min(1, "Ingredient is required"),
-  quantityUsed: z.string().min(1, "Quantity is required"),
-});
 
 // Form schema
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  price: z.string().min(1, "Price is required"),
+  mediumPrice: z.string().min(1, "Medium (M) price is required"),
+  hasLargeSize: z.boolean().default(false),
+  largePrice: z.string().optional()
+    .refine(val => !val || parseFloat(val) > 0, "Large price must be greater than 0")
+    .transform(val => val === "" ? undefined : val),
   categoryId: z.string().min(1, "Category is required"),
-  size: z.string().min(1, "Size is required").default("M"),
   image: z.instanceof(FileList).optional(),
-  ingredients: z.array(ingredientSchema).optional(),
+  mediumIngredients: z.array(z.object({
+    inventoryId: z.string().min(1, "Ingredient is required"),
+    quantityUsed: z.string().min(1, "Quantity is required"),
+  })).default([]),
+  largeIngredients: z.array(z.object({
+    inventoryId: z.string().min(1, "Ingredient is required"),
+    quantityUsed: z.string().min(1, "Quantity is required"),
+  })).default([]),
+}).refine(data => !data.hasLargeSize || (data.hasLargeSize && data.largePrice), {
+  message: "Large price is required when large size is enabled",
+  path: ["largePrice"]
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -64,6 +74,10 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
   const [imagePreview, setImagePreview] = useState<string | null>(
     product?.imageUrl || null
   );
+  const [activeTab, setActiveTab] = useState<"medium" | "large">("medium");
+  
+  // Determine if this is editing a medium or large product
+  const isEditingLargeProduct = product?.size === "L";
   
   // Categories query
   const { data: categories, isLoading: categoriesLoading } = useQuery({
@@ -75,7 +89,7 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     },
   });
   
-  // Inventory items query (for future ingredient selection)
+  // Inventory items query
   const { data: inventoryItems, isLoading: inventoryLoading } = useQuery({
     queryKey: ["/api/inventory"],
     queryFn: async () => {
@@ -85,14 +99,92 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     },
   });
   
+  // Form definition
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: product?.name || "",
+      mediumPrice: product?.size === "M" ? product?.price?.toString() : "",
+      hasLargeSize: false,
+      largePrice: product?.size === "L" ? product?.price?.toString() : "",
+      categoryId: product?.categoryId?.toString() || "",
+      mediumIngredients: [],
+      largeIngredients: [],
+    },
+  });
+  
+  const hasLargeSize = form.watch("hasLargeSize");
+  
+  // Field arrays for ingredients
+  const { fields: mediumIngredients, append: appendMediumIngredient, remove: removeMediumIngredient } = useFieldArray({
+    control: form.control,
+    name: "mediumIngredients",
+  });
+  
+  const { fields: largeIngredients, append: appendLargeIngredient, remove: removeLargeIngredient } = useFieldArray({
+    control: form.control,
+    name: "largeIngredients",
+  });
+  
+  // Fetch product ingredients if editing
+  const { data: productIngredients, isLoading: ingredientsLoading } = useQuery({
+    queryKey: ["/api/products", product?.id, "ingredients"],
+    queryFn: async () => {
+      if (!product?.id) return [];
+      const res = await fetch(`/api/products/${product.id}/ingredients`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!product?.id, // Only run if product id exists
+  });
+  
+  // Update form with ingredients data when available
+  useEffect(() => {
+    if (productIngredients?.length > 0) {
+      // We're editing an existing product
+      const currentSize = product?.size || "M";
+      
+      if (currentSize === "M") {
+        // This is a medium product, add ingredients to mediumIngredients
+        productIngredients.forEach((ingredient: any) => {
+          appendMediumIngredient({
+            inventoryId: ingredient.inventoryId.toString(),
+            quantityUsed: ingredient.quantityUsed.toString(),
+          });
+        });
+      } else {
+        // This is a large product, add ingredients to largeIngredients
+        form.setValue("hasLargeSize", true);
+        setActiveTab("large");
+        
+        productIngredients.forEach((ingredient: any) => {
+          appendLargeIngredient({
+            inventoryId: ingredient.inventoryId.toString(),
+            quantityUsed: ingredient.quantityUsed.toString(),
+          });
+        });
+      }
+    }
+  }, [productIngredients, appendMediumIngredient, appendLargeIngredient, product, form]);
+  
+  // Handle image change
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
   // Create product mutation
   const createMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      // For multipart form data, we need to use the native fetch API
+    mutationFn: async (formData: FormData) => {
       const res = await fetch("/api/products", {
         method: "POST",
-        body: data,
-        // Don't set Content-Type header as the browser will set it with boundary
+        body: formData,
       });
       
       if (!res.ok) {
@@ -110,10 +202,10 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
       });
       onClose();
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Failed to create product",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -121,12 +213,10 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
   
   // Update product mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: FormData }) => {
-      // For multipart form data, we need to use the native fetch API
+    mutationFn: async ({ id, formData }: { id: number, formData: FormData }) => {
       const res = await fetch(`/api/products/${id}`, {
         method: "PUT",
-        body: data,
-        // Don't set Content-Type header as the browser will set it with boundary
+        body: formData,
       });
       
       if (!res.ok) {
@@ -144,99 +234,83 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
       });
       onClose();
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Failed to update product",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
+        description: error.message,
         variant: "destructive",
       });
     },
   });
   
-  // Fetch product ingredients if editing
-  const { data: productIngredients, isLoading: ingredientsLoading } = useQuery({
-    queryKey: ["/api/products", product?.id, "ingredients"],
-    queryFn: async () => {
-      if (!product?.id) return [];
-      const res = await fetch(`/api/products/${product.id}/ingredients`);
-      if (!res.ok) return [];
-      return res.json();
-    },
-    enabled: !!product?.id, // Only run if product id exists
-  });
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: product?.name || "",
-      price: product?.price?.toString() || "",
-      categoryId: product?.categoryId?.toString() || "",
-      size: product?.size || "M",
-      ingredients: [],
-    },
-  });
-  
-  // Field array for ingredients
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "ingredients",
-  });
-  
-  // Update form with ingredients data when available
-  useEffect(() => {
-    if (productIngredients?.length > 0) {
-      // Reset ingredients field with loaded data
-      productIngredients.forEach((ingredient: any) => {
-        append({
-          inventoryId: ingredient.inventoryId.toString(),
-          quantityUsed: ingredient.quantityUsed.toString(),
-        });
-      });
-    }
-  }, [productIngredients, append]);
-  
-  // Handle image change
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
-  // Handle form submission
-  const onSubmit = async (values: FormValues) => {
+  // Helper function to submit a single product
+  const submitSingleProduct = async ({ 
+    size, 
+    price, 
+    ingredients 
+  }: { 
+    size: "M" | "L", 
+    price: string, 
+    ingredients: { inventoryId: string, quantityUsed: string }[] 
+  }) => {
+    // If we're editing and the current product already has this size, update it
+    const isUpdating = product && product.size === size;
+    
     const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("price", values.price);
-    formData.append("categoryId", values.categoryId);
-    formData.append("size", values.size);
+    formData.append("name", form.getValues("name"));
+    formData.append("price", price);
+    formData.append("categoryId", form.getValues("categoryId"));
+    formData.append("size", size);
     
     // Add image if provided
-    if (values.image && values.image.length > 0) {
-      formData.append("image", values.image[0]);
+    if (form.getValues("image") && form.getValues("image").length > 0) {
+      formData.append("image", form.getValues("image")[0]);
     } else if (product?.imageUrl && !imagePreview?.startsWith("blob:")) {
       // Keep existing image URL if no new image is selected
       formData.append("imageUrl", product.imageUrl);
     }
     
-    // Add ingredients if provided
-    if (values.ingredients && values.ingredients.length > 0) {
-      // Convert ingredients to JSON string
-      const ingredientsJson = JSON.stringify(values.ingredients);
-      formData.append("ingredients", ingredientsJson);
+    // Add ingredients
+    if (ingredients && ingredients.length > 0) {
+      // Add size info to each ingredient
+      const ingredientsWithSize = ingredients.map(ing => ({
+        ...ing,
+        size
+      }));
+      formData.append("ingredients", JSON.stringify(ingredientsWithSize));
     }
     
     try {
-      if (product?.id) {
-        // Update existing product
-        updateMutation.mutate({ id: product.id, data: formData });
+      if (isUpdating) {
+        // Update the existing product
+        await updateMutation.mutateAsync({ id: product.id, formData });
       } else {
-        // Create new product
-        createMutation.mutate(formData);
+        // Create a new product
+        await createMutation.mutateAsync(formData);
+      }
+    } catch (error) {
+      console.error(`Error submitting ${size} product:`, error);
+      throw error;
+    }
+  };
+  
+  // Handle form submission
+  const onSubmit = async (values: FormValues) => {
+    try {
+      // Medium size is always created/updated
+      await submitSingleProduct({
+        size: "M",
+        price: values.mediumPrice,
+        ingredients: values.mediumIngredients || [],
+      });
+      
+      // Create large size if the user enabled it and provided a price
+      if (values.hasLargeSize && values.largePrice) {
+        await submitSingleProduct({
+          size: "L", 
+          price: values.largePrice,
+          ingredients: values.largeIngredients || [],
+        });
       }
     } catch (error) {
       console.error("Form submission error:", error);
@@ -250,6 +324,13 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
   
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
   const isLoading = categoriesLoading || inventoryLoading;
+  
+  // Switch to the large tab when hasLargeSize becomes true
+  useEffect(() => {
+    if (hasLargeSize && activeTab !== "large") {
+      setActiveTab("large");
+    }
+  }, [hasLargeSize]);
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -275,33 +356,9 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Product Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Product name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price</FormLabel>
-                    <FormControl>
-                      <div className="flex items-center border rounded overflow-hidden">
-                        <span className="text-gray-500 px-3 py-2 bg-gray-50">₱</span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          className="flex-1 border-0 focus-visible:ring-0"
-                          {...field}
-                        />
-                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -332,31 +389,6 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
                             {category.name}
                           </SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="size"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Size</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value || "M"}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a size" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="M">Medium (M)</SelectItem>
-                        <SelectItem value="L">Large (L)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -397,109 +429,293 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
                 )}
               />
               
-              {/* Ingredients Section */}
-              <div className="space-y-4">
+              {/* Size Variants Section */}
+              <div className="space-y-4 border rounded-md p-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-md font-medium">Ingredients</h3>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => append({ inventoryId: "", quantityUsed: "" })}
-                    className="flex items-center gap-1"
-                  >
-                    <PlusCircle className="h-4 w-4" />
-                    Add Ingredient
-                  </Button>
+                  <h3 className="text-md font-medium">Size Options</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="hasLargeSize"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                        <FormLabel>Add Large Size</FormLabel>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 
-                {fields.length === 0 && (
-                  <p className="text-sm text-gray-500 italic">No ingredients added yet</p>
-                )}
-                
-                {fields.map((field, index) => (
-                  <Card key={field.id} className="shadow-sm">
-                    <CardContent className="pt-4 pb-2">
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
-                        {/* Ingredient Select */}
-                        <div className="sm:col-span-6">
-                          <FormField
-                            control={form.control}
-                            name={`ingredients.${index}.inventoryId`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Ingredient</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select ingredient" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {inventoryItems?.map((item: any) => (
-                                      <SelectItem
-                                        key={item.id}
-                                        value={item.id.toString()}
-                                      >
-                                        {item.name} ({item.unit})
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        {/* Quantity Field */}
-                        <div className="sm:col-span-4">
-                          <FormField
-                            control={form.control}
-                            name={`ingredients.${index}.quantityUsed`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Quantity</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0.01"
-                                    placeholder="Amount"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        {/* Delete button */}
-                        <div className="sm:col-span-2 flex items-end">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="mb-2 h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50"
-                            onClick={() => remove(index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as "medium" | "large")} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="medium">Medium (M)</TabsTrigger>
+                    <TabsTrigger value="large" disabled={!hasLargeSize}>Large (L)</TabsTrigger>
+                  </TabsList>
+                  
+                  {/* Medium Size Tab */}
+                  <TabsContent value="medium" className="space-y-4 pt-4">
+                    <FormField
+                      control={form.control}
+                      name="mediumPrice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Medium Price</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center border rounded overflow-hidden">
+                              <span className="text-gray-500 px-3 py-2 bg-gray-50">₱</span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                placeholder="0.00"
+                                className="flex-1 border-0 focus-visible:ring-0"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* Medium Ingredients */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-md font-medium">Medium Ingredients</h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => appendMediumIngredient({ inventoryId: "", quantityUsed: "" })}
+                          className="flex items-center gap-1"
+                        >
+                          <PlusCircle className="h-4 w-4" />
+                          Add Ingredient
+                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      
+                      {mediumIngredients.length === 0 && (
+                        <p className="text-sm text-gray-500 italic">No ingredients added yet</p>
+                      )}
+                      
+                      {mediumIngredients.map((field, index) => (
+                        <Card key={field.id} className="shadow-sm">
+                          <CardContent className="pt-4 pb-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                              {/* Ingredient Select */}
+                              <div className="sm:col-span-6">
+                                <FormField
+                                  control={form.control}
+                                  name={`mediumIngredients.${index}.inventoryId`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Ingredient</FormLabel>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select ingredient" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {inventoryItems?.map((item: any) => (
+                                            <SelectItem
+                                              key={item.id}
+                                              value={item.id.toString()}
+                                            >
+                                              {item.name} ({item.unit})
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              {/* Quantity Field */}
+                              <div className="sm:col-span-4">
+                                <FormField
+                                  control={form.control}
+                                  name={`mediumIngredients.${index}.quantityUsed`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Quantity</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          min="0"
+                                          placeholder="0.00"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              {/* Remove Button */}
+                              <div className="sm:col-span-2 flex items-end justify-end">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeMediumIngredient(index)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  {/* Large Size Tab */}
+                  <TabsContent value="large" className="space-y-4 pt-4">
+                    <FormField
+                      control={form.control}
+                      name="largePrice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Large Price</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center border rounded overflow-hidden">
+                              <span className="text-gray-500 px-3 py-2 bg-gray-50">₱</span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                placeholder="0.00"
+                                className="flex-1 border-0 focus-visible:ring-0"
+                                {...field}
+                                value={field.value || ""}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* Large Ingredients */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-md font-medium">Large Ingredients</h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => appendLargeIngredient({ inventoryId: "", quantityUsed: "" })}
+                          className="flex items-center gap-1"
+                        >
+                          <PlusCircle className="h-4 w-4" />
+                          Add Ingredient
+                        </Button>
+                      </div>
+                      
+                      {largeIngredients.length === 0 && (
+                        <p className="text-sm text-gray-500 italic">No ingredients added yet</p>
+                      )}
+                      
+                      {largeIngredients.map((field, index) => (
+                        <Card key={field.id} className="shadow-sm">
+                          <CardContent className="pt-4 pb-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                              {/* Ingredient Select */}
+                              <div className="sm:col-span-6">
+                                <FormField
+                                  control={form.control}
+                                  name={`largeIngredients.${index}.inventoryId`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Ingredient</FormLabel>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select ingredient" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {inventoryItems?.map((item: any) => (
+                                            <SelectItem
+                                              key={item.id}
+                                              value={item.id.toString()}
+                                            >
+                                              {item.name} ({item.unit})
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              {/* Quantity Field */}
+                              <div className="sm:col-span-4">
+                                <FormField
+                                  control={form.control}
+                                  name={`largeIngredients.${index}.quantityUsed`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Quantity</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          min="0"
+                                          placeholder="0.00"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              {/* Remove Button */}
+                              <div className="sm:col-span-2 flex items-end justify-end">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeLargeIngredient(index)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
               
-              <DialogFooter className="pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
                   onClick={onClose}
                   disabled={isSubmitting}
                 >
@@ -507,16 +723,16 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
                 </Button>
                 <Button 
                   type="submit" 
+                  className="bg-[#F15A29] hover:bg-[#D84A19] ml-2" 
                   disabled={isSubmitting}
-                  className="bg-[#F15A29] hover:bg-[#D84A19]"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {product ? "Updating..." : "Creating..."}
+                      Saving...
                     </>
                   ) : (
-                    product ? "Update Product" : "Add Product"
+                    <>{product ? "Update" : "Create"}</>
                   )}
                 </Button>
               </DialogFooter>
