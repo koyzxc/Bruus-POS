@@ -192,13 +192,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           <object
             data={product.imageUrl}
             type="image/svg+xml"
-            className="w-full h-full"
+            className="max-w-full max-h-full object-contain"
+            style={{ width: "100px", height: "100px" }}
             aria-label={product.name}
           >
             <img 
               src={product.imageUrl} 
               alt={product.name} 
-              className="w-2/3 h-2/3 object-contain"
+              className="max-w-full max-h-full object-contain"
+              style={{ width: "100px", height: "100px" }}
             />
           </object>
         )}

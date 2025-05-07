@@ -509,6 +509,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Special route to delete Coffee Matcha product and its sales history
+  app.delete("/api/special/delete-coffee-matcha", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to delete products" });
+    }
+    
+    // Only owners can delete products
+    if (req.user.role !== "owner") {
+      return res.status(403).json({ message: "Only owners can delete products" });
+    }
+    
+    try {
+      // Begin a transaction
+      await db.transaction(async (tx) => {
+        // Step 1: Get the Coffee Matcha product ID
+        const productId = 38; // Specific ID for Coffee Matcha based on our API call
+        
+        // Step 2: First null out references to this product in order_items
+        await tx.update(orderItems)
+          .set({ productId: null })
+          .where(eq(orderItems.productId, productId));
+        
+        console.log(`Nullified order_items references to Coffee Matcha product ID ${productId}`);
+        
+        // Step 3: Delete any ingredients associated with the product
+        await tx.delete(productIngredients)
+          .where(eq(productIngredients.productId, productId));
+          
+        console.log(`Deleted ingredients for Coffee Matcha product ID ${productId}`);
+        
+        // Step 4: Finally delete the actual product
+        const deleted = await tx.delete(products)
+          .where(eq(products.id, productId))
+          .returning();
+          
+        if (deleted.length === 0) {
+          throw new Error("Coffee Matcha product not found");
+        }
+        
+        console.log(`Successfully deleted Coffee Matcha product ID ${productId}`);
+      });
+      
+      res.json({ success: true, message: "Coffee Matcha product and its sales history have been removed" });
+    } catch (error) {
+      console.error("Error deleting Coffee Matcha product:", error);
+      res.status(500).json({ message: "Failed to delete Coffee Matcha product" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

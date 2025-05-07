@@ -4,6 +4,7 @@ import AuthPage from "@/pages/auth-page";
 import DashboardPage from "@/pages/dashboard-page";
 import InventoryPage from "@/pages/inventory-page";
 import SalesPage from "@/pages/sales-page";
+import AdminPage from "@/pages/admin-page";
 import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
