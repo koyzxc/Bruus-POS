@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
-import { db } from "@db";
+import { db, pool } from "@db";
 import { products, insertProductSchema, inventory, insertInventorySchema, productIngredients, orderItems } from "@shared/schema";
 import multer from "multer";
 import { eq } from "drizzle-orm";
@@ -45,6 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Serve static files from the 'public' directory
   app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+  app.use('/real_images', express.static(path.join(process.cwd(), 'public', 'real_images')));
 
   // Categories API
   app.get("/api/categories", async (req, res) => {
