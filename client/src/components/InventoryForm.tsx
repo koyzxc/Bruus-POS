@@ -103,7 +103,9 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         title: "Success",
         description: "Inventory item added successfully",
       });
+      // Invalidate both inventory and low-stock queries
       queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
       form.reset();
       onClose();
     },

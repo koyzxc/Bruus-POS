@@ -90,7 +90,9 @@ export default function InventoryPage() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate both inventory and low-stock queries after deletion
       queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
       toast({
         title: "Success",
         description: "Inventory item deleted successfully",
