@@ -187,11 +187,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
       
-      <div className="h-36 md:h-40 w-full overflow-hidden relative">
+      <div className="h-36 md:h-40 w-full overflow-hidden relative bg-gray-50 flex items-center justify-center">
         <img 
           src={product.imageUrl} 
           alt={product.name} 
-          className="w-full h-full object-cover"
+          className="w-2/3 h-2/3 object-contain"
         />
       </div>
       <div className="p-3 text-center">
