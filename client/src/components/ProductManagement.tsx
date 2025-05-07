@@ -82,28 +82,37 @@ export default function ProductManagement() {
   
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <Button 
-          onClick={handleAddProduct}
-          className="bg-[#F15A29] hover:bg-[#D84A19] text-white"
-          size="sm"
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Product
-        </Button>
+      <div className="flex flex-col space-y-4 mb-4">
+        <h1 className="text-2xl font-bold text-[#F15A29]">Product Management</h1>
         
-        {/* Show delete product button only for owners */}
-        {user.role === "owner" && selectedProduct && (
-          <Button 
-            onClick={() => handleDeleteProduct(selectedProduct)}
-            variant="outline"
-            className="border-red-500 text-red-500 hover:bg-red-50"
-            size="sm"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Product
-          </Button>
-        )}
+        <div className="flex space-x-4">
+          <div className="flex items-center">
+            <div className="rounded-full bg-[#F15A29] p-1 flex items-center justify-center mr-2">
+              <PlusCircle className="h-4 w-4 text-white" />
+            </div>
+            <span 
+              className="text-[#F15A29] font-medium cursor-pointer hover:underline"
+              onClick={handleAddProduct}
+            >
+              Add New Product
+            </span>
+          </div>
+          
+          {/* Show delete product button only for owners */}
+          {user.role === "owner" && selectedProduct && (
+            <div className="flex items-center">
+              <div className="rounded-full bg-red-500 p-1 flex items-center justify-center mr-2">
+                <Trash2 className="h-4 w-4 text-white" />
+              </div>
+              <span 
+                className="text-red-500 font-medium cursor-pointer hover:underline"
+                onClick={() => handleDeleteProduct(selectedProduct)}
+              >
+                Delete Product
+              </span>
+            </div>
+          )}
+        </div>
       </div>
       
       {showProductForm && (
