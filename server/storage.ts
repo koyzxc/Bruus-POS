@@ -353,12 +353,22 @@ class DatabaseStorage implements IStorage {
       }
       
       // Build the query with date filters
-      // Using left join on products in case products are deleted
+      // Using left join on products for sales history
+      // When products are deleted, show NULL values as specified
       const query = db.select({
         productId: orderItems.productId,
-        productName: sql`COALESCE(${products.name}, ${orderItems.productName}, 'Deleted Product')`,
-        price: sql`COALESCE(${products.price}, ${orderItems.price})`,
-        size: sql`COALESCE(${products.size}, ${orderItems.size}, 'M')`,
+        // Show product name from products table only if product exists, otherwise NULL
+        productName: sql`CASE 
+          WHEN ${products.id} IS NULL THEN NULL 
+          ELSE ${products.name} 
+        END`,
+        // Price should be preserved from order_items for accurate sales history
+        price: orderItems.price,
+        // Size from products table only if product exists, otherwise NULL
+        size: sql`CASE 
+          WHEN ${products.id} IS NULL THEN NULL 
+          ELSE ${products.size} 
+        END`,
         quantity: orderItems.quantity,
         createdAt: orders.createdAt
       })
