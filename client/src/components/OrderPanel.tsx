@@ -26,7 +26,7 @@ export default function OrderPanel() {
                   </span>
                   <button 
                     className="text-xl text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center"
-                    onClick={() => removeItem(item.product.id)}
+                    onClick={() => removeItem(item.product.id, item.product.size)}
                   >
                     ×
                   </button>

@@ -82,12 +82,13 @@ export default function ProductManagement() {
   
   return (
     <>
-      <div className="flex gap-2">
+      <div className="flex justify-between items-center mb-4">
         <Button 
           onClick={handleAddProduct}
-          className="bg-[#F15A29] hover:bg-[#D84A19] text-white flex items-center gap-2"
+          className="bg-[#F15A29] hover:bg-[#D84A19] text-white"
+          size="sm"
         >
-          <PlusCircle className="h-4 w-4" />
+          <PlusCircle className="mr-2 h-4 w-4" />
           Add New Product
         </Button>
         
@@ -96,9 +97,10 @@ export default function ProductManagement() {
           <Button 
             onClick={() => handleDeleteProduct(selectedProduct)}
             variant="outline"
-            className="border-red-500 text-red-500 hover:bg-red-50 flex items-center gap-2"
+            className="border-red-500 text-red-500 hover:bg-red-50"
+            size="sm"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete Product
           </Button>
         )}

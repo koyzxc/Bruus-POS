@@ -23,7 +23,7 @@ type CartContextType = {
   items: CartItem[];
   total: number;
   addItem: (product: Product) => void;
-  removeItem: (productId: number) => void;
+  removeItem: (productId: number, size?: string) => void;
   clearCart: () => void;
   processOrder: () => Promise<void>;
   isProcessing: boolean;
@@ -242,10 +242,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   // Remove item from cart
-  const removeItem = (productId: number) => {
-    setItems((prevItems) =>
-      prevItems.filter((item) => item.product.id !== productId)
-    );
+  const removeItem = (productId: number, size?: string) => {
+    setItems((prevItems) => {
+      if (size) {
+        // Remove specific product with matching ID and size
+        return prevItems.filter(item => !(item.product.id === productId && item.product.size === size));
+      } else {
+        // Remove all items with matching ID regardless of size
+        return prevItems.filter(item => item.product.id !== productId);
+      }
+    });
   };
 
   // Clear cart
