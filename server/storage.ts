@@ -208,9 +208,19 @@ class DatabaseStorage implements IStorage {
     try {
       console.log(`Updating inventory for product ID ${productId}, quantity ${quantity}`);
       
-      // Get the product ingredients
-      const ingredients = await this.getProductIngredients(productId);
-      console.log(`Found ${ingredients.length} ingredients for product ID ${productId}`);
+      // Get product details to determine size
+      const product = await this.getProductById(productId);
+      const productSize = product?.size || "M";
+      console.log(`Processing product with size: ${productSize}`);
+      
+      // Get the product ingredients - filter by size if present
+      const allIngredients = await this.getProductIngredients(productId);
+      // Filter ingredients by size if they have size info
+      const ingredients = allIngredients.filter(ing => 
+        !ing.size || ing.size === productSize
+      );
+      
+      console.log(`Found ${ingredients.length} ingredients for product ID ${productId} with size ${productSize}`);
       
       // If no ingredients defined, use default fallback behavior
       if (ingredients.length === 0) {

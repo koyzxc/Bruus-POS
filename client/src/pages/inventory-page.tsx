@@ -122,9 +122,21 @@ export default function InventoryPage() {
         />
       )}
       
-      {/* Search Bar */}
-      <div className="mb-4 relative">
-        <div className="relative">
+      {/* Top controls - Add button and Search */}
+      <div className="mb-4 flex justify-between items-center">
+        {canManageProducts && (
+          <Button
+            onClick={handleOpenInventoryForm}
+            className="bg-[#F15A29] hover:bg-[#D84A19] text-white"
+            size="sm"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Ingredient
+          </Button>
+        )}
+
+        {/* Search Bar */}
+        <div className="relative w-1/3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input
             type="text"
