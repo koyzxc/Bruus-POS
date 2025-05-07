@@ -206,22 +206,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Add item to cart
   const addItem = (product: Product) => {
     setItems((prevItems) => {
+      // For products with size variants, check both product ID and size
       const existingItem = prevItems.find(
-        (item) => item.product.id === product.id
+        (item) => {
+          if (product.size) {
+            // Match both product ID and size when size exists
+            return item.product.id === product.id && item.product.size === product.size;
+          } else {
+            // For products without size, just match ID
+            return item.product.id === product.id;
+          }
+        }
       );
 
       if (existingItem) {
-        return prevItems.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+        return prevItems.map((item) => {
+          // When checking for match, consider size as well
+          const isMatch = product.size 
+            ? (item.product.id === product.id && item.product.size === product.size) 
+            : (item.product.id === product.id);
+          
+          return isMatch ? { ...item, quantity: item.quantity + 1 } : item;
+        });
       } else {
         return [...prevItems, { product, quantity: 1 }];
       }
     });
     
-    // Remove the toast notification when adding products
+    // Show a toast notification when adding products
+    toast({
+      title: "Added to order",
+      description: `${product.name} ${product.size ? `(${product.size})` : ''} added to your order`,
+      duration: 1500,
+    });
   };
 
   // Remove item from cart

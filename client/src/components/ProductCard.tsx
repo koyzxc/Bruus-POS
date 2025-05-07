@@ -31,6 +31,7 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
 
 type SizeOption = {
   id: number;

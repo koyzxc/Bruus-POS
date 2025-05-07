@@ -164,7 +164,8 @@ class DatabaseStorage implements IStorage {
       inventoryId: productIngredients.inventoryId,
       inventoryName: inventory.name,
       quantityUsed: productIngredients.quantityUsed,
-      unit: inventory.unit
+      unit: inventory.unit,
+      size: productIngredients.size
     })
     .from(productIngredients)
     .innerJoin(inventory, eq(productIngredients.inventoryId, inventory.id))
@@ -178,7 +179,8 @@ class DatabaseStorage implements IStorage {
       await db.insert(productIngredients).values({
         productId,
         inventoryId: ingredient.inventoryId,
-        quantityUsed: ingredient.quantityUsed
+        quantityUsed: ingredient.quantityUsed,
+        size: ingredient.size || "M" // Include size information
       });
     }
   }
