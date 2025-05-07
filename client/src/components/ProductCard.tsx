@@ -189,29 +189,29 @@ export default function ProductCard({ product }: ProductCardProps) {
       
       <div className="h-36 md:h-40 w-full overflow-hidden relative bg-gray-50 flex items-center justify-center p-4">
         {product.imageUrl && (
-          product.imageUrl.endsWith('.svg') ? (
-            <object
-              data={product.imageUrl}
-              type="image/svg+xml"
-              className="max-w-full max-h-full object-contain"
-              style={{ width: "100px", height: "100px" }}
-              aria-label={product.name}
-            >
+          <div className="w-[100px] h-[100px] relative flex items-center justify-center">
+            {product.imageUrl.endsWith('.svg') ? (
+              <object
+                data={product.imageUrl}
+                type="image/svg+xml"
+                className="w-full h-full object-contain"
+                aria-label={product.name}
+              >
+                <img 
+                  src={product.imageUrl} 
+                  alt={product.name} 
+                  className="w-full h-full object-contain"
+                />
+              </object>
+            ) : (
               <img 
                 src={product.imageUrl} 
                 alt={product.name} 
-                className="max-w-full max-h-full object-contain"
-                style={{ width: "100px", height: "100px" }}
+                className="w-full h-full object-contain rounded-md"
+                loading="lazy"
               />
-            </object>
-          ) : (
-            <img 
-              src={product.imageUrl} 
-              alt={product.name} 
-              className="max-w-full max-h-full object-contain"
-              style={{ width: "100px", height: "100px" }}
-            />
-          )
+            )}
+          </div>
         )}
       </div>
       <div className="p-3 text-center">
