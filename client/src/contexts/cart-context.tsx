@@ -289,9 +289,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const orderSummaryData = await res.json();
       setOrderSummary(orderSummaryData);
       
-      // Update cache for products, inventory, and sales
+      // Update cache for products, inventory, low-stock items, and sales
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
       queryClient.invalidateQueries({ queryKey: ["/api/sales"] });
       
       // Close payment modal and show order summary

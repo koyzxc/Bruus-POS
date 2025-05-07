@@ -20,10 +20,13 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
   const { user, logoutMutation } = useAuth();
   const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false);
   
-  // Fetch low stock items for alerts
+  // Fetch low stock items for alerts with frequent refresh
   const { data: lowStockItems } = useQuery<Inventory[]>({
     queryKey: ["/api/inventory/low-stock"],
     enabled: true,
+    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchOnMount: true, // Refetch when component mounts
   });
   
   const handleSignOut = () => {
