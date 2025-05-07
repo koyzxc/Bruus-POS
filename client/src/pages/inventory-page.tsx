@@ -122,37 +122,29 @@ export default function InventoryPage() {
         />
       )}
       
-      <div className="flex flex-col space-y-4 mb-4">
-        <h1 className="text-2xl font-bold text-[#F15A29]">Inventory Management</h1>
-        
-        <div className="flex space-x-4">
-          {canManageProducts && (
-            <div className="flex items-center">
-              <div className="rounded-full bg-[#F15A29] p-1 flex items-center justify-center mr-2">
-                <PlusCircle className="h-4 w-4 text-white" />
-              </div>
-              <span 
-                className="text-[#F15A29] font-medium cursor-pointer hover:underline"
-                onClick={handleOpenInventoryForm}
-              >
-                Add New Ingredient
-              </span>
-            </div>
-          )}
-        </div>
-        
+      {/* Top controls - Add button and Search */}
+      <div className="mb-4 flex justify-between items-center">
+        {canManageProducts && (
+          <Button
+            onClick={handleOpenInventoryForm}
+            className="bg-[#F15A29] hover:bg-[#D84A19] text-white"
+            size="sm"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Ingredient
+          </Button>
+        )}
+
         {/* Search Bar */}
-        <div className="flex justify-between items-center">
-          <div className="relative w-1/3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <Input
-              type="text"
-              placeholder="Search ingredients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F15A29] focus:border-transparent"
-            />
-          </div>
+        <div className="relative w-1/3">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Input
+            type="text"
+            placeholder="Search ingredients..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F15A29] focus:border-transparent"
+          />
         </div>
       </div>
       
