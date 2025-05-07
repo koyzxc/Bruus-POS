@@ -162,87 +162,89 @@ export default function InventoryPage() {
       </div>
       
       <div className="bg-white rounded-xl overflow-hidden shadow-lg mt-2">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-left py-4 px-6 font-bold text-lg sticky top-0 bg-white z-10">NAME OF THE INGREDIENT</TableHead>
-              <TableHead className="text-right py-4 px-6 font-bold text-lg sticky top-0 bg-white z-10">STOCKS</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="max-h-[calc(100vh-240px)] block overflow-y-auto">
-            {isLoading ? (
-              Array(6)
-                .fill(null)
-                .map((_, i) => (
-                  <TableRow key={i} className="table w-full table-fixed">
-                    <TableCell className="py-4 px-6 w-3/4">
-                      <Skeleton className="h-6 w-3/4" />
-                    </TableCell>
-                    <TableCell className="py-4 px-6 text-right w-1/4">
-                      <Skeleton className="h-6 w-20 ml-auto" />
-                    </TableCell>
-                  </TableRow>
-                ))
-            ) : (
-              filteredInventoryItems.map((item) => {
-                return (
-                  <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6] table w-full table-fixed">
-                    <TableCell className="py-4 px-6 w-3/4">
-                      <div className="flex justify-between items-center">
-                        <span>{item.name}</span>
-                        <div className="flex">
-                          {canManageProducts && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditInventory(item);
-                              }}
-                              className="ml-2"
-                            >
-                              <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
-                            </Button>
-                          )}
-                          
-                          {/* Delete button - owner only */}
-                          {user?.role === "owner" && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteInventory(item);
-                              }}
-                              className="ml-2"
-                            >
-                              <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-4 px-6 text-right w-1/4">
-                      <span className={`font-medium ${
-                        parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
-                      }`}>
-                        {item.currentStock} {item.unit || ""}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-            
-            {!isLoading && (!filteredInventoryItems.length) && (
-              <TableRow className="table w-full">
-                <TableCell colSpan={2} className="text-center py-10 text-gray-500">
-                  No inventory items found
-                </TableCell>
+        <div className="overflow-x-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left py-4 px-6 font-bold text-lg bg-white z-10">NAME OF THE INGREDIENT</TableHead>
+                <TableHead className="text-right py-4 px-6 font-bold text-lg bg-white z-10 w-[180px]">STOCKS</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array(6)
+                  .fill(null)
+                  .map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="py-4 px-6">
+                        <Skeleton className="h-6 w-3/4" />
+                      </TableCell>
+                      <TableCell className="py-4 px-6 text-right w-[180px]">
+                        <Skeleton className="h-6 w-20 ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+              ) : (
+                filteredInventoryItems.map((item) => {
+                  return (
+                    <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6]">
+                      <TableCell className="py-4 px-6">
+                        <div className="flex justify-between items-center">
+                          <span>{item.name}</span>
+                          <div className="flex">
+                            {canManageProducts && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditInventory(item);
+                                }}
+                                className="ml-2"
+                              >
+                                <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
+                              </Button>
+                            )}
+                            
+                            {/* Delete button - owner only */}
+                            {user?.role === "owner" && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteInventory(item);
+                                }}
+                                className="ml-2"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4 px-6 text-right w-[180px]">
+                        <span className={`font-medium ${
+                          parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
+                        }`}>
+                          {item.currentStock} {item.unit || ""}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+              
+              {!isLoading && (!filteredInventoryItems.length) && (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center py-10 text-gray-500">
+                    No inventory items found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
       
       {/* Delete Confirmation Dialog */}

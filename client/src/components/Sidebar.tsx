@@ -71,17 +71,17 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
                     const event = new CustomEvent('addNewProduct');
                     window.dispatchEvent(event);
                   }}
-                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border border-white flex items-center justify-start gap-2 pl-4"
+                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border-0 flex items-center justify-start gap-2 pl-2 opacity-90 text-sm"
                 >
-                  <PlusCircle className="h-4 w-4" />
+                  <PlusCircle className="h-5 w-5" />
                   Add New Product
                 </Button>
                 
                 <Button
                   onClick={onOpenInventoryForm}
-                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border border-white flex items-center justify-start gap-2 pl-4"
+                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border-0 flex items-center justify-start gap-2 pl-2 opacity-90 text-sm"
                 >
-                  <PlusCircle className="h-4 w-4" />
+                  <PlusCircle className="h-5 w-5" />
                   Add New Ingredient
                 </Button>
               </div>
