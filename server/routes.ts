@@ -215,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Delete product endpoint
+  // Delete product endpoint - allows deletion even with sales history
   app.delete("/api/products/:id", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "You must be logged in to delete a product" });
@@ -235,17 +235,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Product not found" });
       }
       
-      // Check if product is used in any order items
-      const orderItemsWithProduct = await db.select()
-        .from(orderItems)
-        .where(eq(orderItems.productId, productId));
-      
-      if (orderItemsWithProduct.length > 0) {
-        console.log(`Cannot delete product ID ${productId} as it is used in ${orderItemsWithProduct.length} order items`);
-        return res.status(400).json({ 
-          message: "Cannot delete product as it is used in one or more orders. This product has sales history." 
-        });
-      }
+      // Even if the product has sales history, we'll allow deletion
+      // The sales history will remain intact with null values for product details
       
       // First delete product ingredients to avoid foreign key constraints
       await db.delete(productIngredients).where(eq(productIngredients.productId, productId));

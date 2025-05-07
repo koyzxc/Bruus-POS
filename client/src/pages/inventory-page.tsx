@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import ProductManagement from "@/components/ProductManagement";
@@ -8,7 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2 } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,7 @@ export default function InventoryPage() {
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<Inventory | undefined>(undefined);
   const [inventoryToDelete, setInventoryToDelete] = useState<Inventory | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -35,6 +37,18 @@ export default function InventoryPage() {
   const { data: inventoryItems, isLoading } = useQuery<Inventory[]>({
     queryKey: ["/api/inventory"],
   });
+  
+  // Filter inventory items based on search query
+  const filteredInventoryItems = useMemo(() => {
+    if (!inventoryItems) return [];
+    
+    if (!searchQuery.trim()) return inventoryItems;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return inventoryItems.filter(item => 
+      item.name.toLowerCase().includes(query)
+    );
+  }, [inventoryItems, searchQuery]);
   
   // Check if user is authorized to manage products
   const canManageProducts = user && (user.role === "owner" || user.role === "barista");
@@ -108,6 +122,20 @@ export default function InventoryPage() {
         />
       )}
       
+      {/* Search Bar */}
+      <div className="mb-4 relative">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Input
+            type="text"
+            placeholder="Search ingredients..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F15A29] focus:border-transparent"
+          />
+        </div>
+      </div>
+      
       <div className="bg-white rounded-xl overflow-hidden shadow-lg mt-2">
         <Table>
           <TableHeader>
@@ -131,7 +159,7 @@ export default function InventoryPage() {
                   </TableRow>
                 ))
             ) : (
-              inventoryItems?.map((item) => {
+              filteredInventoryItems.map((item) => {
                 return (
                   <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6] table w-full table-fixed">
                     <TableCell className="py-4 px-6 w-3/4">
@@ -181,7 +209,7 @@ export default function InventoryPage() {
               })
             )}
             
-            {!isLoading && (!inventoryItems || inventoryItems.length === 0) && (
+            {!isLoading && (!filteredInventoryItems.length) && (
               <TableRow className="table w-full">
                 <TableCell colSpan={2} className="text-center py-10 text-gray-500">
                   No inventory items found
