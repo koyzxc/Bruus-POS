@@ -64,6 +64,7 @@ export const productIngredients = pgTable("product_ingredients", {
   productId: integer("product_id").references(() => products.id).notNull(),
   inventoryId: integer("inventory_id").references(() => inventory.id).notNull(),
   quantityUsed: decimal("quantity_used", { precision: 10, scale: 2 }).notNull(),
+  size: text("size").default("M"), // M = medium (default), L = large
 });
 
 export const insertProductIngredientSchema = createInsertSchema(productIngredients);
