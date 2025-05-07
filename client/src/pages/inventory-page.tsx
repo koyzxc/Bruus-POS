@@ -153,7 +153,7 @@ export default function InventoryPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="text-left py-4 px-6 font-bold text-lg sticky top-0 bg-white z-10">NAME OF THE INGREDIENT</TableHead>
-              <TableHead className="text-right py-4 px-6 font-bold text-lg sticky top-0 bg-white z-10"></TableHead>
+              <TableHead className="text-right py-4 px-6 font-bold text-lg sticky top-0 bg-white z-10">STOCKS</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="max-h-[calc(100vh-240px)] block overflow-y-auto">
@@ -210,14 +210,11 @@ export default function InventoryPage() {
                       </div>
                     </TableCell>
                     <TableCell className="py-4 px-6 text-right w-1/4">
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm text-gray-500 mb-1">STOCKS</span>
-                        <span className={`font-medium ${
-                          parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
-                        }`}>
-                          {item.currentStock} {item.unit || ""}
-                        </span>
-                      </div>
+                      <span className={`font-medium ${
+                        parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
+                      }`}>
+                        {item.currentStock} {item.unit || ""}
+                      </span>
                     </TableCell>
                   </TableRow>
                 );
