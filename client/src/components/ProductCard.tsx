@@ -187,12 +187,21 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
       
-      <div className="h-36 md:h-40 w-full overflow-hidden relative bg-gray-50 flex items-center justify-center">
-        <img 
-          src={product.imageUrl} 
-          alt={product.name} 
-          className="w-2/3 h-2/3 object-contain"
-        />
+      <div className="h-36 md:h-40 w-full overflow-hidden relative bg-gray-50 flex items-center justify-center p-4">
+        {product.imageUrl && (
+          <object
+            data={product.imageUrl}
+            type="image/svg+xml"
+            className="w-full h-full"
+            aria-label={product.name}
+          >
+            <img 
+              src={product.imageUrl} 
+              alt={product.name} 
+              className="w-2/3 h-2/3 object-contain"
+            />
+          </object>
+        )}
       </div>
       <div className="p-3 text-center">
         <h3 className="text-base md:text-lg font-medium uppercase tracking-wide">
