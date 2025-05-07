@@ -134,6 +134,7 @@ export type SalesData = {
   id: number;
   productId: number;
   productName: string;
+  size: string;
   price: number;
   volume: number;
   totalSales: number;

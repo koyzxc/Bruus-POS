@@ -193,7 +193,11 @@ export default function SalesPage() {
               salesData?.map((item) => (
                 <TableRow key={item.id} className="border-b border-white border-opacity-20 hover:bg-[#FF7A47]">
                   <TableCell className="py-4 px-6 text-white">
-                    {item.productName === null ? "(Deleted Product)" : item.productName}
+                    {item.productName === null ? "(Deleted Product)" : (
+                      <div>
+                        {item.productName} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{item.size}</span>
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="py-4 px-6 text-center text-white">₱ {item.price.toFixed(2)}</TableCell>
                   <TableCell className="py-4 px-6 text-center text-white">{item.volume}</TableCell>
