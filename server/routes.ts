@@ -133,12 +133,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             : req.body.ingredients;
 
           if (Array.isArray(ingredients)) {
+            // Process ingredients - the new format includes size information
+            const processedIngredients = ingredients.map((ing: any) => ({
+              inventoryId: parseInt(ing.inventoryId),
+              quantityUsed: parseFloat(ing.quantityUsed),
+              // If the ingredient has a size property, use it; otherwise default to the product's size
+              size: ing.size || productValidationData.size
+            }));
+            
             await storage.addProductIngredients(
               product.id, 
-              ingredients.map((ing: any) => ({
-                inventoryId: parseInt(ing.inventoryId),
-                quantityUsed: parseFloat(ing.quantityUsed)
-              }))
+              processedIngredients
             );
           }
         } catch (error) {
@@ -195,12 +200,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             : req.body.ingredients;
             
           if (Array.isArray(ingredients)) {
+            // Process ingredients with size information
+            const processedIngredients = ingredients.map((ing: any) => ({
+              inventoryId: parseInt(ing.inventoryId),
+              quantityUsed: parseFloat(ing.quantityUsed),
+              // If the ingredient has a size property, use it; otherwise default to the product's size
+              size: ing.size || productData.size
+            }));
+            
             await storage.updateProductIngredients(
               productId, 
-              ingredients.map((ing: any) => ({
-                inventoryId: parseInt(ing.inventoryId),
-                quantityUsed: parseFloat(ing.quantityUsed)
-              }))
+              processedIngredients
             );
           }
         } catch (error) {
