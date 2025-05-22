@@ -68,7 +68,7 @@ export default function AuthPage() {
           <CardContent>
             <div className="bg-[#FFE6C7] rounded-xl p-5">
               {loginError && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div className="text-red-600 text-sm text-center mb-4 font-medium">
                   {loginError}
                 </div>
               )}
