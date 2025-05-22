@@ -70,6 +70,7 @@ interface InventoryFormProps {
   isOpen: boolean;
   onClose: () => void;
   inventoryItem?: Inventory; // Optional for editing
+  mode: "create" | "edit" | "restock"; // Add mode prop
 }
 
 // Container type options
@@ -97,7 +98,7 @@ const unitOptions = [
   { value: "g", label: "Gram (g)" },
 ];
 
-export default function InventoryForm({ isOpen, onClose, inventoryItem }: InventoryFormProps) {
+export default function InventoryForm({ isOpen, onClose, inventoryItem, mode = "create" }: InventoryFormProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const queryClient = useQueryClient();
