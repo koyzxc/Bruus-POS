@@ -41,9 +41,9 @@ export default function AuthPage() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left side with login form */}
-      <div className="flex items-center justify-center p-6 md:w-1/2 bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      {/* Centered login form */}
+      <div className="flex items-center justify-center p-6 w-full">
         <Card className="w-full max-w-md border-0 shadow-xl">
           <CardHeader className="text-center">
             <div className="flex flex-col items-center mb-6">
