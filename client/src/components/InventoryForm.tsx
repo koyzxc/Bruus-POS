@@ -346,7 +346,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
       }}
     >
       <DialogContent 
-        className="max-w-md md:max-w-xl" 
+        className="max-w-md md:max-w-xl max-h-[85vh] overflow-y-auto" 
         onInteractOutside={(e) => {
           // Prevent closing when clicking outside
           e.preventDefault();
