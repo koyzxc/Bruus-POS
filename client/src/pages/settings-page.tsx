@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, UserPlus, Edit } from "lucide-react";
+import { Trash2, UserPlus, Edit, LogOut } from "lucide-react";
 import { User } from "@shared/schema";
 
 const userFormSchema = z.object({
