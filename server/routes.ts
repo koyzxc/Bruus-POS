@@ -300,6 +300,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: req.body.name,
         currentStock: req.body.currentStock,
         minimumThreshold: req.body.minimumThreshold,
+        containerType: req.body.containerType || "direct",
+        containerQuantity: req.body.containerQuantity || null,
+        secondaryUnit: req.body.secondaryUnit || null,
         unit: req.body.unit
       };
       

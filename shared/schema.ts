@@ -51,7 +51,19 @@ export const inventory = pgTable("inventory", {
   name: text("name").notNull().unique(),
   currentStock: decimal("current_stock", { precision: 10, scale: 2 }).notNull(),
   minimumThreshold: decimal("minimum_threshold", { precision: 10, scale: 2 }).notNull(),
+  
+  // Primary unit of measurement (Box, Pack, Bag, or direct units)
+  containerType: text("container_type").notNull(),
+  
+  // Quantity of secondary units in this container (e.g., 10 pieces per box)
+  containerQuantity: decimal("container_quantity", { precision: 10, scale: 2 }),
+  
+  // Secondary unit of measurement (Piece, Pack, Bottle)
+  secondaryUnit: text("secondary_unit"),
+  
+  // The actual measurement unit (ml, oz, pc, kg, g)
   unit: text("unit").notNull(),
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

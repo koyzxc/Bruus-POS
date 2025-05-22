@@ -43,6 +43,17 @@ const formSchema = z.object({
   minimumThreshold: z.string().refine(val => parseFloat(val) >= 0, {
     message: "Minimum threshold must be a non-negative number",
   }),
+  
+  // Primary container type (Box, Pack, Bag or direct units)
+  containerType: z.string().min(1, "Container type is required"),
+  
+  // Quantity of secondary units (e.g., 10 pieces per box)
+  containerQuantity: z.string().optional().transform(val => val === "" ? undefined : val),
+  
+  // Secondary unit (Piece, Pack, Bottle)
+  secondaryUnit: z.string().optional(),
+  
+  // Final measurement unit (ml, oz, pc, kg, g)
   unit: z.string().min(1, "Unit is required"),
 });
 
@@ -54,20 +65,37 @@ interface InventoryFormProps {
   inventoryItem?: Inventory; // Optional for editing
 }
 
+// Container type options
+const containerTypeOptions = [
+  { value: "direct", label: "Direct Measurement" }, // For single unit items
+  { value: "box", label: "Box" },
+  { value: "pack", label: "Pack" },
+  { value: "bag", label: "Bag" },
+];
+
+// Secondary unit options (what's inside the container)
+const secondaryUnitOptions = [
+  { value: "piece", label: "Piece" },
+  { value: "pack", label: "Pack" },
+  { value: "bottle", label: "Bottle" },
+];
+
+// Final measurement unit options
 const unitOptions = [
   { value: "ml", label: "Milliliter (ml)" },
   { value: "oz", label: "Ounce (oz)" },
   { value: "pc", label: "Piece (pc)" },
-  { value: "cup", label: "Cup" },
   { value: "kg", label: "Kilogram (kg)" },
   { value: "g", label: "Gram (g)" },
-  { value: "box", label: "Box" },
 ];
 
 export default function InventoryForm({ isOpen, onClose, inventoryItem }: InventoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isEditing = !!inventoryItem;
+  
+  // State to track whether container details should be shown
+  const [showContainerDetails, setShowContainerDetails] = useState(false);
   
   // Initialize form
   const form = useForm<FormValues>({
@@ -76,6 +104,9 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
       name: inventoryItem?.name || "",
       currentStock: inventoryItem?.currentStock?.toString() || "",
       minimumThreshold: inventoryItem?.minimumThreshold?.toString() || "",
+      containerType: inventoryItem?.containerType || "direct",
+      containerQuantity: inventoryItem?.containerQuantity?.toString() || "",
+      secondaryUnit: inventoryItem?.secondaryUnit || "",
       unit: inventoryItem?.unit || "",
     },
   });
@@ -87,10 +118,26 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         name: inventoryItem.name,
         currentStock: inventoryItem.currentStock.toString(),
         minimumThreshold: inventoryItem.minimumThreshold.toString(),
+        containerType: inventoryItem?.containerType || "direct",
+        containerQuantity: inventoryItem?.containerQuantity?.toString() || "",
+        secondaryUnit: inventoryItem?.secondaryUnit || "",
         unit: inventoryItem.unit,
       });
+      
+      // If editing an item with a container type other than direct, show container details
+      if (inventoryItem.containerType && inventoryItem.containerType !== "direct") {
+        setShowContainerDetails(true);
+      }
     }
   }, [inventoryItem, form]);
+  
+  // Watch container type to control whether to show container details
+  const containerType = form.watch("containerType");
+  
+  // Update showContainerDetails based on container type
+  useEffect(() => {
+    setShowContainerDetails(containerType !== "direct");
+  }, [containerType]);
   
   // Create mutation for adding inventory items
   const createMutation = useMutation({
@@ -227,10 +274,96 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
             
             <FormField
               control={form.control}
+              name="containerType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Container Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select container type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {containerTypeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            {showContainerDetails && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="containerQuantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quantity per Container</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            step="1" 
+                            min="1" 
+                            placeholder="e.g., 10"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="secondaryUnit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Secondary Unit</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select unit" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {secondaryUnitOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+            
+            <FormField
+              control={form.control}
               name="unit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Unit of Measurement</FormLabel>
+                  <FormLabel>
+                    {showContainerDetails 
+                      ? "Measurement Unit (per secondary unit)" 
+                      : "Unit of Measurement"}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
