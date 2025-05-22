@@ -27,10 +27,24 @@ import { useToast } from "@/hooks/use-toast";
 const formatStockDisplay = (value: string, unit: string): { value: string, unit: string } => {
   const numValue = parseFloat(value);
   
+  // Helper to remove trailing zeros and decimal point if no fractional part
+  const removeTrailingZeros = (num: number): string => {
+    // Convert to string with 2 decimal places
+    const strValue = num.toFixed(2);
+    
+    // If it ends with .00, return just the integer part
+    if (strValue.endsWith('.00')) {
+      return Math.floor(num).toString();
+    }
+    
+    // Otherwise, return with appropriate decimal places, removing trailing zeros
+    return parseFloat(strValue).toString();
+  };
+  
   if (unit === "g" && numValue >= 1000) {
     // Convert grams to kilograms if >= 1000g
     return { 
-      value: (numValue / 1000).toFixed(2), 
+      value: removeTrailingZeros(numValue / 1000), 
       unit: "kg" 
     };
   } else if (unit === "g" && numValue < 1000) {
@@ -42,7 +56,7 @@ const formatStockDisplay = (value: string, unit: string): { value: string, unit:
   } else if (unit === "ml" && numValue >= 1000) {
     // Convert milliliters to liters if >= 1000ml
     return { 
-      value: (numValue / 1000).toFixed(2), 
+      value: removeTrailingZeros(numValue / 1000), 
       unit: "l" 
     };
   } else if (unit === "ml" && numValue < 1000) {
@@ -53,8 +67,11 @@ const formatStockDisplay = (value: string, unit: string): { value: string, unit:
     };
   }
   
-  // Default format for other units
-  return { value, unit };
+  // For other units, still use the decimal formatting cleanup
+  return { 
+    value: removeTrailingZeros(numValue), 
+    unit 
+  };
 };
 
 export default function InventoryPage() {
@@ -361,7 +378,7 @@ export default function InventoryPage() {
                               <span className={`font-medium text-lg ${
                                 parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
                               }`}>
-                                {formattedStock.value} {formattedStock.unit}
+                                {formattedStock.value}{formattedStock.unit}
                               </span>
                             );
                           })()}
@@ -375,7 +392,7 @@ export default function InventoryPage() {
                                 const formattedQtyPerUnit = formatStockDisplay(item.quantityPerUnit, item.unit || "");
                                 return (
                                   <div>
-                                    {formattedQtyPerUnit.value} {formattedQtyPerUnit.unit}/{item.secondaryUnit === "piece" ? "pc" : item.secondaryUnit}
+                                    {formattedQtyPerUnit.value}{formattedQtyPerUnit.unit}/{item.secondaryUnit === "piece" ? "pc" : item.secondaryUnit}
                                   </div>
                                 );
                               })()}

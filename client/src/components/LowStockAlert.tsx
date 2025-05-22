@@ -6,10 +6,24 @@ import React, { useState, useEffect } from "react";
 const formatStockDisplay = (value: string, unit: string): { value: string, unit: string } => {
   const numValue = parseFloat(value);
   
+  // Helper to remove trailing zeros and decimal point if no fractional part
+  const removeTrailingZeros = (num: number): string => {
+    // Convert to string with 2 decimal places
+    const strValue = num.toFixed(2);
+    
+    // If it ends with .00, return just the integer part
+    if (strValue.endsWith('.00')) {
+      return Math.floor(num).toString();
+    }
+    
+    // Otherwise, return with appropriate decimal places, removing trailing zeros
+    return parseFloat(strValue).toString();
+  };
+  
   if (unit === "g" && numValue >= 1000) {
     // Convert grams to kilograms if >= 1000g
     return { 
-      value: (numValue / 1000).toFixed(2), 
+      value: removeTrailingZeros(numValue / 1000), 
       unit: "kg" 
     };
   } else if (unit === "g" && numValue < 1000) {
@@ -21,7 +35,7 @@ const formatStockDisplay = (value: string, unit: string): { value: string, unit:
   } else if (unit === "ml" && numValue >= 1000) {
     // Convert milliliters to liters if >= 1000ml
     return { 
-      value: (numValue / 1000).toFixed(2), 
+      value: removeTrailingZeros(numValue / 1000), 
       unit: "l" 
     };
   } else if (unit === "ml" && numValue < 1000) {
@@ -32,8 +46,11 @@ const formatStockDisplay = (value: string, unit: string): { value: string, unit:
     };
   }
   
-  // Default format for other units
-  return { value, unit };
+  // For other units, still use the decimal formatting cleanup
+  return { 
+    value: removeTrailingZeros(numValue), 
+    unit 
+  };
 };
 
 type LowStockAlertProps = {
@@ -83,7 +100,7 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
             <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full font-medium">
               {(() => {
                 const formattedStock = formatStockDisplay(item.currentStock, item.unit || "");
-                return `${formattedStock.value} ${formattedStock.unit}`;
+                return `${formattedStock.value}${formattedStock.unit}`;
               })()}
             </span>
           </div>
