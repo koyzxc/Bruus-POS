@@ -76,7 +76,7 @@ const containerTypeOptions = [
   { value: "direct", label: "Direct Measurement" }, // For single unit items
   { value: "box", label: "Box" },
   { value: "pack", label: "Pack" },
-  { value: "bag", label: "Bag" },
+  { value: "case", label: "Case" },
 ];
 
 // Secondary unit options (what's inside the container)
@@ -89,7 +89,7 @@ const secondaryUnitOptions = [
 // Final measurement unit options
 const unitOptions = [
   { value: "ml", label: "Milliliter (ml)" },
-  { value: "l", label: "Liter (l)" },
+  { value: "L", label: "Liter (L)" },
   { value: "oz", label: "Ounce (oz)" },
   { value: "pc", label: "Piece (pc)" },
   { value: "kg", label: "Kilogram (kg)" },
