@@ -359,20 +359,20 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
               ? "Update ingredient details and stock levels."
               : "Enter details for the new inventory ingredient."
             }
-            
-            {calculatedStock && containerType !== "direct" && (
-              <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-md text-sm">
-                <span className="font-medium">Calculated total:</span> {calculatedStock} {form.watch("unit")}
-                <div className="text-xs text-muted-foreground mt-1">
-                  <span className="font-medium">{parseFloat(numberOfContainers || "1")} {containerType}{parseFloat(numberOfContainers || "1") > 1 ? 'es' : ''}</span> × {containerQuantity} {form.watch("secondaryUnit") || "units"} × {quantityPerUnit} {form.watch("unit")}/unit = {calculatedStock} {form.watch("unit")}
-                </div>
-              </div>
-            )}
           </DialogDescription>
         </DialogHeader>
         
+        {calculatedStock && containerType !== "direct" && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-md">
+            <p className="font-medium">Calculated total: {calculatedStock} {form.watch("unit")}</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              <span className="font-medium">{parseFloat(numberOfContainers || "1")} {containerType}{parseFloat(numberOfContainers || "1") > 1 ? 'es' : ''}</span> × {containerQuantity} {form.watch("secondaryUnit") || "units"} × {quantityPerUnit} {form.watch("unit")}/unit = {calculatedStock} {form.watch("unit")}
+            </p>
+          </div>
+        )}
+        
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="name"
