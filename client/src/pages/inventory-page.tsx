@@ -3,12 +3,13 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import ProductForm from "@/components/ProductForm";
 import InventoryForm from "@/components/InventoryForm";
+import RestockForm from "@/components/RestockForm";
 import { Inventory } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Search, ArrowUp, ArrowDown } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Search, ArrowUp, ArrowDown, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
   AlertDialog,
@@ -80,6 +81,8 @@ export default function InventoryPage() {
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<Inventory | undefined>(undefined);
   const [inventoryToDelete, setInventoryToDelete] = useState<Inventory | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isRestockFormOpen, setIsRestockFormOpen] = useState(false);
+  const [itemToRestock, setItemToRestock] = useState<Inventory | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   
   // Sorting states
@@ -155,6 +158,11 @@ export default function InventoryPage() {
   const handleEditInventory = (item: Inventory) => {
     setSelectedInventoryItem(item);
     setIsInventoryFormOpen(true);
+  };
+
+  const handleRestockInventory = (item: Inventory) => {
+    setItemToRestock(item);
+    setIsRestockFormOpen(true);
   };
   
   const handleOpenInventoryForm = () => {
