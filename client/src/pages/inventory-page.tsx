@@ -170,6 +170,7 @@ export default function InventoryPage() {
               <TableRow>
                 <TableHead className="text-left py-4 px-6 font-bold text-lg">NAME OF THE INGREDIENT</TableHead>
                 <TableHead className="text-right py-4 px-6 font-bold text-lg w-[180px]">STOCKS</TableHead>
+                <TableHead className="text-right py-4 px-6 font-bold text-lg w-[100px]">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
           </Table>
@@ -193,41 +194,9 @@ export default function InventoryPage() {
               ) : (
                 filteredInventoryItems.map((item) => {
                   return (
-                    <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6]">
+                    <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6] group relative">
                       <TableCell className="py-4 px-6">
-                        <div className="flex justify-between items-center">
-                          <span>{item.name}</span>
-                          <div className="flex">
-                            {canManageProducts && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditInventory(item);
-                                }}
-                                className="ml-2"
-                              >
-                                <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
-                              </Button>
-                            )}
-                            
-                            {/* Delete button - owner only */}
-                            {user?.role === "owner" && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteInventory(item);
-                                }}
-                                className="ml-2"
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
+                        <span>{item.name}</span>
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[180px]">
                         <span className={`font-medium ${
@@ -235,6 +204,38 @@ export default function InventoryPage() {
                         }`}>
                           {item.currentStock} {item.unit || ""}
                         </span>
+                      </TableCell>
+                      <TableCell className="py-4 px-6 text-right w-[100px]">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end">
+                          {canManageProducts && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditInventory(item);
+                              }}
+                              className="px-2"
+                            >
+                              <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
+                            </Button>
+                          )}
+                          
+                          {/* Delete button - owner only */}
+                          {user?.role === "owner" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteInventory(item);
+                              }}
+                              className="px-2"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
