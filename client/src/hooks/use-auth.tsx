@@ -81,8 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onSuccess: () => {
-      queryClient.setQueryData(["/api/user"], null);
-      queryClient.clear(); // Clear all cached data
       // Immediate redirect to login page
       window.location.href = "/auth";
     },
