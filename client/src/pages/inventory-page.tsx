@@ -170,7 +170,7 @@ export default function InventoryPage() {
               <TableRow>
                 <TableHead className="text-left py-4 px-6 font-bold text-lg">NAME OF THE INGREDIENT</TableHead>
                 <TableHead className="text-right py-4 px-6 font-bold text-lg w-[180px]">STOCKS</TableHead>
-                <TableHead className="text-right py-4 px-6 font-bold text-lg w-[100px]">ACTIONS</TableHead>
+                <TableHead className="text-right py-4 px-6 font-bold text-lg w-[100px]"></TableHead>
               </TableRow>
             </TableHeader>
           </Table>
