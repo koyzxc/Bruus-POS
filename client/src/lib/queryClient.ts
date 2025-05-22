@@ -14,10 +14,7 @@ export async function apiRequest(
 ): Promise<Response> {
   const res = await fetch(url, {
     method,
-    headers: { 
-      "Content-Type": "application/json",
-      ...(data ? {} : {})
-    },
+    headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -55,19 +52,14 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 30000,
-      retry: 1,
+      staleTime: Infinity,
+      retry: false,
     },
     mutations: {
       retry: false,
     },
-  },
-});
-
-queryClient.setDefaultOptions({
-  queries: {
-    queryFn: getQueryFn({ on401: "throw" }),
   },
 });

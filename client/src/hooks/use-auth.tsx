@@ -39,8 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
-      // Immediate redirect to main page after successful login
-      window.location.href = "/";
+      toast({
+        title: "Login successful",
+        description: `Welcome back, ${user.username}!`,
+      });
     },
     onError: (error: Error) => {
       // Error handling is now done in the auth page component
@@ -71,18 +73,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      // Clear client data immediately for instant response
-      queryClient.setQueryData(["/api/user"], null);
-      queryClient.clear();
-      
-      // Make logout request (don't wait for it)
-      apiRequest("POST", "/api/logout").catch(() => {
-        // Silent fail - user already logged out locally
-      });
+      await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
-      // Immediate redirect to login page
-      window.location.href = "/auth";
+      queryClient.setQueryData(["/api/user"], null);
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully",
+      });
     },
     onError: (error: Error) => {
       // Silent error handling for auth page
