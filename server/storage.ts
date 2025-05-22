@@ -23,6 +23,9 @@ export interface IStorage {
   getUser: (id: number) => Promise<User | undefined>;
   getUserByUsername: (username: string) => Promise<User | undefined>;
   createUser: (userData: InsertUser) => Promise<User>;
+  getAllUsers: () => Promise<User[]>;
+  updateUser: (id: number, userData: Partial<InsertUser>) => Promise<User>;
+  deleteUser: (id: number) => Promise<void>;
   
   // Products methods
   getProductsByCategory: (category: string) => Promise<typeof products.$inferSelect[]>;
@@ -75,6 +78,28 @@ class DatabaseStorage implements IStorage {
   async createUser(userData: InsertUser): Promise<User> {
     const [user] = await db.insert(users).values(userData).returning();
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(users.createdAt);
+  }
+
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User> {
+    // Filter out empty password
+    const updateData = { ...userData };
+    if (updateData.password === "") {
+      delete updateData.password;
+    }
+    
+    const [user] = await db.update(users)
+      .set(updateData)
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
   
   // Products methods
