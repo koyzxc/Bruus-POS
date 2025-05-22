@@ -383,8 +383,6 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                     <Input 
                       placeholder="e.g., Coffee Beans" 
                       {...field} 
-                      disabled={isEditing}
-                      className={isEditing ? "bg-gray-100" : ""}
                     />
                   </FormControl>
                   <FormMessage />
