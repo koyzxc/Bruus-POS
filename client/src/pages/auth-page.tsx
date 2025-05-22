@@ -41,10 +41,11 @@ export default function AuthPage() {
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (user) {
+    if (user && !loginMutation.isPending) {
+      console.log("User authenticated, redirecting to dashboard:", user);
       navigate("/");
     }
-  }, [user, navigate]);
+  }, [user, navigate, loginMutation.isPending]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
