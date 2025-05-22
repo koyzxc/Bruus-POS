@@ -50,12 +50,15 @@ export default function SettingsPage() {
   // Create user mutation
   const createUserMutation = useMutation({
     mutationFn: async (data: UserFormValues) => {
+      console.log("Creating user with data:", data);
       const res = await apiRequest("POST", "/api/users", data);
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (newUser) => {
+      console.log("User created successfully:", newUser);
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       setIsCreateDialogOpen(false);
+      setEditingUser(null);
       form.reset();
       toast({
         title: "User created",
@@ -63,6 +66,7 @@ export default function SettingsPage() {
       });
     },
     onError: (error: Error) => {
+      console.error("Error creating user:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -179,8 +183,12 @@ export default function SettingsPage() {
                   Create and manage accounts for your coffee shop including the existing barista account
                 </CardDescription>
               </div>
-              <Dialog open={isCreateDialogOpen || !!editingUser} onOpenChange={() => {
-                // Prevent closing when clicking outside - only allow X button and Cancel/Submit
+              <Dialog open={isCreateDialogOpen || !!editingUser} onOpenChange={(open) => {
+                if (!open) {
+                  setIsCreateDialogOpen(false);
+                  setEditingUser(null);
+                  form.reset();
+                }
               }}>
                 <DialogTrigger asChild>
                   <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-[#F15A29] hover:bg-[#D84A19]">
@@ -188,7 +196,7 @@ export default function SettingsPage() {
                     Add Account
                   </Button>
                 </DialogTrigger>
-                <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()}>
+                <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
                   <DialogHeader>
                     <DialogTitle>{editingUser ? "Edit User" : "Create New User"}</DialogTitle>
                     <DialogDescription>
