@@ -1,4 +1,4 @@
-import type { Express, Request } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
@@ -329,11 +329,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update inventory item (supports both PUT and PATCH)
-  app.put("/api/inventory/:id", updateInventoryItem);
-  app.patch("/api/inventory/:id", updateInventoryItem);
+  app.put("/api/inventory/:id", async (req: Request, res: Response) => {
+    await handleInventoryUpdate(req, res);
+  });
+  
+  app.patch("/api/inventory/:id", async (req: Request, res: Response) => {
+    await handleInventoryUpdate(req, res);
+  });
   
   // Handler function for inventory updates
-  async function updateInventoryItem(req: Request, res: Response) {
+  async function handleInventoryUpdate(req: Request, res: Response) {
     console.log("Received inventory update request:", JSON.stringify(req.body));
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "You must be logged in to update inventory items" });
