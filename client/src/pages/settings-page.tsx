@@ -174,21 +174,9 @@ export default function SettingsPage() {
       <TopNav activeSection="SETTINGS" />
       
       <div className="max-w-6xl mx-auto p-6">
-        <div className="mb-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-            <p className="text-gray-600">Manage users and system settings</p>
-          </div>
-          {user?.role === "owner" && (
-            <Button 
-              variant="outline" 
-              onClick={() => logoutMutation.mutate()}
-              className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-50"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
-          )}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+          <p className="text-gray-600">Manage users and system settings</p>
         </div>
 
         <Card>
@@ -349,6 +337,19 @@ export default function SettingsPage() {
             )}
           </CardContent>
         </Card>
+        
+        {/* Sign Out button positioned at bottom right for owners */}
+        {user?.role === "owner" && (
+          <div className="fixed bottom-6 right-6">
+            <Button 
+              onClick={() => logoutMutation.mutate()}
+              className="flex items-center gap-2 bg-[#F15A29] hover:bg-[#D84A19] text-white"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
