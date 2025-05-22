@@ -23,6 +23,40 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+// Helper function to format stock values based on unit type and quantity
+const formatStockDisplay = (value: string, unit: string): { value: string, unit: string } => {
+  const numValue = parseFloat(value);
+  
+  if (unit === "g" && numValue >= 1000) {
+    // Convert grams to kilograms if >= 1000g
+    return { 
+      value: (numValue / 1000).toFixed(2), 
+      unit: "kg" 
+    };
+  } else if (unit === "g" && numValue < 1000) {
+    // For grams under 1000, remove decimal places
+    return { 
+      value: Math.round(numValue).toString(), 
+      unit: "g" 
+    };
+  } else if (unit === "ml" && numValue >= 1000) {
+    // Convert milliliters to liters if >= 1000ml
+    return { 
+      value: (numValue / 1000).toFixed(2), 
+      unit: "l" 
+    };
+  } else if (unit === "ml" && numValue < 1000) {
+    // For milliliters under 1000, remove decimal places
+    return { 
+      value: Math.round(numValue).toString(), 
+      unit: "ml" 
+    };
+  }
+  
+  // Default format for other units
+  return { value, unit };
+};
+
 export default function InventoryPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
   const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false);
@@ -320,24 +354,31 @@ export default function InventoryPage() {
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[180px]">
                         <div className="flex flex-col">
-                          <span className={`font-medium text-lg ${
-                            parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
-                          }`}>
-                            {item.currentStock} {item.unit || ""}
-                          </span>
+                          {/* Format the stock value based on unit type */}
+                          {(() => {
+                            const formattedStock = formatStockDisplay(item.currentStock, item.unit || "");
+                            return (
+                              <span className={`font-medium text-lg ${
+                                parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
+                              }`}>
+                                {formattedStock.value} {formattedStock.unit}
+                              </span>
+                            );
+                          })()}
                           
                           {item.containerType !== "direct" && 
                            item.containerQuantity && 
                            item.quantityPerUnit && (
                             <div className="text-xs text-gray-500 mt-1">
-                              {/* Display the number of containers */}
-                              {item.numberOfContainers && parseFloat(item.numberOfContainers) > 1 && (
-                                <>Total: {parseFloat(item.currentStock)} {item.unit}</>
-                              )}
-                              {/* Display the quantity per unit information */}
-                              {item.secondaryUnit && (
-                                <div>{parseFloat(item.quantityPerUnit)} {item.unit}/{item.secondaryUnit === "piece" ? "pc" : item.secondaryUnit}</div>
-                              )}
+                              {/* Display the quantity per unit with smart formatting */}
+                              {item.secondaryUnit && (() => {
+                                const formattedQtyPerUnit = formatStockDisplay(item.quantityPerUnit, item.unit || "");
+                                return (
+                                  <div>
+                                    {formattedQtyPerUnit.value} {formattedQtyPerUnit.unit}/{item.secondaryUnit === "piece" ? "pc" : item.secondaryUnit}
+                                  </div>
+                                );
+                              })()}
                             </div>
                           )}
                         </div>
