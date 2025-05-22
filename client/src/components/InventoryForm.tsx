@@ -149,6 +149,22 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   const containerQuantity = form.watch("containerQuantity");
   const quantityPerUnit = form.watch("quantityPerUnit");
   
+  // Function to recalculate stock based on container inputs
+  const recalculateStock = () => {
+    if (containerType !== "direct" && containerQuantity && quantityPerUnit) {
+      const numberOfContainersValue = form.getValues("numberOfContainers") || "1";
+      const containers = parseFloat(numberOfContainersValue);
+      const secondaryUnits = parseFloat(containerQuantity);
+      const measurementPerUnit = parseFloat(quantityPerUnit);
+      
+      if (!isNaN(containers) && !isNaN(secondaryUnits) && !isNaN(measurementPerUnit)) {
+        const totalStock = containers * secondaryUnits * measurementPerUnit;
+        setCalculatedStock(totalStock.toFixed(2));
+        form.setValue("currentStock", totalStock.toFixed(2));
+      }
+    }
+  };
+  
   // Update showContainerDetails based on container type
   useEffect(() => {
     setShowContainerDetails(containerType !== "direct");
@@ -165,7 +181,8 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   // Calculate the total stock based on container quantities
   useEffect(() => {
     if (containerType !== "direct" && containerQuantity && quantityPerUnit) {
-      const containers = 1; // Always 1 container (box, pack, etc.)
+      const numberOfContainersValue = form.watch("numberOfContainers") || "1";
+      const containers = parseFloat(numberOfContainersValue);
       const secondaryUnits = parseFloat(containerQuantity);
       const measurementPerUnit = parseFloat(quantityPerUnit);
       
@@ -374,6 +391,31 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
+                    name="numberOfContainers"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Number of Containers</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            step="1" 
+                            min="1" 
+                            placeholder="e.g., 2"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              recalculateStock();
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <p className="text-xs text-muted-foreground">How many {form.watch("containerType") || "containers"}?</p>
+                      </FormItem>
+                    )}
+                  />
+                
+                  <FormField
+                    control={form.control}
                     name="containerQuantity"
                     render={({ field }) => (
                       <FormItem>
@@ -384,7 +426,11 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                             step="1" 
                             min="1" 
                             placeholder="e.g., 10"
-                            {...field} 
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              recalculateStock();
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
