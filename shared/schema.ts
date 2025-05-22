@@ -61,6 +61,9 @@ export const inventory = pgTable("inventory", {
   // Secondary unit of measurement (Piece, Pack, Bottle)
   secondaryUnit: text("secondary_unit"),
   
+  // Quantity per secondary unit (e.g., 200ml per piece)
+  quantityPerUnit: decimal("quantity_per_unit", { precision: 10, scale: 2 }),
+  
   // The actual measurement unit (ml, oz, pc, kg, g)
   unit: text("unit").notNull(),
   

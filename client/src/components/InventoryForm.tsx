@@ -53,6 +53,9 @@ const formSchema = z.object({
   // Secondary unit (Piece, Pack, Bottle)
   secondaryUnit: z.string().optional(),
   
+  // Quantity per secondary unit (e.g., 200ml per piece)
+  quantityPerUnit: z.string().optional().transform(val => val === "" ? undefined : val),
+  
   // Final measurement unit (ml, oz, pc, kg, g)
   unit: z.string().min(1, "Unit is required"),
 });
@@ -97,6 +100,9 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   // State to track whether container details should be shown
   const [showContainerDetails, setShowContainerDetails] = useState(false);
   
+  // State to track total calculated stock
+  const [calculatedStock, setCalculatedStock] = useState<string | null>(null);
+  
   // Initialize form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -107,6 +113,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
       containerType: inventoryItem?.containerType || "direct",
       containerQuantity: inventoryItem?.containerQuantity?.toString() || "",
       secondaryUnit: inventoryItem?.secondaryUnit || "",
+      quantityPerUnit: inventoryItem?.quantityPerUnit?.toString() || "",
       unit: inventoryItem?.unit || "",
     },
   });
@@ -121,6 +128,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         containerType: inventoryItem?.containerType || "direct",
         containerQuantity: inventoryItem?.containerQuantity?.toString() || "",
         secondaryUnit: inventoryItem?.secondaryUnit || "",
+        quantityPerUnit: inventoryItem?.quantityPerUnit?.toString() || "",
         unit: inventoryItem.unit,
       });
       
@@ -133,11 +141,38 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   
   // Watch container type to control whether to show container details
   const containerType = form.watch("containerType");
+  const containerQuantity = form.watch("containerQuantity");
+  const quantityPerUnit = form.watch("quantityPerUnit");
   
   // Update showContainerDetails based on container type
   useEffect(() => {
     setShowContainerDetails(containerType !== "direct");
-  }, [containerType]);
+    
+    // Reset related fields when switching container types
+    if (containerType === "direct") {
+      form.setValue("containerQuantity", "");
+      form.setValue("secondaryUnit", "");
+      form.setValue("quantityPerUnit", "");
+      setCalculatedStock(null);
+    }
+  }, [containerType, form]);
+  
+  // Calculate the total stock based on container quantities
+  useEffect(() => {
+    if (containerType !== "direct" && containerQuantity && quantityPerUnit) {
+      const containers = 1; // Always 1 container (box, pack, etc.)
+      const secondaryUnits = parseFloat(containerQuantity);
+      const measurementPerUnit = parseFloat(quantityPerUnit);
+      
+      if (!isNaN(containers) && !isNaN(secondaryUnits) && !isNaN(measurementPerUnit)) {
+        const totalStock = containers * secondaryUnits * measurementPerUnit;
+        setCalculatedStock(totalStock.toFixed(2));
+        
+        // Auto-update the currentStock field
+        form.setValue("currentStock", totalStock.toFixed(2));
+      }
+    }
+  }, [containerType, containerQuantity, quantityPerUnit, form]);
   
   // Create mutation for adding inventory items
   const createMutation = useMutation({
@@ -351,6 +386,38 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                     )}
                   />
                 </div>
+                
+                {/* Quantity per secondary unit field */}
+                <FormField
+                  control={form.control}
+                  name="quantityPerUnit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantity per {form.watch("secondaryUnit") || "Secondary Unit"}</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          step="0.01" 
+                          min="0.01" 
+                          placeholder="e.g., 200 for 200ml per piece"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {calculatedStock && (
+                  <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                    <p className="text-sm text-amber-800">
+                      Total calculated stock: <span className="font-medium">{calculatedStock} {form.watch("unit")}</span>
+                    </p>
+                    <p className="text-xs text-amber-600 mt-1">
+                      (1 {form.watch("containerType")} × {form.watch("containerQuantity") || "0"} {form.watch("secondaryUnit") || "units"} × {form.watch("quantityPerUnit") || "0"} {form.watch("unit")} per unit)
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             

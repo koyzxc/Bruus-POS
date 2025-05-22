@@ -303,6 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         containerType: req.body.containerType || "direct",
         containerQuantity: req.body.containerQuantity || null,
         secondaryUnit: req.body.secondaryUnit || null,
+        quantityPerUnit: req.body.quantityPerUnit || null,
         unit: req.body.unit
       };
       
