@@ -41,86 +41,107 @@ export default function AuthPage() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <Card className="w-full max-w-md border-0 shadow-xl mx-auto">
-        <CardHeader className="text-center">
-          <div className="flex flex-col items-center mb-6">
-            <div className="bg-black rounded-t-full px-12 pt-6 pb-2">
-              <h1 className="text-4xl font-serif font-bold text-white">Bruus</h1>
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left side with login form */}
+      <div className="flex items-center justify-center p-6 md:w-1/2 bg-white">
+        <Card className="w-full max-w-md border-0 shadow-xl">
+          <CardHeader className="text-center">
+            <div className="flex flex-col items-center mb-6">
+              <div className="bg-black rounded-t-full px-12 pt-6 pb-2">
+                <h1 className="text-4xl font-serif font-bold text-white">Bruus</h1>
+              </div>
+              <div className="mt-2">
+                <h2 className="text-2xl font-bold">By SidePocket.</h2>
+              </div>
             </div>
-            <div className="mt-2">
-              <h2 className="text-2xl font-bold">By SidePocket.</h2>
-            </div>
-          </div>
-          <CardTitle className="text-2xl text-center font-semibold text-[#F15A29]">Welcome Back</CardTitle>
-          <CardDescription className="text-center">
-            Sign in to your account to continue
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-[#FFE6C7] rounded-xl p-5">
-            <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                <FormField
-                  control={loginForm.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-medium">Username</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
-                          placeholder="Enter your username"
-                          autoComplete="username"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-medium">Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          {...field}
-                          className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
-                          placeholder="Enter your password"
-                          autoComplete="current-password"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="pt-2">
-                  <Button
-                    type="submit"
-                    className="w-full bg-[#F15A29] hover:bg-[#D84A19] text-white py-2 rounded transition duration-300 font-medium"
-                    disabled={loginMutation.isPending}
-                  >
-                    {loginMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Signing In...
-                      </>
-                    ) : (
-                      "Sign In"
+            <CardTitle className="text-2xl text-center font-semibold text-[#F15A29]">Welcome Back</CardTitle>
+            <CardDescription className="text-center">
+              Sign in to your account to continue
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-[#FFE6C7] rounded-xl p-5">
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Username</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
+                            placeholder="Enter your username"
+                            autoComplete="username"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </CardContent>
-      </Card>
+                  />
+                  
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-medium">Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            {...field}
+                            className="w-full p-2 border border-[#F5D7B5] rounded focus:outline-none focus:ring-2 focus:ring-[#F15A29]"
+                            placeholder="Enter your password"
+                            autoComplete="current-password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="pt-2">
+                    <Button
+                      type="submit"
+                      className="w-full bg-[#F15A29] hover:bg-[#D84A19] text-white py-2 rounded transition duration-300 font-medium"
+                      disabled={loginMutation.isPending}
+                    >
+                      {loginMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Signing In...
+                        </>
+                      ) : (
+                        "Sign In"
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Default accounts information removed */}
+                </form>
+              </Form>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Right side with hero section */}
+      <div className="hidden md:flex md:w-1/2 bg-[#804000] text-white">
+        <div className="p-12 flex flex-col justify-center items-center text-center">
+          <Coffee size={80} strokeWidth={1.5} className="mb-6" />
+          <h2 className="text-4xl font-bold mb-4">Bruus POS System</h2>
+          <p className="text-xl mb-6">Unified POS and Inventory Platform with Automated Alerts</p>
+          <ul className="text-left space-y-4 list-disc pl-5">
+            <li>Manage inventory with real-time tracking</li>
+            <li>Process coffee orders quickly</li>
+            <li>View sales data and analytics</li>
+            <li>Receive alerts for low stock items</li>
+            <li>Role-based access control</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
