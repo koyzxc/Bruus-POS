@@ -2,6 +2,40 @@ import { AlertCircle } from "lucide-react";
 import { Inventory } from "@shared/schema";
 import React, { useState, useEffect } from "react";
 
+// Helper function to format stock values based on unit type and quantity
+const formatStockDisplay = (value: string, unit: string): { value: string, unit: string } => {
+  const numValue = parseFloat(value);
+  
+  if (unit === "g" && numValue >= 1000) {
+    // Convert grams to kilograms if >= 1000g
+    return { 
+      value: (numValue / 1000).toFixed(2), 
+      unit: "kg" 
+    };
+  } else if (unit === "g" && numValue < 1000) {
+    // For grams under 1000, remove decimal places
+    return { 
+      value: Math.round(numValue).toString(), 
+      unit: "g" 
+    };
+  } else if (unit === "ml" && numValue >= 1000) {
+    // Convert milliliters to liters if >= 1000ml
+    return { 
+      value: (numValue / 1000).toFixed(2), 
+      unit: "l" 
+    };
+  } else if (unit === "ml" && numValue < 1000) {
+    // For milliliters under 1000, remove decimal places
+    return { 
+      value: Math.round(numValue).toString(), 
+      unit: "ml" 
+    };
+  }
+  
+  // Default format for other units
+  return { value, unit };
+};
+
 type LowStockAlertProps = {
   item: Inventory;
 };
@@ -47,7 +81,10 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
               {item.name}
             </p>
             <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full font-medium">
-              {item.currentStock} {item.unit}
+              {(() => {
+                const formattedStock = formatStockDisplay(item.currentStock, item.unit || "");
+                return `${formattedStock.value} ${formattedStock.unit}`;
+              })()}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
