@@ -98,6 +98,7 @@ const unitOptions = [
 export default function InventoryForm({ isOpen, onClose, inventoryItem }: InventoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!inventoryItem;
   
   // State to track whether container details should be shown
@@ -148,12 +149,12 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   const containerType = form.watch("containerType");
   const containerQuantity = form.watch("containerQuantity");
   const quantityPerUnit = form.watch("quantityPerUnit");
+  const numberOfContainers = form.watch("numberOfContainers") || "1";
   
   // Function to recalculate stock based on container inputs
   const recalculateStock = () => {
     if (containerType !== "direct" && containerQuantity && quantityPerUnit) {
-      const numberOfContainersValue = form.getValues("numberOfContainers") || "1";
-      const containers = parseFloat(numberOfContainersValue);
+      const containers = parseFloat(numberOfContainers || "1");
       const secondaryUnits = parseFloat(containerQuantity);
       const measurementPerUnit = parseFloat(quantityPerUnit);
       
@@ -181,8 +182,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   // Calculate the total stock based on container quantities
   useEffect(() => {
     if (containerType !== "direct" && containerQuantity && quantityPerUnit) {
-      const numberOfContainersValue = form.watch("numberOfContainers") || "1";
-      const containers = parseFloat(numberOfContainersValue);
+      const containers = parseFloat(numberOfContainers || "1");
       const secondaryUnits = parseFloat(containerQuantity);
       const measurementPerUnit = parseFloat(quantityPerUnit);
       
@@ -194,7 +194,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         form.setValue("currentStock", totalStock.toFixed(2));
       }
     }
-  }, [containerType, containerQuantity, quantityPerUnit, form]);
+  }, [containerType, containerQuantity, quantityPerUnit, numberOfContainers, form]);
   
   // When editing and changing currentStock, calculate and update container quantities
   const currentStock = form.watch("currentStock");
@@ -204,63 +204,91 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
     if (isEditing && containerType !== "direct" && quantityPerUnit && parseFloat(quantityPerUnit) > 0) {
       const currentStockValue = parseFloat(currentStock);
       const quantityPerUnitValue = parseFloat(quantityPerUnit);
+      const containersValue = parseFloat(numberOfContainers || "1");
       
-      if (!isNaN(currentStockValue) && !isNaN(quantityPerUnitValue) && quantityPerUnitValue > 0) {
-        // Calculate how many secondary units are left based on current stock
-        const calculatedSecondaryUnits = currentStockValue / quantityPerUnitValue;
+      if (!isNaN(currentStockValue) && !isNaN(quantityPerUnitValue) && quantityPerUnitValue > 0 && containersValue > 0) {
+        // Calculate how many secondary units are left based on current stock and number of containers
+        const calculatedSecondaryUnits = currentStockValue / (quantityPerUnitValue * containersValue);
         
         // Update the container quantity field
         form.setValue("containerQuantity", calculatedSecondaryUnits.toFixed(0));
       }
     }
-  }, [currentStock, quantityPerUnit, containerType, isEditing, form]);
+  }, [currentStock, quantityPerUnit, containerType, numberOfContainers, isEditing, form]);
   
-  // Create mutation for adding inventory items
+  // Create a new inventory item
   const createMutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      const response = await apiRequest("POST", "/api/inventory", data);
-      return await response.json();
+      // Format data for API
+      const formattedData = {
+        ...data,
+        currentStock: parseFloat(data.currentStock),
+        minimumThreshold: parseFloat(data.minimumThreshold),
+        containerQuantity: data.containerQuantity ? parseFloat(data.containerQuantity) : null,
+        numberOfContainers: data.numberOfContainers ? parseFloat(data.numberOfContainers) : 1,
+        quantityPerUnit: data.quantityPerUnit ? parseFloat(data.quantityPerUnit) : null,
+      };
+      
+      const response = await apiRequest("POST", "/api/inventory", formattedData);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create inventory item");
+      }
+      return response.json();
     },
     onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Inventory item added successfully",
-      });
-      // Invalidate both inventory and low-stock queries
       queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
       queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
-      form.reset();
+      toast({
+        title: "Success",
+        description: "Inventory item created successfully",
+      });
       onClose();
     },
     onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to add inventory item",
+        description: error.message,
         variant: "destructive",
       });
     },
   });
   
-  // Update mutation for editing inventory items
+  // Update an existing inventory item
   const updateMutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      const response = await apiRequest("PUT", `/api/inventory/${inventoryItem?.id}`, data);
-      return await response.json();
+      if (!inventoryItem) return null;
+      
+      // Format data for API
+      const formattedData = {
+        ...data,
+        currentStock: parseFloat(data.currentStock),
+        minimumThreshold: parseFloat(data.minimumThreshold),
+        containerQuantity: data.containerQuantity ? parseFloat(data.containerQuantity) : null,
+        numberOfContainers: data.numberOfContainers ? parseFloat(data.numberOfContainers) : 1,
+        quantityPerUnit: data.quantityPerUnit ? parseFloat(data.quantityPerUnit) : null,
+      };
+      
+      const response = await apiRequest("PATCH", `/api/inventory/${inventoryItem.id}`, formattedData);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update inventory item");
+      }
+      return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
       toast({
         title: "Success",
         description: "Inventory item updated successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
-      form.reset();
       onClose();
     },
     onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to update inventory item",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -268,40 +296,59 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   
   // Handle form submission
   const onSubmit = (values: FormValues) => {
-    if (isEditing && inventoryItem) {
-      updateMutation.mutate(values);
-    } else {
-      createMutation.mutate(values);
+    setIsSubmitting(true);
+    
+    try {
+      if (isEditing) {
+        updateMutation.mutate(values);
+      } else {
+        createMutation.mutate(values);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
-  const isSubmitting = createMutation.isPending || updateMutation.isPending;
-  
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      // Allow closing through the X button, but prevent closing by clicking outside
-      if (!open) {
-        onClose();
-      }
-    }}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        // Only close if explicitly requested, prevent accidental closing
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent 
-        className="sm:max-w-md max-h-[90vh] overflow-y-auto"
+        className="max-w-md md:max-w-xl" 
         onInteractOutside={(e) => {
           // Prevent closing when clicking outside
           e.preventDefault();
-        }}>
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Ingredient" : "Add New Ingredient"}</DialogTitle>
           <DialogDescription>
             {isEditing 
-              ? "Update ingredient details and stock levels." 
-              : "Add a new ingredient to your inventory with stock levels and measurement units."
+              ? "Update ingredient details and stock levels."
+              : "Enter details for the new inventory ingredient."
             }
+            
+            {calculatedStock && containerType !== "direct" && (
+              <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-md text-sm">
+                <span className="font-medium">Calculated total:</span> {calculatedStock} {form.watch("unit")}
+                <div className="text-xs text-muted-foreground mt-1">
+                  <span className="font-medium">{parseFloat(numberOfContainers || "1")} {containerType}{parseFloat(numberOfContainers || "1") > 1 ? 'es' : ''}</span> × {containerQuantity} {form.watch("secondaryUnit") || "units"} × {quantityPerUnit} {form.watch("unit")}/unit = {calculatedStock} {form.watch("unit")}
+                </div>
+              </div>
+            )}
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
               name="name"
@@ -309,7 +356,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                 <FormItem>
                   <FormLabel>Ingredient Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Milk, Coffee Beans, Sugar" {...field} />
+                    <Input placeholder="e.g., Coffee Beans" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -365,7 +412,9 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                 <FormItem>
                   <FormLabel>Container Type</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -404,7 +453,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                             {...field}
                             onChange={(e) => {
                               field.onChange(e);
-                              recalculateStock();
+                              // We'll let the useEffect handle the recalculation
                             }}
                           />
                         </FormControl>
@@ -429,7 +478,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                             {...field}
                             onChange={(e) => {
                               field.onChange(e);
-                              recalculateStock();
+                              // We'll let the useEffect handle the recalculation
                             }}
                           />
                         </FormControl>
@@ -476,28 +525,21 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                       <FormLabel>Quantity per {form.watch("secondaryUnit") || "Secondary Unit"}</FormLabel>
                       <FormControl>
                         <Input 
-                          type="number" 
-                          step="0.01" 
-                          min="0.01" 
+                          type="number"
+                          step="0.01"
+                          min="0"
                           placeholder="e.g., 200 for 200ml per piece"
-                          {...field} 
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            // We'll let the useEffect handle the recalculation
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
-                {calculatedStock && (
-                  <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
-                    <p className="text-sm text-amber-800">
-                      Total calculated stock: <span className="font-medium">{calculatedStock} {form.watch("unit")}</span>
-                    </p>
-                    <p className="text-xs text-amber-600 mt-1">
-                      (1 {form.watch("containerType")} × {form.watch("containerQuantity") || "0"} {form.watch("secondaryUnit") || "units"} × {form.watch("quantityPerUnit") || "0"} {form.watch("unit")} per unit)
-                    </p>
-                  </div>
-                )}
               </div>
             )}
             
@@ -506,11 +548,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
               name="unit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    {showContainerDetails 
-                      ? "Measurement Unit (per secondary unit)" 
-                      : "Unit of Measurement"}
-                  </FormLabel>
+                  <FormLabel>Measurement Unit</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
