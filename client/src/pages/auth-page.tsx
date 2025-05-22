@@ -67,11 +67,6 @@ export default function AuthPage() {
           </CardHeader>
           <CardContent>
             <div className="bg-[#FFE6C7] rounded-xl p-5">
-              {loginError && (
-                <div className="text-red-600 text-sm text-center mb-4 font-medium">
-                  {loginError}
-                </div>
-              )}
               <Form {...loginForm}>
                 <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                   <FormField
@@ -109,6 +104,11 @@ export default function AuthPage() {
                           />
                         </FormControl>
                         <FormMessage />
+                        {loginError && (
+                          <div className="text-red-600 text-sm mt-1 font-medium">
+                            {loginError}
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
