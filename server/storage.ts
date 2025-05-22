@@ -422,6 +422,65 @@ class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+  
+  async getNonSellingProducts(fromDate?: Date, toDate?: Date): Promise<any[]> {
+    try {
+      // First, get all products
+      const allProducts = await db.query.products.findMany({
+        columns: {
+          id: true,
+          name: true,
+          price: true,
+          size: true,
+          imageUrl: true,
+          categoryId: true,
+          createdAt: true
+        }
+      });
+      
+      // Then get the products that have sales in the given date range
+      const conditions = [];
+      
+      if (fromDate) {
+        conditions.push(gte(orders.createdAt, fromDate));
+      }
+      
+      if (toDate) {
+        conditions.push(lte(orders.createdAt, toDate));
+      }
+      
+      const query = db.select({
+        productId: orderItems.productId,
+      })
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id));
+      
+      // Apply conditions if any
+      const soldProductsResult = conditions.length > 0
+        ? await query.where(and(...conditions))
+        : await query;
+      
+      // Extract unique product IDs that have been sold
+      const soldProductIds = new Set(
+        soldProductsResult.map(record => record.productId)
+      );
+      
+      // Filter out products that have been sold
+      const nonSellingProducts = allProducts.filter(product => 
+        !soldProductIds.has(product.id)
+      ).map(product => ({
+        ...product,
+        price: Number(product.price),
+        lastSold: null, // We might want to add this feature later
+        daysWithoutSales: null // We might want to add this feature later
+      }));
+      
+      return nonSellingProducts;
+    } catch (error) {
+      console.error("Error getting non-selling products:", error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();

@@ -546,6 +546,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch sales data" });
     }
   });
+  
+  // Get non-selling products API
+  app.get("/api/sales/non-selling", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to view sales data" });
+    }
+
+    try {
+      const fromDate = req.query.from ? new Date(req.query.from as string) : undefined;
+      const toDate = req.query.to ? new Date(req.query.to as string) : undefined;
+      
+      console.log(`Fetching non-selling products with date range: ${fromDate?.toISOString()} to ${toDate?.toISOString()}`);
+      
+      const nonSellingProducts = await storage.getNonSellingProducts(fromDate, toDate);
+      res.json(nonSellingProducts);
+    } catch (error) {
+      console.error("Error fetching non-selling products:", error);
+      res.status(500).json({ message: "Failed to fetch non-selling products" });
+    }
+  });
 
   // Special route to delete Coffee Matcha product and its sales history
   app.delete("/api/special/delete-coffee-matcha", async (req, res) => {

@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
-import { SalesData } from "@shared/schema";
+import { SalesData, Product } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, startOfMonth, endOfMonth, startOfDay, endOfDay, subDays } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { BarChart2, CalendarIcon, AlertTriangle } from "lucide-react";
 
 export default function SalesPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
@@ -20,6 +20,9 @@ export default function SalesPage() {
     from: startOfDay(today),
     to: endOfDay(today),
   });
+  
+  // Add a state to toggle between selling and non-selling products
+  const [showNonSelling, setShowNonSelling] = useState(false);
   
   // Date range presets
   const handleTodayClick = () => {
@@ -58,7 +61,7 @@ export default function SalesPage() {
   };
 
   // Fetch sales data with date range
-  const { data: salesData, isLoading } = useQuery<SalesData[]>({
+  const { data: salesData, isLoading: isSalesLoading } = useQuery<SalesData[]>({
     queryKey: ["/api/sales", dateRange.from?.toISOString(), dateRange.to?.toISOString()],
     queryFn: async () => {
       const fromDate = dateRange.from?.toISOString();
@@ -73,11 +76,35 @@ export default function SalesPage() {
       
       return response.json();
     },
+    enabled: !showNonSelling, // Only fetch sales data when not showing non-selling products
   });
   
-  // Calculate totals
+  // Fetch non-selling products with date range
+  const { data: nonSellingData, isLoading: isNonSellingLoading } = useQuery<Product[]>({
+    queryKey: ["/api/sales/non-selling", dateRange.from?.toISOString(), dateRange.to?.toISOString()],
+    queryFn: async () => {
+      const fromDate = dateRange.from?.toISOString();
+      const toDate = dateRange.to?.toISOString();
+      
+      const url = `/api/sales/non-selling?from=${fromDate}&to=${toDate}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch non-selling products');
+      }
+      
+      return response.json();
+    },
+    enabled: showNonSelling, // Only fetch non-selling data when showing non-selling products
+  });
+  
+  // Calculate totals (only for sales data)
   const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
   const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
+  
+  // Determine which data and loading state to use based on the showNonSelling toggle
+  const displayData = showNonSelling ? nonSellingData : salesData;
+  const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   return (
     <MainLayout
@@ -89,7 +116,26 @@ export default function SalesPage() {
       <div className="mb-6 bg-white p-4 rounded-xl shadow-md">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1">
-            <h2 className="text-xl font-bold mb-2">Sales Analytics</h2>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-xl font-bold">Sales Analytics</h2>
+              <Button 
+                variant={showNonSelling ? "default" : "outline"}
+                onClick={() => setShowNonSelling(!showNonSelling)}
+                className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
+              >
+                {showNonSelling ? (
+                  <>
+                    <AlertTriangle className="h-4 w-4" /> 
+                    <span>Non-Selling Products</span>
+                  </>
+                ) : (
+                  <>
+                    <BarChart2 className="h-4 w-4" /> 
+                    <span>Show Non-Selling</span>
+                  </>
+                )}
+              </Button>
+            </div>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -146,17 +192,32 @@ export default function SalesPage() {
           </div>
         </div>
         
-        {/* Summary Numbers */}
-        <div className="grid grid-cols-2 mt-4 gap-4">
-          <div className="bg-[#FFE6C7] rounded-lg p-3 text-[#333]">
-            <div className="text-sm uppercase">Total Volume</div>
-            <div className="text-2xl font-bold">{totalVolume}</div>
+        {/* Summary Numbers - Only show for sales data, not for non-selling products */}
+        {!showNonSelling && (
+          <div className="grid grid-cols-2 mt-4 gap-4">
+            <div className="bg-[#FFE6C7] rounded-lg p-3 text-[#333]">
+              <div className="text-sm uppercase">Total Volume</div>
+              <div className="text-2xl font-bold">{totalVolume}</div>
+            </div>
+            <div className="bg-[#F15A29] rounded-lg p-3 text-white">
+              <div className="text-sm uppercase">Total Revenue</div>
+              <div className="text-2xl font-bold">₱ {totalSales.toFixed(2)}</div>
+            </div>
           </div>
-          <div className="bg-[#F15A29] rounded-lg p-3 text-white">
-            <div className="text-sm uppercase">Total Revenue</div>
-            <div className="text-2xl font-bold">₱ {totalSales.toFixed(2)}</div>
+        )}
+        
+        {/* Info box for non-selling products */}
+        {showNonSelling && (
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0" />
+            <div>
+              <div className="font-medium text-amber-800">Non-Selling Products</div>
+              <div className="text-sm text-amber-700">
+                Showing products with no sales during the selected date range
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
       
       <div className="bg-[#F15A29] rounded-xl overflow-hidden shadow-lg text-white">
