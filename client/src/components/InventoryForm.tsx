@@ -559,11 +559,18 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {secondaryUnitOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
+                            {containerType === "pack" 
+                              ? secondaryUnitOptions.filter(option => option.value === "piece").map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))
+                              : secondaryUnitOptions.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))
+                            }
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -619,11 +626,18 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {unitOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      {containerType === "pack" 
+                        ? unitOptions.filter(option => option.value === "pc").map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))
+                        : unitOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))
+                      }
                     </SelectContent>
                   </Select>
                   <FormMessage />
