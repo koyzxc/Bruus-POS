@@ -121,8 +121,13 @@ export default function SalesPage() {
     enabled: !showNonSelling, // Only fetch when not showing non-selling products
   });
   
+  // Type for non-selling products with categoryName
+  type NonSellingProduct = Product & {
+    categoryName: string;
+  };
+  
   // Fetch non-selling products with date range
-  const { data: nonSellingData, isLoading: isNonSellingLoading } = useQuery<Product[]>({
+  const { data: nonSellingData, isLoading: isNonSellingLoading } = useQuery<NonSellingProduct[]>({
     queryKey: ["/api/sales/non-selling", dateRange.from?.toISOString(), dateRange.to?.toISOString()],
     queryFn: async () => {
       const fromDate = dateRange.from?.toISOString();
@@ -245,7 +250,7 @@ export default function SalesPage() {
   };
   
   // Get the proper category name from data
-  const getCategoryName = (item: SalesData): string => {
+  const getCategoryName = (item: any): string => {
     // First try to use the actual category from the database
     if (item.categoryName) {
       return item.categoryName;

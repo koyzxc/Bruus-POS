@@ -33,7 +33,15 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
     logoutMutation.mutate();
   };
   
-  const categories = ["COFFEE", "SHAKE", "FOOD", "OTHERS"];
+  // Fetch categories from the database
+  const { data: dbCategories } = useQuery<{id: number, name: string, displayOrder: number}[]>({
+    queryKey: ["/api/categories"],
+  });
+  
+  // Use categories from database, if available, or add "ALL" option for filtering
+  const categories = activeSection === "SALES" 
+    ? ["ALL", ...(dbCategories ? dbCategories.map(cat => cat.name) : ["COFFEE", "SHAKE", "FOOD", "OTHERS"])]
+    : (dbCategories ? dbCategories.map(cat => cat.name) : ["COFFEE", "SHAKE", "FOOD", "OTHERS"]);
   const canManageProducts = user && (user.role === "owner" || user.role === "barista");
   
   return (
@@ -48,7 +56,7 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
         {/* Only show categories in MENU section */}
         {activeSection === "MENU" || !activeSection ? (
           <nav className="space-y-2">
-            {categories.map((category) => (
+            {categories.map((category: string) => (
               <button
                 key={category}
                 className={`category-btn ${
