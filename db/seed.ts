@@ -51,11 +51,11 @@ async function createInventoryItems() {
   
   // Coffee ingredients
   await db.insert(inventory).values([
-    { name: "Coffee Beans", currentStock: "2000.00", minimumThreshold: "500.00", unit: "g" },
-    { name: "Milk", currentStock: "5000.00", minimumThreshold: "1000.00", unit: "ml" },
-    { name: "Sugar", currentStock: "3000.00", minimumThreshold: "500.00", unit: "g" },
-    { name: "Cups", currentStock: "100", minimumThreshold: "20", unit: "pcs" },
-    { name: "Water", currentStock: "10000.00", minimumThreshold: "2000.00", unit: "ml" }
+    { name: "Coffee Beans", currentStock: "2000.00", minimumThreshold: "500.00", unit: "g", containerType: "Box", containerQuantity: "4.00", secondaryUnit: "piece", quantityPerUnit: "500.00", numberOfContainers: "4.00" },
+    { name: "Milk", currentStock: "5000.00", minimumThreshold: "1000.00", unit: "ml", containerType: "Case", containerQuantity: "10.00", secondaryUnit: "Bottle", quantityPerUnit: "500.00", numberOfContainers: "10.00" },
+    { name: "Sugar", currentStock: "3000.00", minimumThreshold: "500.00", unit: "g", containerType: "Pack", containerQuantity: "6.00", secondaryUnit: "piece", quantityPerUnit: "500.00", numberOfContainers: "6.00" },
+    { name: "Cups", currentStock: "100.00", minimumThreshold: "20.00", unit: "pc", containerType: "Pack", containerQuantity: "10.00", secondaryUnit: "piece", quantityPerUnit: "10.00", numberOfContainers: "10.00" },
+    { name: "Water", currentStock: "10000.00", minimumThreshold: "2000.00", unit: "ml", containerType: "Case", containerQuantity: "20.00", secondaryUnit: "Bottle", quantityPerUnit: "500.00", numberOfContainers: "20.00" }
   ]);
   
   // Coffee flavorings
