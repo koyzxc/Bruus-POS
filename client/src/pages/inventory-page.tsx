@@ -202,6 +202,10 @@ export default function InventoryPage() {
                       <TableCell className="py-4 px-6 text-center w-[200px]">
                         {item.containerType !== "direct" && item.containerQuantity ? (
                           <span>
+                            {/* Show numberOfContainers if more than 1 */}
+                            {item.numberOfContainers && parseFloat(item.numberOfContainers) > 1 ? 
+                              `${item.numberOfContainers} ` : ""}
+                              
                             {/* Capitalize first letter of container type */}
                             {item.containerType.charAt(0).toUpperCase() + item.containerType.slice(1)}
                             
@@ -219,20 +223,28 @@ export default function InventoryPage() {
                         )}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[180px]">
-                        <span className={`font-medium ${
-                          parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
-                        }`}>
-                          {item.currentStock} {item.unit || ""}
-                        </span>
-                        
-                        {item.containerType !== "direct" && 
-                         item.containerQuantity && 
-                         item.quantityPerUnit && 
-                         item.secondaryUnit && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Total: {Number(item.containerQuantity) * Number(item.quantityPerUnit)} {item.unit}
-                          </div>
-                        )}
+                        <div className="flex flex-col">
+                          <span className={`font-medium text-lg ${
+                            parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
+                          }`}>
+                            {item.currentStock} {item.unit || ""}
+                          </span>
+                          
+                          {item.containerType !== "direct" && 
+                           item.containerQuantity && 
+                           item.quantityPerUnit && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {/* Display the number of containers */}
+                              {item.numberOfContainers && parseFloat(item.numberOfContainers) > 1 && (
+                                <>Total: {parseFloat(item.currentStock)} {item.unit}</>
+                              )}
+                              {/* Display the quantity per unit information */}
+                              {item.secondaryUnit && (
+                                <div>{parseFloat(item.quantityPerUnit)} {item.unit}/{item.secondaryUnit === "piece" ? "pc" : item.secondaryUnit}</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[100px]">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end">
