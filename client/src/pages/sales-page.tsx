@@ -564,119 +564,17 @@ export default function SalesPage() {
               </Popover>
               
               {/* Date shortcut buttons underneath */}
-              <div className="flex gap-2">
-                <Button onClick={handleTodayClick} variant="outline" className="flex-1">Today</Button>
-                <Button onClick={handleWeekClick} variant="outline" className="flex-1">This Week</Button>
-                <Button onClick={handleMonthClick} variant="outline" className="flex-1">This Month</Button>
+              <div className="flex gap-2 justify-center">
+                <Button onClick={handleTodayClick} variant="outline" className="px-4 py-2 text-sm">Today</Button>
+                <Button onClick={handleWeekClick} variant="outline" className="px-4 py-2 text-sm">This Week</Button>
+                <Button onClick={handleMonthClick} variant="outline" className="px-4 py-2 text-sm">This Month</Button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sales Trend Chart */}
-      {!showNonSelling && (
-        <div className="bg-white p-6 rounded-xl shadow-md mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-6 h-6 text-[#F15A29]" />
-            <h3 className="text-xl font-bold">Sales Trend</h3>
-          </div>
-          <p className="text-gray-600 mb-6">Daily sales revenue and order volume for the selected period</p>
-          
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1 flex items-center justify-center gap-1">
-                Sales <DollarSign className="w-4 h-4" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">₱{totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1 flex items-center justify-center gap-1">
-                Orders <Package className="w-4 h-4" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">{totalVolume.toLocaleString()}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1 flex items-center justify-center gap-1">
-                Avg Order <BarChart2 className="w-4 h-4" />
-              </div>
-              <div className="text-2xl font-bold text-gray-800">₱{averageOrderValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Items Sold</div>
-              <div className="text-2xl font-bold text-gray-800">{filteredSalesData?.reduce((sum, item) => sum + item.volume, 0) || 0}</div>
-            </div>
-          </div>
 
-          {/* Trend Chart */}
-          <div className="h-96 bg-gray-50 rounded-lg p-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 20, right: 60, left: 20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="1 1" stroke="#e0e0e0" vertical={false} />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 11, fill: '#666' }}
-                  dy={10}
-                />
-                <YAxis 
-                  yAxisId="revenue" 
-                  orientation="left"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 11, fill: '#3B82F6' }}
-                  tickFormatter={(value) => value > 0 ? `₱${value.toLocaleString()}` : '₱0'}
-                  width={60}
-                />
-                <YAxis 
-                  yAxisId="orders" 
-                  orientation="right"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 11, fill: '#F15A29' }}
-                  tickFormatter={(value) => value.toString()}
-                  width={40}
-                />
-                <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'revenue' ? `₱${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `${value} orders`,
-                    name === 'revenue' ? 'Sales' : 'Orders'
-                  ]}
-                  labelStyle={{ color: '#333', fontWeight: 'bold' }}
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: '1px solid #ddd',
-                    borderRadius: '6px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Line 
-                  yAxisId="revenue"
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#3B82F6" 
-                  strokeWidth={2}
-                  name="revenue"
-                  dot={false}
-                  activeDot={{ r: 4, fill: '#3B82F6', stroke: 'white', strokeWidth: 2 }}
-                />
-                <Line 
-                  yAxisId="orders"
-                  type="monotone" 
-                  dataKey="orders" 
-                  stroke="#F15A29" 
-                  strokeWidth={2}
-                  name="orders"
-                  dot={false}
-                  activeDot={{ r: 4, fill: '#F15A29', stroke: 'white', strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
 
       {/* Sales Data Table */}
       <div className="bg-white p-4 rounded-xl shadow-md">
