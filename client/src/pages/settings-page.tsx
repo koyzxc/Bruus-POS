@@ -44,6 +44,11 @@ export default function SettingsPage() {
   // Fetch all users
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ["/api/users"],
+    queryFn: async () => {
+      const res = await fetch("/api/users", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch users");
+      return res.json();
+    },
     enabled: user?.role === "owner",
   });
 
