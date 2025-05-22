@@ -186,6 +186,13 @@ export default function SalesPage() {
     // Skip filtering if no sales data
     if (!item) return false;
     
+    // Category filter - only show products from selected category
+    if (activeCategory !== 'ALL') {
+      if (item.categoryName !== activeCategory) {
+        return false;
+      }
+    }
+    
     // Volume filter
     if (filters.volumeOperator && filters.volumeValue) {
       const compareValue = parseFloat(filters.volumeValue);
@@ -209,8 +216,21 @@ export default function SalesPage() {
     return true;
   });
   
+  // Filter non-selling products by selected category
+  const filteredNonSellingData = nonSellingData?.filter(item => {
+    // Skip if no data
+    if (!item) return false;
+    
+    // Only show products from selected category
+    if (activeCategory !== 'ALL') {
+      return item.categoryName === activeCategory;
+    }
+    
+    return true;
+  });
+  
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? nonSellingData : filteredSalesData;
+  const displayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
@@ -558,7 +578,7 @@ export default function SalesPage() {
                           ₱ {Number(product.price).toFixed(2)}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-center">
-                          {getCategoryName(product.productName)}
+                          {getCategoryName(product)}
                         </TableCell>
                         {!showNonSelling && (
                           <>

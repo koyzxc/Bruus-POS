@@ -430,18 +430,19 @@ class DatabaseStorage implements IStorage {
   
   async getNonSellingProducts(fromDate?: Date, toDate?: Date): Promise<any[]> {
     try {
-      // First, get all products
-      const allProducts = await db.query.products.findMany({
-        columns: {
-          id: true,
-          name: true,
-          price: true,
-          size: true,
-          imageUrl: true,
-          categoryId: true,
-          createdAt: true
-        }
-      });
+      // First, get all products with their category information
+      const allProducts = await db.select({
+        id: products.id,
+        name: products.name,
+        price: products.price,
+        size: products.size,
+        imageUrl: products.imageUrl,
+        categoryId: products.categoryId,
+        categoryName: categories.name,
+        createdAt: products.createdAt
+      })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id));
       
       // Then get the products that have sales in the given date range
       const conditions = [];
