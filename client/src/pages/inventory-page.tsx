@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Search } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Search, ArrowUp, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
   AlertDialog,
@@ -30,6 +30,11 @@ export default function InventoryPage() {
   const [inventoryToDelete, setInventoryToDelete] = useState<Inventory | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Sorting states
+  const [sortField, setSortField] = useState<"name" | "quantity" | "stock">("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -38,17 +43,60 @@ export default function InventoryPage() {
     queryKey: ["/api/inventory"],
   });
   
-  // Filter inventory items based on search query
+  // Filter and sort inventory items based on search query and sort criteria
   const filteredInventoryItems = useMemo(() => {
     if (!inventoryItems) return [];
     
-    if (!searchQuery.trim()) return inventoryItems;
+    // First filter by search query
+    let filtered = inventoryItems;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = inventoryItems.filter(item => 
+        item.name.toLowerCase().includes(query)
+      );
+    }
     
-    const query = searchQuery.toLowerCase().trim();
-    return inventoryItems.filter(item => 
-      item.name.toLowerCase().includes(query)
-    );
-  }, [inventoryItems, searchQuery]);
+    // Then sort the filtered results
+    return [...filtered].sort((a, b) => {
+      let valueA, valueB;
+      
+      if (sortField === "name") {
+        valueA = a.name.toLowerCase();
+        valueB = b.name.toLowerCase();
+      } else if (sortField === "quantity") {
+        // For quantity, sort by container type, then by numberOfContainers
+        if (a.containerType !== b.containerType) {
+          valueA = a.containerType || "";
+          valueB = b.containerType || "";
+        } else {
+          valueA = parseFloat(a.numberOfContainers || "1");
+          valueB = parseFloat(b.numberOfContainers || "1");
+        }
+      } else { // sortField === "stock"
+        valueA = parseFloat(a.currentStock);
+        valueB = parseFloat(b.currentStock);
+      }
+      
+      // Apply sort direction
+      if (sortDirection === "asc") {
+        return valueA > valueB ? 1 : -1;
+      } else {
+        return valueA < valueB ? 1 : -1;
+      }
+    });
+  }, [inventoryItems, searchQuery, sortField, sortDirection]);
+  
+  // Toggle sort direction when clicking on a header that's already the sort field
+  const handleSort = (field: "name" | "quantity" | "stock") => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Set new field and reset to ascending
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
   
   // Check if user is authorized to manage products
   const canManageProducts = user && (user.role === "owner" || user.role === "barista");
@@ -168,9 +216,57 @@ export default function InventoryPage() {
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="text-left py-4 px-6 font-bold text-lg">NAME OF THE INGREDIENT</TableHead>
-                <TableHead className="text-center py-4 px-6 font-bold text-lg w-[200px]">QUANTITY</TableHead>
-                <TableHead className="text-right py-4 px-6 font-bold text-lg w-[180px]">STOCKS</TableHead>
+                <TableHead 
+                  className="text-left py-4 px-6 font-bold text-lg cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleSort("name")}
+                >
+                  <div className="flex items-center">
+                    <span>NAME OF THE INGREDIENT</span>
+                    {sortField === "name" && (
+                      <span className="ml-2">
+                        {sortDirection === "asc" ? (
+                          <ArrowUp className="h-4 w-4 text-[#F15A29]" />
+                        ) : (
+                          <ArrowDown className="h-4 w-4 text-[#F15A29]" />
+                        )}
+                      </span>
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="text-center py-4 px-6 font-bold text-lg w-[200px] cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleSort("quantity")}
+                >
+                  <div className="flex items-center justify-center">
+                    <span>QUANTITY</span>
+                    {sortField === "quantity" && (
+                      <span className="ml-2">
+                        {sortDirection === "asc" ? (
+                          <ArrowUp className="h-4 w-4 text-[#F15A29]" />
+                        ) : (
+                          <ArrowDown className="h-4 w-4 text-[#F15A29]" />
+                        )}
+                      </span>
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="text-right py-4 px-6 font-bold text-lg w-[180px] cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleSort("stock")}
+                >
+                  <div className="flex items-center justify-end">
+                    <span>STOCKS</span>
+                    {sortField === "stock" && (
+                      <span className="ml-2">
+                        {sortDirection === "asc" ? (
+                          <ArrowUp className="h-4 w-4 text-[#F15A29]" />
+                        ) : (
+                          <ArrowDown className="h-4 w-4 text-[#F15A29]" />
+                        )}
+                      </span>
+                    )}
+                  </div>
+                </TableHead>
                 <TableHead className="text-right py-4 px-6 font-bold text-lg w-[100px]"></TableHead>
               </TableRow>
             </TableHeader>
