@@ -202,14 +202,16 @@ export default function InventoryPage() {
                       <TableCell className="py-4 px-6 text-center w-[200px]">
                         {item.containerType !== "direct" && item.containerQuantity ? (
                           <span>
-                            {item.containerType === "box" && "1 Box"}
-                            {item.containerType === "pack" && "1 Pack"}
-                            {item.containerType === "bag" && "1 Bag"}
+                            {/* Capitalize first letter of container type */}
+                            {item.containerType.charAt(0).toUpperCase() + item.containerType.slice(1)}
+                            
                             {item.secondaryUnit && item.containerQuantity && (
-                              <>(
-                                {item.containerQuantity} 
-                                {item.secondaryUnit === "piece" && item.unit === "pc" ? "" : item.secondaryUnit}
-                              )</>
+                              <> ({item.containerQuantity} {
+                                // If secondary unit is piece and final unit is pc, simplify display
+                                item.secondaryUnit === "piece" && item.unit === "pc" 
+                                  ? "pc" 
+                                  : item.secondaryUnit
+                              })</>
                             )}
                           </span>
                         ) : (
@@ -222,6 +224,15 @@ export default function InventoryPage() {
                         }`}>
                           {item.currentStock} {item.unit || ""}
                         </span>
+                        
+                        {item.containerType !== "direct" && 
+                         item.containerQuantity && 
+                         item.quantityPerUnit && 
+                         item.secondaryUnit && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Total: {Number(item.containerQuantity) * Number(item.quantityPerUnit)} {item.unit}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[100px]">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end">
