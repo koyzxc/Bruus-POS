@@ -39,14 +39,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Login successful",
-        description: `Welcome back, ${user.username}!`,
-      });
-      // Force redirect to main page after successful login
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
+      // Immediate redirect to main page after successful login
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       // Error handling is now done in the auth page component

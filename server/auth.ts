@@ -16,15 +16,15 @@ declare global {
 const scryptAsync = promisify(scrypt);
 
 export async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  const salt = randomBytes(8).toString("hex"); // Reduced salt size
+  const buf = (await scryptAsync(password, salt, 32)) as Buffer; // Reduced key length
   return `${buf.toString("hex")}.${salt}`;
 }
 
 async function comparePasswords(supplied: string, stored: string) {
   const [hashed, salt] = stored.split(".");
   const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  const suppliedBuf = (await scryptAsync(supplied, salt, 32)) as Buffer; // Reduced key length  
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
