@@ -36,7 +36,7 @@ const formatStockDisplay = (value: string, unit: string): { value: string, unit:
     // Convert milliliters to liters if >= 1000ml
     return { 
       value: removeTrailingZeros(numValue / 1000), 
-      unit: "l" 
+      unit: "L" 
     };
   } else if (unit === "ml" && numValue < 1000) {
     // For milliliters under 1000, remove decimal places
