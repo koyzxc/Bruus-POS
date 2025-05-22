@@ -263,8 +263,22 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
       
       {/* Ingredients Dialog */}
-      <Dialog open={isIngredientsDialogOpen} onOpenChange={setIsIngredientsDialogOpen}>
-        <DialogContent className="sm:max-w-md" onClick={(e) => e.stopPropagation()}>
+      <Dialog 
+        open={isIngredientsDialogOpen} 
+        onOpenChange={(open) => {
+          // Allow the X button to close the dialog
+          if (!open) {
+            setIsIngredientsDialogOpen(false);
+          }
+        }}
+      >
+        <DialogContent 
+          className="sm:max-w-md" 
+          onClick={(e) => e.stopPropagation()}
+          onInteractOutside={(e) => {
+            // Prevent closing when clicking outside
+            e.preventDefault();
+          }}>
           <DialogHeader>
             <DialogTitle>{product.name} Ingredients</DialogTitle>
             <DialogDescription>
