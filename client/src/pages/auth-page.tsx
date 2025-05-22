@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, Coffee } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const loginSchema = z.object({
@@ -18,6 +18,7 @@ const loginSchema = z.object({
 export default function AuthPage() {
   const { user, loginMutation } = useAuth();
   const [, navigate] = useLocation();
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   // Create form
   const loginForm = useForm<z.infer<typeof loginSchema>>({
@@ -30,7 +31,12 @@ export default function AuthPage() {
 
   // Handle form submission
   const onLoginSubmit = (values: z.infer<typeof loginSchema>) => {
-    loginMutation.mutate(values);
+    setLoginError(null); // Clear any previous errors
+    loginMutation.mutate(values, {
+      onError: (error: any) => {
+        setLoginError("Invalid username or password");
+      }
+    });
   };
 
   // Redirect if user is already logged in
@@ -61,6 +67,11 @@ export default function AuthPage() {
           </CardHeader>
           <CardContent>
             <div className="bg-[#FFE6C7] rounded-xl p-5">
+              {loginError && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                  {loginError}
+                </div>
+              )}
               <Form {...loginForm}>
                 <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                   <FormField
@@ -126,22 +137,7 @@ export default function AuthPage() {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Right side with hero section */}
-      <div className="hidden md:flex md:w-1/2 bg-[#804000] text-white">
-        <div className="p-12 flex flex-col justify-center items-center text-center">
-          <Coffee size={80} strokeWidth={1.5} className="mb-6" />
-          <h2 className="text-4xl font-bold mb-4">Bruus POS System</h2>
-          <p className="text-xl mb-6">Unified POS and Inventory Platform with Automated Alerts</p>
-          <ul className="text-left space-y-4 list-disc pl-5">
-            <li>Manage inventory with real-time tracking</li>
-            <li>Process coffee orders quickly</li>
-            <li>View sales data and analytics</li>
-            <li>Receive alerts for low stock items</li>
-            <li>Role-based access control</li>
-          </ul>
-        </div>
-      </div>
+
     </div>
   );
 }
