@@ -43,6 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
       });
+      // Force redirect to main page after successful login
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
     },
     onError: (error: Error) => {
       // Error handling is now done in the auth page component
