@@ -27,7 +27,7 @@ const userFormSchema = z.object({
 type UserFormValues = z.infer<typeof userFormSchema>;
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -174,9 +174,21 @@ export default function SettingsPage() {
       <TopNav activeSection="SETTINGS" />
       
       <div className="max-w-6xl mx-auto p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600">Manage users and system settings</p>
+        <div className="mb-6 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+            <p className="text-gray-600">Manage users and system settings</p>
+          </div>
+          {user?.role === "owner" && (
+            <Button 
+              variant="outline" 
+              onClick={() => logoutMutation.mutate()}
+              className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          )}
         </div>
 
         <Card>
