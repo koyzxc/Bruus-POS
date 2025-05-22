@@ -47,6 +47,9 @@ const formSchema = z.object({
   // Primary container type (Box, Pack, Bag or direct units)
   containerType: z.string().min(1, "Container type is required"),
   
+  // Number of containers (e.g., 2 boxes)
+  numberOfContainers: z.string().optional().transform(val => val === "" ? "1" : val),
+  
   // Quantity of secondary units (e.g., 10 pieces per box)
   containerQuantity: z.string().optional().transform(val => val === "" ? undefined : val),
   
@@ -111,6 +114,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
       currentStock: inventoryItem?.currentStock?.toString() || "",
       minimumThreshold: inventoryItem?.minimumThreshold?.toString() || "",
       containerType: inventoryItem?.containerType || "direct",
+      numberOfContainers: inventoryItem?.numberOfContainers?.toString() || "1", // Default to 1 container
       containerQuantity: inventoryItem?.containerQuantity?.toString() || "",
       secondaryUnit: inventoryItem?.secondaryUnit || "",
       quantityPerUnit: inventoryItem?.quantityPerUnit?.toString() || "",
@@ -126,6 +130,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         currentStock: inventoryItem.currentStock.toString(),
         minimumThreshold: inventoryItem.minimumThreshold.toString(),
         containerType: inventoryItem?.containerType || "direct",
+        numberOfContainers: inventoryItem?.numberOfContainers?.toString() || "1", // Default to 1 container
         containerQuantity: inventoryItem?.containerQuantity?.toString() || "",
         secondaryUnit: inventoryItem?.secondaryUnit || "",
         quantityPerUnit: inventoryItem?.quantityPerUnit?.toString() || "",

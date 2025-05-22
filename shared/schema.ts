@@ -58,6 +58,9 @@ export const inventory = pgTable("inventory", {
   // Quantity of secondary units in this container (e.g., 10 pieces per box)
   containerQuantity: decimal("container_quantity", { precision: 10, scale: 2 }),
   
+  // Number of containers (e.g., 2 boxes)
+  numberOfContainers: decimal("number_of_containers", { precision: 10, scale: 2 }).default("1").notNull(),
+  
   // Secondary unit of measurement (Piece, Pack, Bottle)
   secondaryUnit: text("secondary_unit"),
   
