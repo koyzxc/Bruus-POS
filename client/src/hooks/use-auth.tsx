@@ -77,6 +77,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully",
+      });
     },
     onError: (error: Error) => {
       // Silent error handling for auth page
