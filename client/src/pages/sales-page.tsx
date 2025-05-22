@@ -25,8 +25,12 @@ import {
   AlertTriangle, 
   ChevronDown, 
   FilterX, 
-  Filter 
+  Filter,
+  TrendingUp,
+  DollarSign,
+  Package
 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 // Define comparison operators for filtering
 type ComparisonOperator = "gt" | "lt" | "gte" | "lte" | null;
@@ -531,6 +535,102 @@ export default function SalesPage() {
           </div>
         </div>
       </div>
+
+      {/* Sales Trend Chart */}
+      {!showNonSelling && (
+        <div className="bg-white p-6 rounded-xl shadow-md mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-6 h-6 text-[#F15A29]" />
+            <h3 className="text-xl font-bold">Sales Trend</h3>
+          </div>
+          <p className="text-gray-600 mb-6">Daily sales revenue and order volume for the selected period</p>
+          
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gradient-to-r from-[#F15A29] to-[#D84A19] p-4 rounded-lg text-white">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                <span className="font-medium">Total Revenue</span>
+              </div>
+              <p className="text-2xl font-bold mt-2">₱{totalSales.toFixed(2)}</p>
+            </div>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white">
+              <div className="flex items-center gap-2">
+                <Package className="w-5 h-5" />
+                <span className="font-medium">Total Orders</span>
+              </div>
+              <p className="text-2xl font-bold mt-2">{totalVolume}</p>
+            </div>
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg text-white">
+              <div className="flex items-center gap-2">
+                <BarChart2 className="w-5 h-5" />
+                <span className="font-medium">Avg Order Value</span>
+              </div>
+              <p className="text-2xl font-bold mt-2">₱{averageOrderValue.toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Trend Chart */}
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12 }}
+                  stroke="#666"
+                />
+                <YAxis 
+                  yAxisId="revenue" 
+                  orientation="left"
+                  tick={{ fontSize: 12 }}
+                  stroke="#666"
+                  tickFormatter={(value) => `₱${value}`}
+                />
+                <YAxis 
+                  yAxisId="orders" 
+                  orientation="right"
+                  tick={{ fontSize: 12 }}
+                  stroke="#666"
+                />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'revenue' ? `₱${Number(value).toFixed(2)}` : `${value} orders`,
+                    name === 'revenue' ? 'Revenue' : 'Orders'
+                  ]}
+                  labelStyle={{ color: '#333' }}
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #ccc',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Legend />
+                <Line 
+                  yAxisId="revenue"
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#F15A29" 
+                  strokeWidth={3}
+                  name="Revenue (₱)"
+                  dot={{ fill: '#F15A29', strokeWidth: 2, r: 5 }}
+                  activeDot={{ r: 7, fill: '#F15A29' }}
+                />
+                <Line 
+                  yAxisId="orders"
+                  type="monotone" 
+                  dataKey="orders" 
+                  stroke="#3B82F6" 
+                  strokeWidth={3}
+                  name="Orders"
+                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 5 }}
+                  activeDot={{ r: 7, fill: '#3B82F6' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Sales Data Table */}
       <div className="bg-white p-4 rounded-xl shadow-md">
