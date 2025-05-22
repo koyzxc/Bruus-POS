@@ -153,7 +153,16 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   
   // Function to recalculate stock based on container inputs
   const recalculateStock = () => {
-    if (containerType !== "direct" && containerQuantity && quantityPerUnit) {
+    if (containerType !== "direct") {
+      // Ensure we have valid quantity per unit
+      if (!quantityPerUnit) return;
+      
+      // Handle empty container quantity
+      if (!containerQuantity) {
+        setCalculatedStock(null);
+        return;
+      }
+      
       const containers = parseFloat(numberOfContainers || "1");
       const secondaryUnits = parseFloat(containerQuantity);
       const measurementPerUnit = parseFloat(quantityPerUnit);
@@ -190,7 +199,13 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   
   // Calculate the total stock based on container quantities
   useEffect(() => {
-    if (containerType !== "direct" && containerQuantity && quantityPerUnit) {
+    if (containerType !== "direct" && quantityPerUnit) {
+      // Handle case when containerQuantity is empty or zero
+      if (!containerQuantity) {
+        setCalculatedStock(null);
+        return;
+      }
+      
       const containers = parseFloat(numberOfContainers || "1");
       const secondaryUnits = parseFloat(containerQuantity);
       const measurementPerUnit = parseFloat(quantityPerUnit);
@@ -214,7 +229,7 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         }
       }
     }
-  }, [containerType, containerQuantity, quantityPerUnit, numberOfContainers, form]);
+  }, [containerType, containerQuantity, quantityPerUnit, numberOfContainers, form, form.watch("unit")]);
   
   // When editing and changing currentStock, calculate and update container quantities
   const currentStock = form.watch("currentStock");
@@ -434,6 +449,27 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
+                      
+                      // Trigger recalculation if we're using containers
+                      if (containerType !== "direct" && quantityPerUnit && containerQuantity) {
+                        const containers = parseFloat(numberOfContainers || "1");
+                        const secondaryUnits = parseFloat(containerQuantity);
+                        const measurementPerUnit = parseFloat(quantityPerUnit);
+                        
+                        if (!isNaN(containers) && !isNaN(secondaryUnits) && !isNaN(measurementPerUnit)) {
+                          let totalStock = containers * secondaryUnits * measurementPerUnit;
+                          
+                          // For grams, ensure it's an integer
+                          if (value === "g") {
+                            totalStock = Math.round(totalStock);
+                            setCalculatedStock(totalStock.toString());
+                            form.setValue("currentStock", totalStock.toString());
+                          } else {
+                            setCalculatedStock(totalStock.toFixed(2));
+                            form.setValue("currentStock", totalStock.toFixed(2));
+                          }
+                        }
+                      }
                     }}
                     defaultValue={field.value}
                   >
@@ -570,7 +606,11 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                 <FormItem>
                   <FormLabel>Measurement Unit</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      // Recalculate when unit changes
+                      recalculateStock();
+                    }}
                     defaultValue={field.value}
                   >
                     <FormControl>
