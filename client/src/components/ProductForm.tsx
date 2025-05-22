@@ -625,16 +625,60 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <h3 className="text-md font-medium">Large Ingredients</h3>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => appendLargeIngredient({ inventoryId: "", quantityUsed: "" })}
-                          className="flex items-center gap-1"
-                        >
-                          <PlusCircle className="h-4 w-4" />
-                          Add Ingredient
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              // Copy all ingredients from medium size
+                              if (mediumIngredients.length > 0) {
+                                // Clear existing large ingredients first
+                                for (let i = largeIngredients.length - 1; i >= 0; i--) {
+                                  removeLargeIngredient(i);
+                                }
+                                
+                                // Add each medium ingredient to large
+                                mediumIngredients.forEach((field, index) => {
+                                  const inventoryId = form.getValues(`mediumIngredients.${index}.inventoryId`);
+                                  const quantityUsed = form.getValues(`mediumIngredients.${index}.quantityUsed`);
+                                  
+                                  if (inventoryId && quantityUsed) {
+                                    appendLargeIngredient({
+                                      inventoryId,
+                                      quantityUsed
+                                    });
+                                  }
+                                });
+                                
+                                toast({
+                                  title: "Ingredients Copied",
+                                  description: "Medium ingredients have been copied to large size",
+                                });
+                              } else {
+                                toast({
+                                  title: "No Ingredients",
+                                  description: "There are no medium ingredients to copy",
+                                  variant: "destructive"
+                                });
+                              }
+                            }}
+                            className="flex items-center gap-1 bg-blue-50 border-blue-200 hover:bg-blue-100"
+                          >
+                            <PlusCircle className="h-4 w-4" />
+                            Copy from Medium
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => appendLargeIngredient({ inventoryId: "", quantityUsed: "" })}
+                            className="flex items-center gap-1"
+                          >
+                            <PlusCircle className="h-4 w-4" />
+                            Add Ingredient
+                          </Button>
+                        </div>
                       </div>
                       
                       {largeIngredients.length === 0 && (

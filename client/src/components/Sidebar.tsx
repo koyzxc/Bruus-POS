@@ -94,9 +94,15 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
       </div>
       
       <div className="fixed bottom-0 left-0 p-4 w-64 md:w-72">
+        {/* Notification area above low stock alerts */}
+        <div className="mb-4 max-h-[60px] overflow-y-auto bg-blue-100 rounded-md p-2 text-sm text-blue-800 border border-blue-200">
+          <p className="font-medium">Notifications</p>
+          <p className="text-xs">System updates and announcements will appear here</p>
+        </div>
+        
         {/* Low Stock Alerts above sign out button */}
         {lowStockItems && lowStockItems.length > 0 && (
-          <div className="mb-4 max-h-[140px] overflow-y-auto">
+          <div className="mb-4 max-h-[120px] overflow-y-auto">
             {lowStockItems.map((item) => (
               <LowStockAlert key={item.id} item={item} />
             ))}
