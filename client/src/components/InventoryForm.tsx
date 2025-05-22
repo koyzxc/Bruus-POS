@@ -219,14 +219,14 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   // Create a new inventory item
   const createMutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      // Format data for API
+      // Send data as is - the server will handle the conversions
       const formattedData = {
         ...data,
-        currentStock: parseFloat(data.currentStock),
-        minimumThreshold: parseFloat(data.minimumThreshold),
-        containerQuantity: data.containerQuantity ? parseFloat(data.containerQuantity) : null,
-        numberOfContainers: data.numberOfContainers ? parseFloat(data.numberOfContainers) : 1,
-        quantityPerUnit: data.quantityPerUnit ? parseFloat(data.quantityPerUnit) : null,
+        currentStock: data.currentStock,
+        minimumThreshold: data.minimumThreshold,
+        containerQuantity: data.containerQuantity || null,
+        numberOfContainers: data.numberOfContainers || "1",
+        quantityPerUnit: data.quantityPerUnit || null,
       };
       
       const response = await apiRequest("POST", "/api/inventory", formattedData);
@@ -259,14 +259,14 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
     mutationFn: async (data: FormValues) => {
       if (!inventoryItem) return null;
       
-      // Format data for API
+      // Keep values as strings to match schema validation requirements
       const formattedData = {
         ...data,
-        currentStock: parseFloat(data.currentStock),
-        minimumThreshold: parseFloat(data.minimumThreshold),
-        containerQuantity: data.containerQuantity ? parseFloat(data.containerQuantity) : null,
-        numberOfContainers: data.numberOfContainers ? parseFloat(data.numberOfContainers) : 1,
-        quantityPerUnit: data.quantityPerUnit ? parseFloat(data.quantityPerUnit) : null,
+        currentStock: data.currentStock,
+        minimumThreshold: data.minimumThreshold,
+        containerQuantity: data.containerQuantity || null,
+        numberOfContainers: data.numberOfContainers || "1",
+        quantityPerUnit: data.quantityPerUnit || null,
       };
       
       const response = await apiRequest("PATCH", `/api/inventory/${inventoryItem.id}`, formattedData);
