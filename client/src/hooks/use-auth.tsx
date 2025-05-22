@@ -71,19 +71,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      // Clear client data immediately for instant response
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.clear();
+      
+      // Make logout request (don't wait for it)
+      apiRequest("POST", "/api/logout").catch(() => {
+        // Silent fail - user already logged out locally
+      });
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
       queryClient.clear(); // Clear all cached data
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
-      });
-      // Force redirect to auth page after a short delay
-      setTimeout(() => {
-        window.location.href = "/auth";
-      }, 1000);
+      // Immediate redirect to login page
+      window.location.href = "/auth";
     },
     onError: (error: Error) => {
       // Silent error handling for auth page
