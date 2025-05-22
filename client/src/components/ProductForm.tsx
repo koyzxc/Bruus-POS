@@ -335,10 +335,9 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      // Only allow closing through the cancel button, not by clicking outside
+      // Allow closing through the X button, but prevent closing by clicking outside
       if (!open) {
-        // Don't close automatically - this prevents outside clicks from closing
-        return;
+        onClose();
       }
     }}>
       <DialogContent 
