@@ -381,6 +381,11 @@ class DatabaseStorage implements IStorage {
           WHEN ${products.id} IS NULL THEN NULL 
           ELSE ${products.size} 
         END`,
+        // Include the category name for proper categorization
+        categoryName: sql`CASE 
+          WHEN ${products.id} IS NULL THEN NULL
+          ELSE (SELECT ${categories.name} FROM ${categories} WHERE ${categories.id} = ${products.categoryId})
+        END`,
         quantity: orderItems.quantity,
         createdAt: orders.createdAt
       })

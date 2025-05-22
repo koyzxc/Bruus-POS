@@ -224,31 +224,15 @@ export default function SalesPage() {
     }
   };
   
-  // Get the proper category name from product name or category
-  const getCategoryName = (productName: string | null | undefined): string => {
-    // Handle null or undefined product names
-    if (!productName) return "OTHERS";
-    
-    const productNameLower = productName.toLowerCase();
-    
-    // Check for coffee products (including Kape Barako which is a Filipino coffee)
-    if (productNameLower.includes('coffee') || 
-        productNameLower.includes('kape') || 
-        productNameLower.includes('latte') || 
-        productNameLower.includes('espresso') ||
-        productNameLower.includes('cappuccino') ||
-        productNameLower.includes('americano')) {
-      return "COFFEE";
-    } else if (productNameLower.includes('shake')) {
-      return "SHAKE";
-    } else if (productNameLower.includes('sandwich') || 
-               productNameLower.includes('pastry') ||
-               productNameLower.includes('cake') ||
-               productNameLower.includes('bread')) {
-      return "FOOD";
-    } else {
-      return "OTHERS";
+  // Get the proper category name from data
+  const getCategoryName = (item: SalesData): string => {
+    // First try to use the actual category from the database
+    if (item.categoryName) {
+      return item.categoryName;
     }
+    
+    // Fallback for deleted products or legacy data
+    return "OTHERS";
   };
   
   return (
