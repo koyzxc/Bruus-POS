@@ -95,9 +95,9 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
       
       <div className="fixed bottom-0 left-0 p-4 w-64 md:w-72">
         {/* Notification area above low stock alerts */}
-        <div className="mb-4 max-h-[60px] overflow-y-auto bg-blue-100 rounded-md p-2 text-sm text-blue-800 border border-blue-200">
-          <p className="font-medium">Notifications</p>
-          <p className="text-xs">System updates and announcements will appear here</p>
+        <div className="mb-4 overflow-y-auto bg-white rounded-md p-3 text-sm shadow-md border border-gray-100">
+          <p className="font-medium text-black">Added to order</p>
+          <p className="text-gray-500">Kape Barako (M) added to your order</p>
         </div>
         
         {/* Low Stock Alerts above sign out button */}

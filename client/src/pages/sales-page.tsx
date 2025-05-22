@@ -224,12 +224,21 @@ export default function SalesPage() {
     }
   };
   
-  const getCategoryName = (id: number): string => {
-    switch(id) {
-      case 1: return "COFFEE";
-      case 2: return "NON-COFFEE";
-      case 3: return "PASTRY";
-      default: return "OTHER";
+  // Get the proper category name from product name or category
+  const getCategoryName = (productName: string | null | undefined): string => {
+    // Handle null or undefined product names
+    if (!productName) return "OTHERS";
+    
+    const productNameLower = productName.toLowerCase();
+    
+    if (productNameLower.includes('coffee')) {
+      return "COFFEE";
+    } else if (productNameLower.includes('shake')) {
+      return "SHAKE";
+    } else if (productNameLower.includes('sandwich') || productNameLower.includes('pastry')) {
+      return "FOOD";
+    } else {
+      return "OTHERS";
     }
   };
   
@@ -556,9 +565,7 @@ export default function SalesPage() {
                           ₱ {Number(product.price).toFixed(2)}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-center">
-                          {getCategoryName(showNonSelling 
-                            ? product.categoryId 
-                            : product.productId || product.categoryId)}
+                          {getCategoryName(product.productName)}
                         </TableCell>
                         {!showNonSelling && (
                           <>
