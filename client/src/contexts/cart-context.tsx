@@ -134,7 +134,7 @@ function OrderSummaryModal({
         <DialogHeader>
           <DialogTitle>Order Completed</DialogTitle>
           <DialogDescription>
-            Order #{orderSummary.order.id} has been successfully processed.
+            Order #BRUUS-{new Date().getFullYear()}-{orderSummary.order.id.toString().padStart(4, '0')} has been successfully processed.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
