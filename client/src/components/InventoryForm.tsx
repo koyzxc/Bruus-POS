@@ -256,8 +256,19 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
   
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      // Only allow closing through the cancel button, not by clicking outside
+      if (!open) {
+        // Don't close automatically - this prevents outside clicks from closing
+        return;
+      }
+    }}>
+      <DialogContent 
+        className="sm:max-w-md max-h-[90vh] overflow-y-auto"
+        onInteractOutside={(e) => {
+          // Prevent closing when clicking outside
+          e.preventDefault();
+        }}>
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Ingredient" : "Add New Ingredient"}</DialogTitle>
           <DialogDescription>
