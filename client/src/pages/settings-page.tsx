@@ -174,9 +174,9 @@ export default function SettingsPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>User Management</CardTitle>
+                <CardTitle>Account Management</CardTitle>
                 <CardDescription>
-                  Create and manage user accounts for your coffee shop
+                  Create and manage accounts for your coffee shop including the existing barista account
                 </CardDescription>
               </div>
               <Dialog open={isCreateDialogOpen || !!editingUser} onOpenChange={(open) => {
@@ -189,7 +189,7 @@ export default function SettingsPage() {
                 <DialogTrigger asChild>
                   <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-[#F15A29] hover:bg-[#D84A19]">
                     <UserPlus className="w-4 h-4 mr-2" />
-                    Add User
+                    Add Account
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
