@@ -94,15 +94,9 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
       </div>
       
       <div className="fixed bottom-0 left-0 p-4 w-64 md:w-72">
-        {/* Notification area above low stock alerts */}
-        <div className="mb-4 overflow-y-auto bg-white rounded-md p-3 text-sm shadow-md border border-gray-100">
-          <p className="font-medium text-black">Added to order</p>
-          <p className="text-gray-500">Kape Barako (M) added to your order</p>
-        </div>
-        
         {/* Low Stock Alerts above sign out button */}
         {lowStockItems && lowStockItems.length > 0 && (
-          <div className="mb-4 max-h-[120px] overflow-y-auto">
+          <div className="mb-4 max-h-[160px] overflow-y-auto">
             {lowStockItems.map((item) => (
               <LowStockAlert key={item.id} item={item} />
             ))}

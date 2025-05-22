@@ -237,7 +237,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     toast({
       title: "Added to order",
       description: `${product.name} ${product.size ? `(${product.size})` : ''} added to your order`,
-      duration: 1500,
+      duration: 2000,
+      className: "bg-white border border-gray-100 shadow-lg",
+      style: {
+        backgroundColor: "white",
+        color: "black",
+      },
     });
   };
 
