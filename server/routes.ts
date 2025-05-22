@@ -302,6 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minimumThreshold: req.body.minimumThreshold,
         containerType: req.body.containerType || "direct",
         containerQuantity: req.body.containerQuantity || null,
+        numberOfContainers: req.body.numberOfContainers || "1", // Add support for number of containers
         secondaryUnit: req.body.secondaryUnit || null,
         quantityPerUnit: req.body.quantityPerUnit || null,
         unit: req.body.unit
@@ -327,8 +328,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update inventory item
-  app.put("/api/inventory/:id", async (req, res) => {
+  // Update inventory item (supports both PUT and PATCH)
+  app.put("/api/inventory/:id", updateInventoryItem);
+  app.patch("/api/inventory/:id", updateInventoryItem);
+  
+  // Handler function for inventory updates
+  async function updateInventoryItem(req: Request, res: Response) {
     console.log("Received inventory update request:", JSON.stringify(req.body));
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "You must be logged in to update inventory items" });
@@ -358,6 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minimumThreshold: req.body.minimumThreshold,
         containerType: req.body.containerType || "direct",
         containerQuantity: req.body.containerQuantity || null,
+        numberOfContainers: req.body.numberOfContainers || "1", // Add support for number of containers
         secondaryUnit: req.body.secondaryUnit || null,
         quantityPerUnit: req.body.quantityPerUnit || null,
         unit: req.body.unit
@@ -403,7 +409,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error updating inventory item:", error);
       res.status(500).json({ message: "Failed to update inventory item" });
     }
-  });
+  }
   
   // Delete inventory item
   app.delete("/api/inventory/:id", async (req, res) => {
