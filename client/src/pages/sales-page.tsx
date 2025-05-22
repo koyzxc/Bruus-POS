@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import { SalesData, Product } from "@shared/schema";
@@ -14,12 +14,10 @@ import {
 import { 
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { format, startOfMonth, endOfMonth, startOfDay, endOfDay, subDays } from "date-fns";
 import { 
   BarChart2, 
@@ -30,7 +28,7 @@ import {
   Filter 
 } from "lucide-react";
 
-// Define filter types for our comparison operators
+// Define comparison operators for filtering
 type ComparisonOperator = "gt" | "lt" | "gte" | "lte" | null;
 
 type FilterState = {
@@ -51,10 +49,10 @@ export default function SalesPage() {
     to: endOfDay(today),
   });
   
-  // Add a state to toggle between selling and non-selling products
+  // State to toggle between selling and non-selling products
   const [showNonSelling, setShowNonSelling] = useState(false);
   
-  // Add filter states for volume and sales
+  // State for filters
   const [filters, setFilters] = useState<FilterState>({
     volumeOperator: null,
     volumeValue: "",
@@ -62,13 +60,13 @@ export default function SalesPage() {
     salesValue: ""
   });
   
-  // Active filter count badge
+  // Count active filters for badge display
   const activeFilterCount = [
     filters.volumeOperator,
     filters.salesOperator
   ].filter(Boolean).length;
   
-  // Date range presets
+  // Date range preset handlers
   const handleTodayClick = () => {
     setDateRange({
       from: startOfDay(new Date()),
@@ -120,7 +118,7 @@ export default function SalesPage() {
       
       return response.json();
     },
-    enabled: !showNonSelling, // Only fetch sales data when not showing non-selling products
+    enabled: !showNonSelling, // Only fetch when not showing non-selling products
   });
   
   // Fetch non-selling products with date range
@@ -139,14 +137,14 @@ export default function SalesPage() {
       
       return response.json();
     },
-    enabled: showNonSelling, // Only fetch non-selling data when showing non-selling products
+    enabled: showNonSelling, // Only fetch when showing non-selling products
   });
   
-  // Calculate totals (only for sales data)
+  // Calculate totals for sales data
   const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
   const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
   
-  // Function to set filter for volume
+  // Filter setting functions
   const setVolumeFilter = (operator: ComparisonOperator, value: string) => {
     setFilters({
       ...filters,
@@ -155,7 +153,6 @@ export default function SalesPage() {
     });
   };
   
-  // Function to set filter for sales
   const setSalesFilter = (operator: ComparisonOperator, value: string) => {
     setFilters({
       ...filters,
@@ -164,7 +161,6 @@ export default function SalesPage() {
     });
   };
   
-  // Function to clear all filters
   const clearAllFilters = () => {
     setFilters({
       volumeOperator: null,
@@ -174,7 +170,7 @@ export default function SalesPage() {
     });
   };
   
-  // Helper function to compare values using the selected operator
+  // Filter comparison helper function
   const compareValues = (value: number, compareValue: number, operator: ComparisonOperator): boolean => {
     switch(operator) {
       case "gt": return value > compareValue;
@@ -187,8 +183,8 @@ export default function SalesPage() {
   
   // Apply filters to sales data
   const filteredSalesData = salesData?.filter(item => {
-    // Skip filtering if non-selling view is active
-    if (showNonSelling) return true;
+    // Skip filtering if no sales data
+    if (!item) return false;
     
     // Volume filter
     if (filters.volumeOperator && filters.volumeValue) {
@@ -213,11 +209,11 @@ export default function SalesPage() {
     return true;
   });
   
-  // Determine which data and loading state to use based on the showNonSelling toggle
+  // Determine which data and loading state to use
   const displayData = showNonSelling ? nonSellingData : filteredSalesData;
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
-  // Helper to get operator text for display
+  // Format helper functions
   const getOperatorText = (operator: ComparisonOperator): string => {
     switch(operator) {
       case "gt": return ">";
@@ -228,13 +224,22 @@ export default function SalesPage() {
     }
   };
   
+  const getCategoryName = (id: number): string => {
+    switch(id) {
+      case 1: return "COFFEE";
+      case 2: return "NON-COFFEE";
+      case 3: return "PASTRY";
+      default: return "OTHER";
+    }
+  };
+  
   return (
     <MainLayout
       activeCategory={activeCategory}
       setActiveCategory={setActiveCategory}
       activeSection="SALES"
     >
-      {/* Date Range Controls */}
+      {/* Analytics Header & Controls */}
       <div className="mb-6 bg-white p-4 rounded-xl shadow-md">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1">
@@ -463,39 +468,39 @@ export default function SalesPage() {
                 </Button>
               </div>
             </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start font-normal text-left bg-white"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formattedDateRange()}
-                  <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="range"
-                  selected={dateRange}
-                  onSelect={(range) => {
-                    setDateRange(range as { from: Date; to: Date });
-                  }}
-                  initialFocus
-                />
-                <div className="flex p-2 border-t gap-2">
-                  <Button size="sm" variant="outline" onClick={handleTodayClick} className="flex-1 text-xs">
-                    Today
+
+            {/* Date Selection */}
+            <div className="flex flex-col gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start font-normal text-left bg-white"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formattedDateRange()}
+                    <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={handleWeekClick} className="flex-1 text-xs">
-                    This Week
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={handleMonthClick} className="flex-1 text-xs">
-                    This Month
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={(range) => {
+                      setDateRange(range as { from: Date; to: Date });
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              {/* Date shortcut buttons underneath */}
+              <div className="flex gap-2">
+                <Button onClick={handleTodayClick} variant="outline" className="flex-1">Today</Button>
+                <Button onClick={handleWeekClick} variant="outline" className="flex-1">This Week</Button>
+                <Button onClick={handleMonthClick} variant="outline" className="flex-1">This Month</Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -528,30 +533,42 @@ export default function SalesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {displayData.map((product) => (
-                    <TableRow
-                      key={product.id}
-                      className={showNonSelling ? "bg-amber-50" : ""}
-                    >
-                      <TableCell className="py-4 px-6 font-medium">
-                        <div>
-                          {product.name} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{product.size}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4 px-6 text-center text-white">₱ {Number(product.price).toFixed(2)}</TableCell>
-                      <TableCell className="py-4 px-6 text-center text-white">
-                        {product.categoryId === 1 ? "COFFEE" : 
-                         product.categoryId === 2 ? "NON-COFFEE" : 
-                         product.categoryId === 3 ? "PASTRY" : "OTHER"}
-                      </TableCell>
-                      {!showNonSelling && (
-                        <>
-                          <TableCell className="py-4 px-6 text-center text-white">{(product as SalesData).volume}</TableCell>
-                          <TableCell className="py-4 px-6 text-center text-white">₱ {Number((product as SalesData).totalSales).toFixed(2)}</TableCell>
-                        </>
-                      )}
-                    </TableRow>
-                  ))}
+                  {displayData.map((item) => {
+                    // Handle different data types based on view mode
+                    const product = item as any;
+                    
+                    return (
+                      <TableRow
+                        key={product.id}
+                        className={showNonSelling ? "bg-amber-50" : ""}
+                      >
+                        <TableCell className="py-4 px-6 font-medium">
+                          <div>
+                            {showNonSelling 
+                              ? product.name 
+                              : product.productName} 
+                            <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">
+                              {product.size}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4 px-6 text-center">
+                          ₱ {Number(product.price).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="py-4 px-6 text-center">
+                          {getCategoryName(showNonSelling 
+                            ? product.categoryId 
+                            : product.productId || product.categoryId)}
+                        </TableCell>
+                        {!showNonSelling && (
+                          <>
+                            <TableCell className="py-4 px-6 text-center">{product.volume}</TableCell>
+                            <TableCell className="py-4 px-6 text-center">₱ {Number(product.totalSales).toFixed(2)}</TableCell>
+                          </>
+                        )}
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
