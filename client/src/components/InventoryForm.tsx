@@ -568,19 +568,24 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Quantity per {form.watch("secondaryUnit") || "Secondary Unit"}</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="e.g., 200 for 200ml per piece"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            // We'll let the useEffect handle the recalculation
-                          }}
-                        />
-                      </FormControl>
+                      <div className="flex items-center space-x-2">
+                        <FormControl className="flex-1">
+                          <Input 
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="e.g., 200"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              // We'll let the useEffect handle the recalculation
+                            }}
+                          />
+                        </FormControl>
+                        <div className="text-sm text-muted-foreground border px-3 py-2 rounded-md min-w-[60px] text-center">
+                          {form.watch("unit") || "unit"}
+                        </div>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
