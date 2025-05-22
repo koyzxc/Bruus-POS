@@ -226,8 +226,15 @@ export default function SalesPage() {
             <TableRow className="border-b border-white border-opacity-20">
               <TableHead className="text-left py-4 px-6 font-bold text-white">PRODUCT NAME</TableHead>
               <TableHead className="text-center py-4 px-6 font-bold text-white">PRICE</TableHead>
-              <TableHead className="text-center py-4 px-6 font-bold text-white">VOLUME</TableHead>
-              <TableHead className="text-right py-4 px-6 font-bold text-white">SALES</TableHead>
+              {!showNonSelling && (
+                <>
+                  <TableHead className="text-center py-4 px-6 font-bold text-white">VOLUME</TableHead>
+                  <TableHead className="text-right py-4 px-6 font-bold text-white">SALES</TableHead>
+                </>
+              )}
+              {showNonSelling && (
+                <TableHead className="text-center py-4 px-6 font-bold text-white">CATEGORY</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -242,37 +249,78 @@ export default function SalesPage() {
                     <TableCell className="py-4 px-6 text-center text-white">
                       <Skeleton className="h-6 w-20 mx-auto bg-white/20" />
                     </TableCell>
-                    <TableCell className="py-4 px-6 text-center text-white">
-                      <Skeleton className="h-6 w-12 mx-auto bg-white/20" />
-                    </TableCell>
-                    <TableCell className="py-4 px-6 text-right text-white">
-                      <Skeleton className="h-6 w-24 ml-auto bg-white/20" />
-                    </TableCell>
+                    {!showNonSelling && (
+                      <>
+                        <TableCell className="py-4 px-6 text-center text-white">
+                          <Skeleton className="h-6 w-12 mx-auto bg-white/20" />
+                        </TableCell>
+                        <TableCell className="py-4 px-6 text-right text-white">
+                          <Skeleton className="h-6 w-24 ml-auto bg-white/20" />
+                        </TableCell>
+                      </>
+                    )}
+                    {showNonSelling && (
+                      <TableCell className="py-4 px-6 text-center text-white">
+                        <Skeleton className="h-6 w-24 mx-auto bg-white/20" />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
             ) : (
-              salesData?.map((item) => (
-                <TableRow key={item.id} className="border-b border-white border-opacity-20 hover:bg-[#FF7A47]">
-                  <TableCell className="py-4 px-6 text-white">
-                    {item.productName === null ? "(Deleted Product)" : (
+              // Show appropriate content based on which mode we're in
+              showNonSelling ? (
+                // Non-selling products display
+                nonSellingData?.map((product) => (
+                  <TableRow key={product.id} className="border-b border-white border-opacity-20 hover:bg-[#FF7A47]">
+                    <TableCell className="py-4 px-6 text-white">
                       <div>
-                        {item.productName} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{item.size}</span>
+                        {product.name} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{product.size}</span>
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-4 px-6 text-center text-white">₱ {item.price.toFixed(2)}</TableCell>
-                  <TableCell className="py-4 px-6 text-center text-white">{item.volume}</TableCell>
-                  <TableCell className="py-4 px-6 text-right text-white">₱ {item.totalSales.toFixed(2)}</TableCell>
-                </TableRow>
-              ))
+                    </TableCell>
+                    <TableCell className="py-4 px-6 text-center text-white">₱ {product.price.toFixed(2)}</TableCell>
+                    <TableCell className="py-4 px-6 text-center text-white">
+                      {product.categoryId === 1 ? "COFFEE" : 
+                       product.categoryId === 2 ? "NON-COFFEE" : 
+                       product.categoryId === 3 ? "PASTRY" : "OTHER"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                // Sales data display
+                salesData?.map((item) => (
+                  <TableRow key={item.id} className="border-b border-white border-opacity-20 hover:bg-[#FF7A47]">
+                    <TableCell className="py-4 px-6 text-white">
+                      {item.productName === null ? "(Deleted Product)" : (
+                        <div>
+                          {item.productName} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{item.size}</span>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-4 px-6 text-center text-white">₱ {item.price.toFixed(2)}</TableCell>
+                    <TableCell className="py-4 px-6 text-center text-white">{item.volume}</TableCell>
+                    <TableCell className="py-4 px-6 text-right text-white">₱ {item.totalSales.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))
+              )
             )}
             
-            {!isLoading && (!salesData || salesData.length === 0) && (
-              <TableRow className="border-b border-white border-opacity-20">
-                <TableCell colSpan={4} className="text-center py-10 text-white">
-                  No sales data found
-                </TableCell>
-              </TableRow>
+            {!isLoading && (
+              // Empty state messages
+              showNonSelling ? 
+                (!nonSellingData || nonSellingData.length === 0) && (
+                  <TableRow className="border-b border-white border-opacity-20">
+                    <TableCell colSpan={3} className="text-center py-10 text-white">
+                      All products have sales in the selected date range
+                    </TableCell>
+                  </TableRow>
+                ) : 
+                (!salesData || salesData.length === 0) && (
+                  <TableRow className="border-b border-white border-opacity-20">
+                    <TableCell colSpan={4} className="text-center py-10 text-white">
+                      No sales data found for the selected date range
+                    </TableCell>
+                  </TableRow>
+                )
             )}
           </TableBody>
         </Table>
