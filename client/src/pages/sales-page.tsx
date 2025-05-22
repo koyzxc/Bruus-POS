@@ -231,11 +231,20 @@ export default function SalesPage() {
     
     const productNameLower = productName.toLowerCase();
     
-    if (productNameLower.includes('coffee')) {
+    // Check for coffee products (including Kape Barako which is a Filipino coffee)
+    if (productNameLower.includes('coffee') || 
+        productNameLower.includes('kape') || 
+        productNameLower.includes('latte') || 
+        productNameLower.includes('espresso') ||
+        productNameLower.includes('cappuccino') ||
+        productNameLower.includes('americano')) {
       return "COFFEE";
     } else if (productNameLower.includes('shake')) {
       return "SHAKE";
-    } else if (productNameLower.includes('sandwich') || productNameLower.includes('pastry')) {
+    } else if (productNameLower.includes('sandwich') || 
+               productNameLower.includes('pastry') ||
+               productNameLower.includes('cake') ||
+               productNameLower.includes('bread')) {
       return "FOOD";
     } else {
       return "OTHERS";
