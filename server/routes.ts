@@ -329,6 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Update inventory item
   app.put("/api/inventory/:id", async (req, res) => {
+    console.log("Received inventory update request:", JSON.stringify(req.body));
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "You must be logged in to update inventory items" });
     }
@@ -363,6 +364,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       console.log("Inventory update data:", JSON.stringify(inventoryData));
+      
+      // Handle container quantities calculation if needed
+      if (inventoryData.containerType !== "direct" && 
+          inventoryData.quantityPerUnit && 
+          inventoryData.quantityPerUnit !== null) {
+        
+        const currentStock = parseFloat(inventoryData.currentStock);
+        const quantityPerUnit = parseFloat(inventoryData.quantityPerUnit);
+        
+        if (!isNaN(currentStock) && !isNaN(quantityPerUnit) && quantityPerUnit > 0) {
+          // Calculate how many secondary units based on current stock
+          const calculatedSecondaryUnits = Math.floor(currentStock / quantityPerUnit);
+          inventoryData.containerQuantity = calculatedSecondaryUnits.toString();
+          
+          console.log(`Calculated secondary units: ${calculatedSecondaryUnits} based on stock ${currentStock} and quantity per unit ${quantityPerUnit}`);
+        }
+      }
       
       // Validate inventory data
       const validationResult = insertInventorySchema.safeParse(inventoryData);

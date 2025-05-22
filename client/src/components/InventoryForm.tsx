@@ -174,6 +174,25 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
     }
   }, [containerType, containerQuantity, quantityPerUnit, form]);
   
+  // When editing and changing currentStock, calculate and update container quantities
+  const currentStock = form.watch("currentStock");
+  
+  useEffect(() => {
+    // Only run this effect when editing items with container types
+    if (isEditing && containerType !== "direct" && quantityPerUnit && parseFloat(quantityPerUnit) > 0) {
+      const currentStockValue = parseFloat(currentStock);
+      const quantityPerUnitValue = parseFloat(quantityPerUnit);
+      
+      if (!isNaN(currentStockValue) && !isNaN(quantityPerUnitValue) && quantityPerUnitValue > 0) {
+        // Calculate how many secondary units are left based on current stock
+        const calculatedSecondaryUnits = currentStockValue / quantityPerUnitValue;
+        
+        // Update the container quantity field
+        form.setValue("containerQuantity", calculatedSecondaryUnits.toFixed(0));
+      }
+    }
+  }, [currentStock, quantityPerUnit, containerType, isEditing, form]);
+  
   // Create mutation for adding inventory items
   const createMutation = useMutation({
     mutationFn: async (data: FormValues) => {
