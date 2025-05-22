@@ -50,6 +50,10 @@ interface RestockFormProps {
 }
 
 export default function RestockForm({ isOpen, onClose, inventoryItem }: RestockFormProps) {
+  // Don't render if no inventory item
+  if (!inventoryItem) {
+    return null;
+  }
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);

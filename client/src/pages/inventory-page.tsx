@@ -408,8 +408,25 @@ export default function InventoryPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="py-4 px-6 text-right w-[100px]">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end">
+                      <TableCell className="py-4 px-6 text-right w-[120px]">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end gap-1">
+                          {/* Restock button - for both owner and barista */}
+                          {canManageProducts && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRestockInventory(item);
+                              }}
+                              className="px-2"
+                              title="Restock"
+                            >
+                              <Package className="h-4 w-4 text-green-600 hover:text-green-700" />
+                            </Button>
+                          )}
+                          
+                          {/* Edit button */}
                           {canManageProducts && (
                             <Button
                               size="sm"
@@ -419,6 +436,7 @@ export default function InventoryPage() {
                                 handleEditInventory(item);
                               }}
                               className="px-2"
+                              title="Edit"
                             >
                               <Edit className="h-4 w-4 text-gray-500 hover:text-[#F15A29]" />
                             </Button>
@@ -434,6 +452,7 @@ export default function InventoryPage() {
                                 handleDeleteInventory(item);
                               }}
                               className="px-2"
+                              title="Delete"
                             >
                               <Trash2 className="h-4 w-4 text-red-500 hover:text-red-700" />
                             </Button>
