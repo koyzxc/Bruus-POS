@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Inventory } from "@shared/schema";
 
 // Define form schema with Zod
@@ -98,9 +99,11 @@ const unitOptions = [
 
 export default function InventoryForm({ isOpen, onClose, inventoryItem }: InventoryFormProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!inventoryItem;
+  const isOwner = user?.role === "owner";
   
   // State to track whether container details should be shown
   const [showContainerDetails, setShowContainerDetails] = useState(false);
@@ -398,11 +401,31 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                       <Input 
                         type="number" 
                         step="0.01" 
-                        min="0" 
+                        min={isOwner ? "0" : (isEditing ? inventoryItem?.currentStock : "0")}
                         placeholder="0.00"
-                        {...field} 
+                        {...field}
+                        onChange={(e) => {
+                          // For baristas, prevent decreasing quantity below original value
+                          if (!isOwner && isEditing && 
+                              parseFloat(e.target.value) < parseFloat(inventoryItem?.currentStock?.toString() || "0")) {
+                            toast({
+                              title: "Permission Restricted",
+                              description: "Only owners can decrease inventory quantities.",
+                              variant: "destructive"
+                            });
+                            // Reset to original value
+                            field.onChange(inventoryItem?.currentStock?.toString());
+                          } else {
+                            field.onChange(e.target.value);
+                          }
+                        }}
                       />
                     </FormControl>
+                    {!isOwner && isEditing && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        Note: You can only add to the current quantity. Only owners can decrease inventory.
+                      </p>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

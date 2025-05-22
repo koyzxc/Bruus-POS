@@ -361,6 +361,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Inventory item not found" });
       }
       
+      // For baristas, check if they're trying to decrease inventory quantity
+      if (req.user.role === "barista") {
+        const newStockLevel = parseFloat(req.body.currentStock);
+        const currentStockLevel = parseFloat(existingItem.currentStock);
+        
+        if (!isNaN(newStockLevel) && !isNaN(currentStockLevel) && newStockLevel < currentStockLevel) {
+          return res.status(403).json({ 
+            message: "Baristas can only add to inventory. Contact an owner to decrease quantities."
+          });
+        }
+      }
+      
       // Format the data properly for update
       const inventoryData = {
         name: req.body.name,
