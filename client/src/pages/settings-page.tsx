@@ -179,12 +179,8 @@ export default function SettingsPage() {
                   Create and manage accounts for your coffee shop including the existing barista account
                 </CardDescription>
               </div>
-              <Dialog open={isCreateDialogOpen || !!editingUser} onOpenChange={(open) => {
-                if (!open) {
-                  setIsCreateDialogOpen(false);
-                  setEditingUser(null);
-                  form.reset();
-                }
+              <Dialog open={isCreateDialogOpen || !!editingUser} onOpenChange={() => {
+                // Prevent closing when clicking outside - only allow X button and Cancel/Submit
               }}>
                 <DialogTrigger asChild>
                   <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-[#F15A29] hover:bg-[#D84A19]">
@@ -192,7 +188,7 @@ export default function SettingsPage() {
                     Add Account
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()}>
                   <DialogHeader>
                     <DialogTitle>{editingUser ? "Edit User" : "Create New User"}</DialogTitle>
                     <DialogDescription>
