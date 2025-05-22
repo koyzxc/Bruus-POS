@@ -119,11 +119,7 @@ export default function AuthPage() {
                     </Button>
                   </div>
                   
-                  <div className="text-center text-sm text-gray-600 mt-4">
-                    <p className="font-medium">Default Accounts:</p>
-                    <p>Username: <span className="font-semibold">owner</span> / Password: <span className="font-semibold">password123</span></p>
-                    <p>Username: <span className="font-semibold">barista</span> / Password: <span className="font-semibold">password123</span></p>
-                  </div>
+                  {/* Default accounts information removed */}
                 </form>
               </Form>
             </div>
