@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth } from "./auth";
+import { setupAuth, hashPassword } from "./auth";
 import { z } from "zod";
 import { db, pool } from "@db";
 import { products, insertProductSchema, inventory, insertInventorySchema, productIngredients, orderItems } from "@shared/schema";
@@ -76,7 +76,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Hash password before storing
-      const { hashPassword } = await import("./auth");
       const hashedPassword = await hashPassword(password);
       const user = await storage.createUser({ username, password: hashedPassword, role });
       res.status(201).json(user);
@@ -102,7 +101,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash password if provided
       let updateData: any = { username, role };
       if (password && password.trim() !== "") {
-        const { hashPassword } = await import("./auth");
         updateData.password = await hashPassword(password);
       }
       const user = await storage.updateUser(userId, updateData);
