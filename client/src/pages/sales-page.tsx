@@ -6,9 +6,39 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from "@/components/ui/popover";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { format, startOfMonth, endOfMonth, startOfDay, endOfDay, subDays } from "date-fns";
-import { BarChart2, CalendarIcon, AlertTriangle } from "lucide-react";
+import { 
+  BarChart2, 
+  CalendarIcon, 
+  AlertTriangle, 
+  ChevronDown, 
+  FilterX, 
+  Filter 
+} from "lucide-react";
+
+// Define filter types for our comparison operators
+type ComparisonOperator = "gt" | "lt" | "gte" | "lte" | null;
+
+type FilterState = {
+  volumeOperator: ComparisonOperator;
+  volumeValue: string;
+  salesOperator: ComparisonOperator;
+  salesValue: string;
+}
 
 export default function SalesPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
@@ -23,6 +53,20 @@ export default function SalesPage() {
   
   // Add a state to toggle between selling and non-selling products
   const [showNonSelling, setShowNonSelling] = useState(false);
+  
+  // Add filter states for volume and sales
+  const [filters, setFilters] = useState<FilterState>({
+    volumeOperator: null,
+    volumeValue: "",
+    salesOperator: null,
+    salesValue: ""
+  });
+  
+  // Active filter count badge
+  const activeFilterCount = [
+    filters.volumeOperator,
+    filters.salesOperator
+  ].filter(Boolean).length;
   
   // Date range presets
   const handleTodayClick = () => {
@@ -102,9 +146,87 @@ export default function SalesPage() {
   const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
   const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
   
+  // Function to set filter for volume
+  const setVolumeFilter = (operator: ComparisonOperator, value: string) => {
+    setFilters({
+      ...filters,
+      volumeOperator: operator,
+      volumeValue: value
+    });
+  };
+  
+  // Function to set filter for sales
+  const setSalesFilter = (operator: ComparisonOperator, value: string) => {
+    setFilters({
+      ...filters,
+      salesOperator: operator,
+      salesValue: value
+    });
+  };
+  
+  // Function to clear all filters
+  const clearAllFilters = () => {
+    setFilters({
+      volumeOperator: null,
+      volumeValue: "",
+      salesOperator: null,
+      salesValue: ""
+    });
+  };
+  
+  // Helper function to compare values using the selected operator
+  const compareValues = (value: number, compareValue: number, operator: ComparisonOperator): boolean => {
+    switch(operator) {
+      case "gt": return value > compareValue;
+      case "lt": return value < compareValue;
+      case "gte": return value >= compareValue;
+      case "lte": return value <= compareValue;
+      default: return true; // No filter
+    }
+  };
+  
+  // Apply filters to sales data
+  const filteredSalesData = salesData?.filter(item => {
+    // Skip filtering if non-selling view is active
+    if (showNonSelling) return true;
+    
+    // Volume filter
+    if (filters.volumeOperator && filters.volumeValue) {
+      const compareValue = parseFloat(filters.volumeValue);
+      if (!isNaN(compareValue)) {
+        if (!compareValues(item.volume, compareValue, filters.volumeOperator)) {
+          return false;
+        }
+      }
+    }
+    
+    // Sales filter
+    if (filters.salesOperator && filters.salesValue) {
+      const compareValue = parseFloat(filters.salesValue);
+      if (!isNaN(compareValue)) {
+        if (!compareValues(item.totalSales, compareValue, filters.salesOperator)) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  });
+  
   // Determine which data and loading state to use based on the showNonSelling toggle
-  const displayData = showNonSelling ? nonSellingData : salesData;
+  const displayData = showNonSelling ? nonSellingData : filteredSalesData;
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
+  
+  // Helper to get operator text for display
+  const getOperatorText = (operator: ComparisonOperator): string => {
+    switch(operator) {
+      case "gt": return ">";
+      case "lt": return "<";
+      case "gte": return "≥";
+      case "lte": return "≤";
+      default: return "";
+    }
+  };
   
   return (
     <MainLayout
@@ -116,214 +238,347 @@ export default function SalesPage() {
       <div className="mb-6 bg-white p-4 rounded-xl shadow-md">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex flex-wrap justify-between items-center mb-2 gap-2">
               <h2 className="text-xl font-bold">Sales Analytics</h2>
-              <Button 
-                variant={showNonSelling ? "default" : "outline"}
-                onClick={() => setShowNonSelling(!showNonSelling)}
-                className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
-              >
-                {showNonSelling ? (
-                  <>
-                    <AlertTriangle className="h-4 w-4" /> 
-                    <span>Non-Selling Products</span>
-                  </>
-                ) : (
-                  <>
-                    <BarChart2 className="h-4 w-4" /> 
-                    <span>Show Non-Selling</span>
-                  </>
+              
+              <div className="flex items-center gap-2">
+                {/* Filter button with count badge */}
+                {!showNonSelling && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
+                      >
+                        <Filter className="h-4 w-4" />
+                        <span>Filters</span>
+                        {activeFilterCount > 0 && (
+                          <span className="flex items-center justify-center h-5 w-5 rounded-full bg-[#F15A29] text-white text-xs">
+                            {activeFilterCount}
+                          </span>
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-72">
+                      <DropdownMenuLabel>Apply Filters</DropdownMenuLabel>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      {/* Volume Filters */}
+                      <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Volume Filters</DropdownMenuLabel>
+                      <div className="p-2 grid grid-cols-2 gap-2">
+                        {/* Greater than */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.volumeOperator === "gt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Volume > ", filters.volumeValue || "");
+                            if (value !== null) {
+                              setVolumeFilter("gt", value);
+                            }
+                          }}
+                        >
+                          Greater than &gt;
+                        </Button>
+                        
+                        {/* Less than */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.volumeOperator === "lt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Volume < ", filters.volumeValue || "");
+                            if (value !== null) {
+                              setVolumeFilter("lt", value);
+                            }
+                          }}
+                        >
+                          Less than &lt;
+                        </Button>
+                        
+                        {/* Greater than or equal */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.volumeOperator === "gte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Volume ≥ ", filters.volumeValue || "");
+                            if (value !== null) {
+                              setVolumeFilter("gte", value);
+                            }
+                          }}
+                        >
+                          Greater than or equal ≥
+                        </Button>
+                        
+                        {/* Less than or equal */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.volumeOperator === "lte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Volume ≤ ", filters.volumeValue || "");
+                            if (value !== null) {
+                              setVolumeFilter("lte", value);
+                            }
+                          }}
+                        >
+                          Less than or equal ≤
+                        </Button>
+                      </div>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      {/* Sales Filters */}
+                      <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Sales Filters</DropdownMenuLabel>
+                      <div className="p-2 grid grid-cols-2 gap-2">
+                        {/* Greater than */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.salesOperator === "gt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Sales > ₱", filters.salesValue || "");
+                            if (value !== null) {
+                              setSalesFilter("gt", value);
+                            }
+                          }}
+                        >
+                          Greater than &gt;
+                        </Button>
+                        
+                        {/* Less than */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.salesOperator === "lt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Sales < ₱", filters.salesValue || "");
+                            if (value !== null) {
+                              setSalesFilter("lt", value);
+                            }
+                          }}
+                        >
+                          Less than &lt;
+                        </Button>
+                        
+                        {/* Greater than or equal */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.salesOperator === "gte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Sales ≥ ₱", filters.salesValue || "");
+                            if (value !== null) {
+                              setSalesFilter("gte", value);
+                            }
+                          }}
+                        >
+                          Greater than or equal ≥
+                        </Button>
+                        
+                        {/* Less than or equal */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={`text-xs justify-start ${filters.salesOperator === "lte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                          onClick={() => {
+                            const value = prompt("Enter value for Sales ≤ ₱", filters.salesValue || "");
+                            if (value !== null) {
+                              setSalesFilter("lte", value);
+                            }
+                          }}
+                        >
+                          Less than or equal ≤
+                        </Button>
+                      </div>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      {/* Active Filters Section */}
+                      {activeFilterCount > 0 && (
+                        <>
+                          <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Active Filters</DropdownMenuLabel>
+                          <div className="p-2 space-y-2">
+                            {filters.volumeOperator && (
+                              <div className="flex justify-between items-center p-1 bg-amber-50 text-amber-800 text-sm rounded">
+                                <span>Volume {getOperatorText(filters.volumeOperator)} {filters.volumeValue}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-6 w-6 p-0" 
+                                  onClick={() => setVolumeFilter(null, "")}
+                                >
+                                  <FilterX className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            )}
+                            
+                            {filters.salesOperator && (
+                              <div className="flex justify-between items-center p-1 bg-amber-50 text-amber-800 text-sm rounded">
+                                <span>Sales {getOperatorText(filters.salesOperator)} ₱{filters.salesValue}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-6 w-6 p-0" 
+                                  onClick={() => setSalesFilter(null, "")}
+                                >
+                                  <FilterX className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            )}
+                            
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full text-xs" 
+                              onClick={clearAllFilters}
+                            >
+                              Clear All Filters
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
-              </Button>
+                
+                <Button 
+                  variant={showNonSelling ? "default" : "outline"}
+                  onClick={() => setShowNonSelling(!showNonSelling)}
+                  className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
+                >
+                  {showNonSelling ? (
+                    <>
+                      <AlertTriangle className="h-4 w-4" /> 
+                      <span>Non-Selling Products</span>
+                    </>
+                  ) : (
+                    <>
+                      <BarChart2 className="h-4 w-4" /> 
+                      <span>Show Non-Selling</span>
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal border-dashed border-gray-300 hover:border-[#F15A29]"
+                  className="w-full justify-start font-normal text-left bg-white"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {formattedDateRange()}
+                  <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
-                  initialFocus
                   mode="range"
-                  defaultMonth={dateRange.from}
                   selected={dateRange}
                   onSelect={(range) => {
-                    if (range?.from) {
-                      setDateRange({
-                        from: range.from,
-                        to: range.to || range.from
-                      });
-                    }
+                    setDateRange(range as { from: Date; to: Date });
                   }}
-                  numberOfMonths={2}
-                  className="bg-white"
+                  initialFocus
                 />
+                <div className="flex p-2 border-t gap-2">
+                  <Button size="sm" variant="outline" onClick={handleTodayClick} className="flex-1 text-xs">
+                    Today
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={handleWeekClick} className="flex-1 text-xs">
+                    This Week
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={handleMonthClick} className="flex-1 text-xs">
+                    This Month
+                  </Button>
+                </div>
               </PopoverContent>
             </Popover>
           </div>
-          
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              onClick={handleTodayClick}
-              className="bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
-            >
-              Today
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleWeekClick}
-              className="bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
-            >
-              Last 7 Days
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleMonthClick}
-              className="bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
-            >
-              This Month
-            </Button>
-          </div>
         </div>
-        
-        {/* Summary Numbers - Only show for sales data, not for non-selling products */}
-        {!showNonSelling && (
-          <div className="grid grid-cols-2 mt-4 gap-4">
-            <div className="bg-[#FFE6C7] rounded-lg p-3 text-[#333]">
-              <div className="text-sm uppercase">Total Volume</div>
-              <div className="text-2xl font-bold">{totalVolume}</div>
-            </div>
-            <div className="bg-[#F15A29] rounded-lg p-3 text-white">
-              <div className="text-sm uppercase">Total Revenue</div>
-              <div className="text-2xl font-bold">₱ {totalSales.toFixed(2)}</div>
-            </div>
-          </div>
-        )}
-        
-        {/* Info box for non-selling products */}
-        {showNonSelling && (
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0" />
-            <div>
-              <div className="font-medium text-amber-800">Non-Selling Products</div>
-              <div className="text-sm text-amber-700">
-                Showing products with no sales during the selected date range
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-      
-      <div className="bg-[#F15A29] rounded-xl overflow-hidden shadow-lg text-white">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-b border-white border-opacity-20">
-              <TableHead className="text-left py-4 px-6 font-bold text-white">PRODUCT NAME</TableHead>
-              <TableHead className="text-center py-4 px-6 font-bold text-white">PRICE</TableHead>
-              {!showNonSelling && (
-                <>
-                  <TableHead className="text-center py-4 px-6 font-bold text-white">VOLUME</TableHead>
-                  <TableHead className="text-right py-4 px-6 font-bold text-white">SALES</TableHead>
-                </>
-              )}
-              {showNonSelling && (
-                <TableHead className="text-center py-4 px-6 font-bold text-white">CATEGORY</TableHead>
-              )}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array(6)
-                .fill(null)
-                .map((_, i) => (
-                  <TableRow key={i} className="border-b border-white border-opacity-20">
-                    <TableCell className="py-4 px-6 text-white">
-                      <Skeleton className="h-6 w-3/4 bg-white/20" />
-                    </TableCell>
-                    <TableCell className="py-4 px-6 text-center text-white">
-                      <Skeleton className="h-6 w-20 mx-auto bg-white/20" />
-                    </TableCell>
+
+      {/* Sales Data Table */}
+      <div className="bg-white p-4 rounded-xl shadow-md">
+        {isLoading ? (
+          // Loading skeleton
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-8 w-full mb-4" />
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-16 w-full" />
+            ))}
+          </div>
+        ) : displayData && displayData.length > 0 ? (
+          <>
+            <div className="overflow-auto max-h-[500px]">
+              <Table>
+                <TableHeader className="sticky top-0 bg-[#F15A29] text-white">
+                  <TableRow>
+                    <TableHead className="py-4 px-6 text-center text-white">Product</TableHead>
+                    <TableHead className="py-4 px-6 text-center text-white">Price</TableHead>
+                    <TableHead className="py-4 px-6 text-center text-white">Category</TableHead>
                     {!showNonSelling && (
                       <>
-                        <TableCell className="py-4 px-6 text-center text-white">
-                          <Skeleton className="h-6 w-12 mx-auto bg-white/20" />
-                        </TableCell>
-                        <TableCell className="py-4 px-6 text-right text-white">
-                          <Skeleton className="h-6 w-24 ml-auto bg-white/20" />
-                        </TableCell>
+                        <TableHead className="py-4 px-6 text-center text-white">Volume</TableHead>
+                        <TableHead className="py-4 px-6 text-center text-white">Total Sales</TableHead>
                       </>
                     )}
-                    {showNonSelling && (
-                      <TableCell className="py-4 px-6 text-center text-white">
-                        <Skeleton className="h-6 w-24 mx-auto bg-white/20" />
-                      </TableCell>
-                    )}
                   </TableRow>
-                ))
-            ) : (
-              // Show appropriate content based on which mode we're in
-              showNonSelling ? (
-                // Non-selling products display
-                nonSellingData?.map((product) => (
-                  <TableRow key={product.id} className="border-b border-white border-opacity-20 hover:bg-[#FF7A47]">
-                    <TableCell className="py-4 px-6 text-white">
-                      <div>
-                        {product.name} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{product.size}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-4 px-6 text-center text-white">₱ {product.price.toFixed(2)}</TableCell>
-                    <TableCell className="py-4 px-6 text-center text-white">
-                      {product.categoryId === 1 ? "COFFEE" : 
-                       product.categoryId === 2 ? "NON-COFFEE" : 
-                       product.categoryId === 3 ? "PASTRY" : "OTHER"}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                // Sales data display
-                salesData?.map((item) => (
-                  <TableRow key={item.id} className="border-b border-white border-opacity-20 hover:bg-[#FF7A47]">
-                    <TableCell className="py-4 px-6 text-white">
-                      {item.productName === null ? "(Deleted Product)" : (
+                </TableHeader>
+                <TableBody>
+                  {displayData.map((product) => (
+                    <TableRow
+                      key={product.id}
+                      className={showNonSelling ? "bg-amber-50" : ""}
+                    >
+                      <TableCell className="py-4 px-6 font-medium">
                         <div>
-                          {item.productName} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{item.size}</span>
+                          {product.name} <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-white text-[#F15A29]">{product.size}</span>
                         </div>
+                      </TableCell>
+                      <TableCell className="py-4 px-6 text-center text-white">₱ {Number(product.price).toFixed(2)}</TableCell>
+                      <TableCell className="py-4 px-6 text-center text-white">
+                        {product.categoryId === 1 ? "COFFEE" : 
+                         product.categoryId === 2 ? "NON-COFFEE" : 
+                         product.categoryId === 3 ? "PASTRY" : "OTHER"}
+                      </TableCell>
+                      {!showNonSelling && (
+                        <>
+                          <TableCell className="py-4 px-6 text-center text-white">{(product as SalesData).volume}</TableCell>
+                          <TableCell className="py-4 px-6 text-center text-white">₱ {Number((product as SalesData).totalSales).toFixed(2)}</TableCell>
+                        </>
                       )}
-                    </TableCell>
-                    <TableCell className="py-4 px-6 text-center text-white">₱ {item.price.toFixed(2)}</TableCell>
-                    <TableCell className="py-4 px-6 text-center text-white">{item.volume}</TableCell>
-                    <TableCell className="py-4 px-6 text-right text-white">₱ {item.totalSales.toFixed(2)}</TableCell>
-                  </TableRow>
-                ))
-              )
-            )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
             
-            {!isLoading && (
-              // Empty state messages
-              showNonSelling ? 
-                (!nonSellingData || nonSellingData.length === 0) && (
-                  <TableRow className="border-b border-white border-opacity-20">
-                    <TableCell colSpan={3} className="text-center py-10 text-white">
-                      All products have sales in the selected date range
-                    </TableCell>
-                  </TableRow>
-                ) : 
-                (!salesData || salesData.length === 0) && (
-                  <TableRow className="border-b border-white border-opacity-20">
-                    <TableCell colSpan={4} className="text-center py-10 text-white">
-                      No sales data found for the selected date range
-                    </TableCell>
-                  </TableRow>
-                )
+            {/* Show totals only for sales data */}
+            {!showNonSelling && salesData && salesData.length > 0 && (
+              <div className="mt-4 flex justify-end gap-6 border-t pt-4">
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Total Volume</p>
+                  <p className="text-lg font-semibold">{totalVolume}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Total Sales</p>
+                  <p className="text-lg font-semibold">₱ {totalSales.toFixed(2)}</p>
+                </div>
+              </div>
             )}
-          </TableBody>
-        </Table>
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500">
+              {showNonSelling
+                ? "All products have sales in this date range!"
+                : "No sales data available for the selected date range."}
+            </p>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
