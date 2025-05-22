@@ -172,14 +172,9 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         let totalStock = containers * secondaryUnits * measurementPerUnit;
         
         // For grams, ensure it's an integer
-        if (unit === "g") {
-          totalStock = Math.round(totalStock);
-          setCalculatedStock(totalStock.toString());
-          form.setValue("currentStock", totalStock.toString());
-        } else {
-          setCalculatedStock(totalStock.toFixed(2));
-          form.setValue("currentStock", totalStock.toFixed(2));
-        }
+        // Use consistent decimal formatting for all units
+        setCalculatedStock(totalStock.toFixed(2));
+        form.setValue("currentStock", totalStock.toFixed(2));
       }
     }
   };
@@ -215,18 +210,11 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
         let totalStock = containers * secondaryUnits * measurementPerUnit;
         
         // For grams, ensure it's an integer
-        if (unit === "g") {
-          totalStock = Math.round(totalStock);
-          setCalculatedStock(totalStock.toString());
-          
-          // Auto-update the currentStock field
-          form.setValue("currentStock", totalStock.toString());
-        } else {
-          setCalculatedStock(totalStock.toFixed(2));
-          
-          // Auto-update the currentStock field
-          form.setValue("currentStock", totalStock.toFixed(2));
-        }
+        // Use consistent decimal formatting for all units
+        setCalculatedStock(totalStock.toFixed(2));
+        
+        // Auto-update the currentStock field
+        form.setValue("currentStock", totalStock.toFixed(2));
       }
     }
   }, [containerType, containerQuantity, quantityPerUnit, numberOfContainers, form, form.watch("unit")]);
@@ -459,15 +447,9 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                         if (!isNaN(containers) && !isNaN(secondaryUnits) && !isNaN(measurementPerUnit)) {
                           let totalStock = containers * secondaryUnits * measurementPerUnit;
                           
-                          // For grams, ensure it's an integer
-                          if (value === "g") {
-                            totalStock = Math.round(totalStock);
-                            setCalculatedStock(totalStock.toString());
-                            form.setValue("currentStock", totalStock.toString());
-                          } else {
-                            setCalculatedStock(totalStock.toFixed(2));
-                            form.setValue("currentStock", totalStock.toFixed(2));
-                          }
+                          // Use consistent decimal formatting for all units
+                          setCalculatedStock(totalStock.toFixed(2));
+                          form.setValue("currentStock", totalStock.toFixed(2));
                         }
                       }
                     }}
