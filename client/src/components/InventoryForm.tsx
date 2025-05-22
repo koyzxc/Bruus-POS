@@ -89,6 +89,7 @@ const secondaryUnitOptions = [
 // Final measurement unit options
 const unitOptions = [
   { value: "ml", label: "Milliliter (ml)" },
+  { value: "l", label: "Liter (l)" },
   { value: "oz", label: "Ounce (oz)" },
   { value: "pc", label: "Piece (pc)" },
   { value: "kg", label: "Kilogram (kg)" },
@@ -613,8 +614,8 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {containerType === "pack" 
-                        ? unitOptions.filter(option => option.value === "pc").map((option) => (
+                      {containerType === "Pack" 
+                        ? unitOptions.filter(option => ["g", "kg", "ml", "l"].includes(option.value)).map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
