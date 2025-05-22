@@ -157,11 +157,20 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
       const containers = parseFloat(numberOfContainers || "1");
       const secondaryUnits = parseFloat(containerQuantity);
       const measurementPerUnit = parseFloat(quantityPerUnit);
+      const unit = form.watch("unit");
       
       if (!isNaN(containers) && !isNaN(secondaryUnits) && !isNaN(measurementPerUnit)) {
-        const totalStock = containers * secondaryUnits * measurementPerUnit;
-        setCalculatedStock(totalStock.toFixed(2));
-        form.setValue("currentStock", totalStock.toFixed(2));
+        let totalStock = containers * secondaryUnits * measurementPerUnit;
+        
+        // For grams, ensure it's an integer
+        if (unit === "g") {
+          totalStock = Math.round(totalStock);
+          setCalculatedStock(totalStock.toString());
+          form.setValue("currentStock", totalStock.toString());
+        } else {
+          setCalculatedStock(totalStock.toFixed(2));
+          form.setValue("currentStock", totalStock.toFixed(2));
+        }
       }
     }
   };
@@ -185,13 +194,24 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
       const containers = parseFloat(numberOfContainers || "1");
       const secondaryUnits = parseFloat(containerQuantity);
       const measurementPerUnit = parseFloat(quantityPerUnit);
+      const unit = form.watch("unit");
       
       if (!isNaN(containers) && !isNaN(secondaryUnits) && !isNaN(measurementPerUnit)) {
-        const totalStock = containers * secondaryUnits * measurementPerUnit;
-        setCalculatedStock(totalStock.toFixed(2));
+        let totalStock = containers * secondaryUnits * measurementPerUnit;
         
-        // Auto-update the currentStock field
-        form.setValue("currentStock", totalStock.toFixed(2));
+        // For grams, ensure it's an integer
+        if (unit === "g") {
+          totalStock = Math.round(totalStock);
+          setCalculatedStock(totalStock.toString());
+          
+          // Auto-update the currentStock field
+          form.setValue("currentStock", totalStock.toString());
+        } else {
+          setCalculatedStock(totalStock.toFixed(2));
+          
+          // Auto-update the currentStock field
+          form.setValue("currentStock", totalStock.toFixed(2));
+        }
       }
     }
   }, [containerType, containerQuantity, quantityPerUnit, numberOfContainers, form]);
