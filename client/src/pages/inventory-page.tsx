@@ -169,6 +169,7 @@ export default function InventoryPage() {
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
                 <TableHead className="text-left py-4 px-6 font-bold text-lg">NAME OF THE INGREDIENT</TableHead>
+                <TableHead className="text-center py-4 px-6 font-bold text-lg w-[200px]">QUANTITY</TableHead>
                 <TableHead className="text-right py-4 px-6 font-bold text-lg w-[180px]">STOCKS</TableHead>
                 <TableHead className="text-right py-4 px-6 font-bold text-lg w-[100px]"></TableHead>
               </TableRow>
@@ -197,6 +198,23 @@ export default function InventoryPage() {
                     <TableRow key={item.id} className="border-b hover:bg-[#FFF3E6] group relative">
                       <TableCell className="py-4 px-6">
                         <span>{item.name}</span>
+                      </TableCell>
+                      <TableCell className="py-4 px-6 text-center w-[200px]">
+                        {item.containerType !== "direct" && item.containerQuantity ? (
+                          <span>
+                            {item.containerType === "box" && "1 Box"}
+                            {item.containerType === "pack" && "1 Pack"}
+                            {item.containerType === "bag" && "1 Bag"}
+                            {item.secondaryUnit && item.containerQuantity && (
+                              <>(
+                                {item.containerQuantity} 
+                                {item.secondaryUnit === "piece" && item.unit === "pc" ? "" : item.secondaryUnit}
+                              )</>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[180px]">
                         <span className={`font-medium ${
