@@ -1,108 +1,63 @@
-# Coffee Shop POS - Context Diagram
+# Coffee Shop POS - Simple Context Diagram
 
-## System Boundary and External Interactions
+## System Overview
 
 ```mermaid
 graph TB
-    %% External Entities
-    owner["👑 Owner<br/>(Admin User)"]
-    barista["☕ Barista<br/>(Staff User)"]
-    customer["👤 Customer"]
-    supplier["📦 Supplier"]
-    manager["📊 Manager"]
+    %% Main Users
+    owner["Owner"]
+    barista["Barista"]
+    customer["Customer"]
     
     %% Central System
-    subgraph system_boundary ["🏪 BRUUS Coffee Shop POS System"]
-        pos["Point of Sale<br/>& Inventory Management<br/>Platform"]
+    subgraph boundary ["BRUUS Coffee Shop POS"]
+        pos["POS System"]
     end
     
-    %% External Storage/Services
-    database["🗄️ PostgreSQL<br/>Database"]
-    local_storage["💾 Local SQLite<br/>(Offline Mode)"]
-    ipad["📱 iPad 10<br/>Device"]
+    %% External Components
+    database["Database"]
+    ipad["iPad"]
     
-    %% Data Flows - Owner
-    owner -->|"Manages users & settings"| pos
-    owner -->|"Views sales analytics"| pos
-    owner -->|"Updates inventory"| pos
-    owner -->|"Configures products"| pos
-    pos -->|"System reports"| owner
-    pos -->|"User management data"| owner
+    %% Simple Flows
+    owner <--> pos
+    barista <--> pos
+    customer --> pos
+    pos --> customer
     
-    %% Data Flows - Barista
-    barista -->|"Processes orders"| pos
-    barista -->|"Updates inventory"| pos
-    barista -->|"Manages products"| pos
-    pos -->|"Order confirmations"| barista
-    pos -->|"Low stock alerts"| barista
-    pos -->|"Product availability"| barista
+    pos <--> database
+    pos <--> ipad
     
-    %% Data Flows - Customer
-    customer -->|"Places orders"| pos
-    customer -->|"Makes payments (₱)"| pos
-    pos -->|"Order receipts"| customer
-    pos -->|"Order status"| customer
-    pos -->|"Change (₱)"| customer
-    
-    %% Data Flows - Supplier
-    supplier -->|"Delivers inventory"| pos
-    pos -->|"Purchase orders"| supplier
-    pos -->|"Inventory requirements"| supplier
-    
-    %% Data Flows - Manager
-    manager -->|"Requests reports"| pos
-    pos -->|"Sales analytics"| manager
-    pos -->|"Performance metrics"| manager
-    pos -->|"Inventory status"| manager
-    
-    %% System Data Flows
-    pos <-->|"Real-time sync"| database
-    pos <-->|"Offline backup"| local_storage
-    pos <-->|"Touch interface"| ipad
+    %% Labels
+    owner -.->|"Admin Access"| pos
+    barista -.->|"Daily Operations"| pos
+    customer -.->|"Orders & Payment ₱"| pos
+    pos -.->|"Receipts & Change"| customer
     
     %% Styling
     classDef user fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
     classDef system fill:#fff3e0,stroke:#f57c00,stroke-width:3px
-    classDef storage fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    classDef device fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef tech fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
     
-    class owner,barista,customer,supplier,manager user
+    class owner,barista,customer user
     class pos system
-    class database,local_storage storage
-    class ipad device
+    class database,ipad tech
 ```
 
-## External Entity Details
+## Key Interactions
 
-### **👥 System Users**
-- **👑 Owner**: Full administrative access, manages all system aspects
-- **☕ Barista**: Daily operations, order processing, basic inventory management
-- **📊 Manager**: Views analytics and reports for business insights
+### **👥 Users**
+- **Owner**: Admin access, manages settings and users
+- **Barista**: Daily operations, processes orders
+- **Customer**: Places orders, pays in Philippine Pesos (₱)
 
-### **🤝 External Stakeholders**
-- **👤 Customer**: Places orders, makes payments in Philippine Pesos (₱)
-- **📦 Supplier**: Provides inventory items, receives purchase orders
+### **💻 Technology**
+- **Database**: Stores all system data
+- **iPad**: Touch interface for easy operation
 
-### **💻 Technical Infrastructure**
-- **🗄️ PostgreSQL Database**: Primary data storage with real-time synchronization
-- **💾 Local SQLite**: Offline backup ensuring system works without internet
-- **📱 iPad 10 Device**: Primary interface optimized for touch interaction
+## Simple Data Flow
+1. **Customer** places order and pays ₱
+2. **Barista** processes through POS on iPad
+3. **System** saves to database and prints receipt
+4. **Owner** can view reports and manage settings
 
-## Key Data Flows
-
-### **📊 Business Operations**
-- **Order Processing**: Customer orders → POS → Receipt & Change
-- **Inventory Management**: Supplier deliveries → System updates → Purchase orders
-- **Sales Analytics**: Transaction data → Reports → Management insights
-
-### **🔄 System Reliability**
-- **Real-time Sync**: Continuous data backup to PostgreSQL
-- **Offline Mode**: Local SQLite ensures uninterrupted service
-- **Multi-user Access**: Role-based permissions for different user types
-
-### **💰 Financial Transactions**
-- **Payment Processing**: Customer payments in Philippine Pesos
-- **Change Calculation**: Automatic change computation and dispensing
-- **Sales Tracking**: Real-time revenue monitoring and reporting
-
-This Context Diagram shows your coffee shop POS system as the central hub, clearly defining what's inside your system boundary versus external entities that interact with it. Perfect for understanding the complete ecosystem! 🎯
+Clean and focused on the essential interactions! 🎯
