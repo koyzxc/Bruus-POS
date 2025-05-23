@@ -1,38 +1,61 @@
 # Coffee Shop POS - Simplified Sequence Diagram
 
-## Core Order Processing Flow
+## Core System Interactions
 
+### Order Processing Flow
 ```mermaid
 sequenceDiagram
-    participant B as Barista
+    participant U as User (Owner/Barista)
     participant UI as POS System
     participant DB as Database
 
-    B->>UI: Login
+    U->>UI: Login
     UI->>DB: Verify credentials
     DB-->>UI: User authenticated
-    UI-->>B: Show dashboard
+    UI-->>U: Show dashboard
 
-    B->>UI: Select product
+    U->>UI: Select product
     UI->>DB: Get product details
     DB-->>UI: Product info + ingredients
-    UI-->>B: Add to cart
+    UI-->>U: Add to cart
 
-    B->>UI: Checkout
+    U->>UI: Checkout
     UI->>UI: Calculate total
-    UI-->>B: Show payment screen
+    UI-->>U: Show payment screen
 
-    B->>UI: Process payment
+    U->>UI: Process payment
     UI->>DB: Create order
     DB-->>UI: Order saved
     
     UI->>DB: Update inventory
     DB-->>UI: Stock updated
-    UI-->>B: Show receipt
+    UI-->>U: Show receipt
 ```
 
-**Key Steps:**
-1. **Login** - User authentication
-2. **Select** - Choose products for order
-3. **Payment** - Process customer payment
-4. **Complete** - Save order and update inventory automatically
+### Owner Management Flow
+```mermaid
+sequenceDiagram
+    participant O as Owner
+    participant UI as Admin System
+    participant DB as Database
+
+    O->>UI: Access admin settings
+    UI->>DB: Verify owner role
+    DB-->>UI: Admin access granted
+    UI-->>O: Show admin panel
+
+    O->>UI: Add new product
+    UI->>DB: Save product details
+    DB-->>UI: Product created
+    UI-->>O: Show success message
+
+    O->>UI: View sales report
+    UI->>DB: Query sales data
+    DB-->>UI: Sales analytics
+    UI-->>O: Display reports
+```
+
+**Key Functions:**
+- **Both Users**: Can process orders and handle payments
+- **Owner Only**: Admin features like product management and sales reports
+- **Auto Updates**: Inventory changes automatically after each order
