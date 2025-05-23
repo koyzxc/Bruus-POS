@@ -567,6 +567,24 @@ export default function AdminSettingsPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Permission Management Dialog */}
+        <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
+          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+            <DialogHeader>
+              <DialogTitle>Manage User Permissions</DialogTitle>
+              <DialogDescription>
+                Control access levels for {selectedUser?.username}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedUser && (
+              <PermissionManager 
+                user={selectedUser} 
+                onClose={() => setIsPermissionDialogOpen(false)} 
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
