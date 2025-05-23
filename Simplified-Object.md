@@ -5,46 +5,46 @@
 ```mermaid
 graph TD
     %% User Objects
-    owner["👑 owner : User<br/>id = 3<br/>username = 'jec'<br/>role = 'owner'<br/>createdAt = '2025-01-22'"]
+    owner["owner : User<br/>id = 3<br/>username = jec<br/>role = owner<br/>createdAt = 2025-01-22"]
     
-    barista["☕ barista : User<br/>id = 2<br/>username = 'barista'<br/>role = 'barista'<br/>createdAt = '2025-01-22'"]
+    barista["barista : User<br/>id = 2<br/>username = barista<br/>role = barista<br/>createdAt = 2025-01-22"]
 
     %% Product Objects
-    latte_m["☕ latte_medium : Product<br/>id = 15<br/>name = 'Latte'<br/>price = 4.50<br/>category = 'COFFEE'<br/>size = 'M'"]
+    latte_m["latte_medium : Product<br/>id = 15<br/>name = Latte<br/>price = 4.50<br/>category = COFFEE<br/>size = M"]
     
-    latte_l["☕ latte_large : Product<br/>id = 16<br/>name = 'Latte'<br/>price = 5.50<br/>category = 'COFFEE'<br/>size = 'L'"]
+    latte_l["latte_large : Product<br/>id = 16<br/>name = Latte<br/>price = 5.50<br/>category = COFFEE<br/>size = L"]
 
     %% Inventory Objects
-    milk["🥛 milk : Inventory<br/>id = 42<br/>name = 'Milk'<br/>currentStock = 2698<br/>minimumStock = 500<br/>unit = 'ml'"]
+    milk["milk : Inventory<br/>id = 42<br/>name = Milk<br/>currentStock = 2698<br/>minimumStock = 500<br/>unit = ml"]
     
-    coffee_beans["☕ coffee_beans : Inventory<br/>id = 41<br/>name = 'Coffee Beans'<br/>currentStock = 850<br/>minimumStock = 200<br/>unit = 'g'"]
+    coffee_beans["coffee_beans : Inventory<br/>id = 41<br/>name = Coffee Beans<br/>currentStock = 850<br/>minimumStock = 200<br/>unit = g"]
 
     %% Order Object
-    order["🧾 order_41 : Order<br/>id = 41<br/>orderNumber = 'BRUUS-2025-0041'<br/>total = 10.00<br/>amountPaid = 15.00<br/>change = 5.00<br/>userId = 2"]
+    order["order_41 : Order<br/>id = 41<br/>orderNumber = BRUUS-2025-0041<br/>total = 10.00<br/>amountPaid = 15.00<br/>change = 5.00<br/>userId = 2"]
 
     %% Order Items
-    item1["📝 item1 : OrderItem<br/>id = 81<br/>orderId = 41<br/>productId = 15<br/>productName = 'Latte'<br/>size = 'M'<br/>price = 4.50<br/>quantity = 1"]
+    item1["item1 : OrderItem<br/>id = 81<br/>orderId = 41<br/>productId = 15<br/>productName = Latte<br/>size = M<br/>price = 4.50<br/>quantity = 1"]
     
-    item2["📝 item2 : OrderItem<br/>id = 82<br/>orderId = 41<br/>productId = 16<br/>productName = 'Latte'<br/>size = 'L'<br/>price = 5.50<br/>quantity = 1"]
+    item2["item2 : OrderItem<br/>id = 82<br/>orderId = 41<br/>productId = 16<br/>productName = Latte<br/>size = L<br/>price = 5.50<br/>quantity = 1"]
 
     %% Ingredient Links
-    ingredient1["🔗 link1 : ProductIngredient<br/>productId = 15<br/>inventoryId = 42<br/>quantityUsed = 150<br/>size = 'M'"]
+    ingredient1["link1 : ProductIngredient<br/>productId = 15<br/>inventoryId = 42<br/>quantityUsed = 150<br/>size = M"]
     
-    ingredient2["🔗 link2 : ProductIngredient<br/>productId = 15<br/>inventoryId = 41<br/>quantityUsed = 20<br/>size = 'M'"]
+    ingredient2["link2 : ProductIngredient<br/>productId = 15<br/>inventoryId = 41<br/>quantityUsed = 20<br/>size = M"]
 
     %% Relationships
-    barista -.-> order : "created by"
-    order --> item1 : "contains"
-    order --> item2 : "contains"
+    barista -.-> order
+    order --> item1
+    order --> item2
     
-    item1 -.-> latte_m : "references"
-    item2 -.-> latte_l : "references"
+    item1 -.-> latte_m
+    item2 -.-> latte_l
     
-    latte_m --> ingredient1 : "requires"
-    latte_m --> ingredient2 : "requires"
+    latte_m --> ingredient1
+    latte_m --> ingredient2
     
-    ingredient1 -.-> milk : "uses"
-    ingredient2 -.-> coffee_beans : "uses"
+    ingredient1 -.-> milk
+    ingredient2 -.-> coffee_beans
 
     %% Styling
     classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
