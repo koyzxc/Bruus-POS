@@ -96,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const userId = parseInt(req.params.id);
-      const { username, role } = req.body;
+      const { username, role, password } = req.body;
       
       // Check if username already exists (excluding current user)
       const existingUser = await storage.getUserByUsername(username);
@@ -104,7 +104,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Username already exists" });
       }
       
-      const user = await storage.updateUser(userId, { username, role });
+      // Prepare update data
+      let updateData: any = { username, role };
+      
+      // Hash password if provided
+      if (password && password.trim() !== "") {
+        const { scrypt, randomBytes } = await import("crypto");
+        const { promisify } = await import("util");
+        const scryptAsync = promisify(scrypt);
+        
+        const salt = randomBytes(16).toString("hex");
+        const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+        const hashedPassword = `${buf.toString("hex")}.${salt}`;
+        
+        updateData.password = hashedPassword;
+      }
+      
+      const user = await storage.updateUser(userId, updateData);
       res.json(user);
     } catch (error) {
       console.error("Error updating user:", error);

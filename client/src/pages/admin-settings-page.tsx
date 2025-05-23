@@ -33,6 +33,9 @@ const editUserSchema = z.object({
   role: z.enum(["owner", "barista"], {
     required_error: "Please select a role",
   }),
+  password: z.string().optional().refine((val) => !val || val.length >= 6, {
+    message: "Password must be at least 6 characters if provided",
+  }),
 });
 
 type CreateUserFormValues = z.infer<typeof createUserSchema>;
@@ -134,6 +137,7 @@ export default function AdminSettingsPage() {
     defaultValues: {
       username: "",
       role: "barista",
+      password: "",
     },
   });
 
@@ -164,7 +168,13 @@ export default function AdminSettingsPage() {
   // Edit user mutation
   const editUserMutation = useMutation({
     mutationFn: async (data: EditUserFormValues) => {
-      const res = await apiRequest("PUT", `/api/admin/users/${selectedUser?.id}`, data);
+      // Only send password if it's provided
+      const updateData = {
+        username: data.username,
+        role: data.role,
+        ...(data.password && data.password.trim() !== "" && { password: data.password })
+      };
+      const res = await apiRequest("PUT", `/api/admin/users/${selectedUser?.id}`, updateData);
       return await res.json();
     },
     onSuccess: () => {
@@ -214,6 +224,7 @@ export default function AdminSettingsPage() {
     setSelectedUser(userToEdit);
     editForm.setValue("username", userToEdit.username);
     editForm.setValue("role", userToEdit.role as "owner" | "barista");
+    editForm.setValue("password", ""); // Reset password field
     setIsEditDialogOpen(true);
   };
 
@@ -480,6 +491,23 @@ export default function AdminSettingsPage() {
                           <SelectItem value="owner">Owner</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Password (optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="Leave empty to keep current password" 
+                          {...field} 
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
