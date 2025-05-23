@@ -153,7 +153,8 @@ export default function InventoryPage() {
   };
   
   // Check if user is authorized to manage products
-  const canManageProducts = user && (user.role === "owner" || user.role === "barista");
+  // Permission checks based on user's granular permissions
+  const canManageInventory = user?.canManageInventory ?? false;
   
   const handleEditInventory = (item: Inventory) => {
     setSelectedInventoryItem(item);
@@ -410,8 +411,8 @@ export default function InventoryPage() {
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[120px]">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end gap-1">
-                          {/* Restock button - for both owner and barista */}
-                          {canManageProducts && (
+                          {/* Restock button - only show if user can manage inventory */}
+                          {canManageInventory && (
                             <Button
                               size="sm"
                               variant="ghost"
@@ -426,8 +427,8 @@ export default function InventoryPage() {
                             </Button>
                           )}
                           
-                          {/* Edit button */}
-                          {canManageProducts && (
+                          {/* Edit button - only show if user can manage inventory */}
+                          {canManageInventory && (
                             <Button
                               size="sm"
                               variant="ghost"
