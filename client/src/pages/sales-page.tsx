@@ -114,7 +114,12 @@ export default function SalesPage() {
       const toDate = dateRange.to?.toISOString();
       
       const url = `/api/sales?from=${fromDate}&to=${toDate}`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        credentials: 'include', // Include authentication cookies
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error('Failed to fetch sales data');
@@ -138,7 +143,12 @@ export default function SalesPage() {
       const toDate = dateRange.to?.toISOString();
       
       const url = `/api/sales/non-selling?from=${fromDate}&to=${toDate}`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        credentials: 'include', // Include authentication cookies
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error('Failed to fetch non-selling products');
