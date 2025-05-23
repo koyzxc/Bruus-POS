@@ -356,15 +356,15 @@ export default function AdminSettingsPage() {
                       <TableCell>
                         {new Date(userItem.createdAt).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1">
                           {/* Manage Permissions button (only for baristas) */}
                           {userItem.role === "barista" && (
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleManagePermissions(userItem)}
-                              className="h-8 w-8 p-0 text-[#F15A29] hover:text-[#D4471A]"
+                              className="h-8 w-8 p-0 text-[#F15A29] hover:text-[#D4471A] hover:bg-orange-50"
                               title="Manage Permissions"
                             >
                               <Settings className="h-4 w-4" />
@@ -374,7 +374,8 @@ export default function AdminSettingsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEditUser(userItem)}
-                            className="h-8 w-8 p-0"
+                            className="h-8 w-8 p-0 hover:bg-gray-100"
+                            title="Edit User"
                           >
                             <Edit2 className="h-4 w-4" />
                           </Button>
@@ -384,7 +385,8 @@ export default function AdminSettingsPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteUser(userItem)}
-                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              title="Delete User"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
