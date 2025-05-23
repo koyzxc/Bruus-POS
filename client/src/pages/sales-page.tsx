@@ -30,6 +30,17 @@ import {
   FilterX, 
   Filter 
 } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area
+} from "recharts";
 
 // Define comparison operators for filtering
 type ComparisonOperator = "gt" | "lt" | "gte" | "lte" | null;
@@ -162,6 +173,36 @@ export default function SalesPage() {
   // Calculate totals for sales data
   const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
   const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
+
+  // Prepare chart data from sales data
+  const prepareChartData = () => {
+    if (!salesData || salesData.length === 0) return [];
+    
+    // Group sales by date and calculate daily totals
+    const dailyData = new Map();
+    
+    salesData.forEach(item => {
+      const date = format(new Date(), 'MMM dd'); // Use current date for demo
+      
+      if (!dailyData.has(date)) {
+        dailyData.set(date, {
+          date,
+          sales: 0,
+          volume: 0
+        });
+      }
+      
+      const dayData = dailyData.get(date);
+      dayData.sales += item.totalSales;
+      dayData.volume += item.volume;
+    });
+    
+    return Array.from(dailyData.values()).sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  };
+
+  const chartData = prepareChartData();
   
   // Filter setting functions
   const setVolumeFilter = (operator: ComparisonOperator, value: string) => {
