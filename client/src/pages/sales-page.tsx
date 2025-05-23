@@ -298,7 +298,7 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
+  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : salesData);
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
@@ -715,7 +715,7 @@ export default function SalesPage() {
                     <TableHead className="py-4 px-6 text-center text-white">Category</TableHead>
                     {!showNonSelling && (
                       <>
-                        <TableHead className="py-4 px-6 text-center text-white">Volume</TableHead>
+                        <TableHead className="py-4 px-6 text-center text-white">Orders</TableHead>
                         <TableHead className="py-4 px-6 text-center text-white">Total Sales</TableHead>
                       </>
                     )}
@@ -764,7 +764,7 @@ export default function SalesPage() {
             {!showNonSelling && salesData && salesData.length > 0 && (
               <div className="mt-4 flex justify-end gap-6 border-t pt-4">
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Total Volume</p>
+                  <p className="text-sm text-gray-500">Total Orders</p>
                   <p className="text-lg font-semibold">{totalVolume}</p>
                 </div>
                 <div className="text-right">
