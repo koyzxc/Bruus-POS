@@ -43,6 +43,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
   
+  // Admin user management routes (owner only)
+  app.get("/api/admin/users", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || req.user?.role !== "owner") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/admin/users", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || req.user?.role !== "owner") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    try {
+      const { username, password, role } = req.body;
+      
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+      
+      // Hash password before creating user
+      const { scrypt, randomBytes } = await import("crypto");
+      const { promisify } = await import("util");
+      const scryptAsync = promisify(scrypt);
+      
+      const salt = randomBytes(16).toString("hex");
+      const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+      const hashedPassword = `${buf.toString("hex")}.${salt}`;
+      
+      const user = await storage.createUser({ username, password: hashedPassword, role });
+      res.status(201).json(user);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ error: "Failed to create user" });
+    }
+  });
+
+  app.put("/api/admin/users/:id", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || req.user?.role !== "owner") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    try {
+      const userId = parseInt(req.params.id);
+      const { username, role } = req.body;
+      
+      // Check if username already exists (excluding current user)
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+      
+      const user = await storage.updateUser(userId, { username, role });
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || req.user?.role !== "owner") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Prevent deleting self
+      if (userId === req.user?.id) {
+        return res.status(400).json({ error: "Cannot delete your own account" });
+      }
+      
+      await storage.deleteUser(userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+  
   // Serve static files from the 'public' directory
   app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
   app.use('/real_images', express.static(path.join(process.cwd(), 'public', 'real_images')));

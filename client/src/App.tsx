@@ -5,6 +5,7 @@ import DashboardPage from "@/pages/dashboard-page";
 import InventoryPage from "@/pages/inventory-page";
 import SalesPage from "@/pages/sales-page";
 import AdminPage from "@/pages/admin-page";
+import AdminSettingsPage from "@/pages/admin-settings-page";
 import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
       <ProtectedRoute path="/inventory" component={InventoryPage} />
       <ProtectedRoute path="/sales" component={SalesPage} />
       <ProtectedRoute path="/admin" component={AdminPage} />
+      <ProtectedRoute path="/admin/settings" component={AdminSettingsPage} />
       <Route component={NotFound} />
     </Switch>
   );
