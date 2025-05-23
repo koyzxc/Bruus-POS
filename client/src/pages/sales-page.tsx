@@ -350,12 +350,91 @@ export default function SalesPage() {
       setActiveCategory={setActiveCategory}
       activeSection="SALES"
     >
-      {/* Analytics Header & Controls */}
-      <div className="mb-6 bg-white p-4 rounded-xl shadow-md">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Left side - Title, Filters and Non-Selling Toggle */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            <h2 className="text-xl font-bold">Sales Analytics</h2>
+      {/* Sales Overview Chart - At the very top */}
+      {!showNonSelling && (
+        <div className="bg-white p-6 rounded-xl shadow-md mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Sales Overview</h3>
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-[#F15A29] rounded-full"></div>
+                <span>Sales (₱)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span>Orders</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Chart Container */}
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#666"
+                  fontSize={12}
+                />
+                <YAxis 
+                  yAxisId="sales"
+                  orientation="left"
+                  stroke="#F15A29"
+                  fontSize={12}
+                />
+                <YAxis 
+                  yAxisId="volume"
+                  orientation="right"
+                  stroke="#3b82f6"
+                  fontSize={12}
+                />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'sales' ? `₱${Number(value).toFixed(2)}` : value,
+                    name === 'sales' ? 'Sales' : 'Orders'
+                  ]}
+                  labelStyle={{ color: '#333' }}
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Line 
+                  yAxisId="sales"
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#F15A29" 
+                  strokeWidth={3}
+                  dot={{ fill: '#F15A29', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#F15A29', strokeWidth: 2 }}
+                />
+                <Line 
+                  yAxisId="volume"
+                  type="monotone" 
+                  dataKey="volume" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Sales Analytics - Grouped section with controls AND data table */}
+      <div className="bg-white rounded-xl shadow-md">
+        {/* Analytics Header & Controls */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Left side - Title, Filters and Non-Selling Toggle */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              <h2 className="text-xl font-bold">Sales Analytics</h2>
+            </div>
             
             <div className="flex items-center gap-2">
               {/* Filter button with count badge */}
@@ -616,86 +695,9 @@ export default function SalesPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Sales Overview Chart - Show at the top */}
-      {!showNonSelling && (
-        <div className="bg-white p-6 rounded-xl shadow-md mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Sales Overview</h3>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#F15A29] rounded-full"></div>
-                <span>Sales (₱)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>Orders</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Chart Container */}
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#666"
-                  fontSize={12}
-                />
-                <YAxis 
-                  yAxisId="sales"
-                  orientation="left"
-                  stroke="#F15A29"
-                  fontSize={12}
-                />
-                <YAxis 
-                  yAxisId="volume"
-                  orientation="right"
-                  stroke="#3b82f6"
-                  fontSize={12}
-                />
-                <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'sales' ? `₱${Number(value).toFixed(2)}` : value,
-                    name === 'sales' ? 'Sales' : 'Orders'
-                  ]}
-                  labelStyle={{ color: '#333' }}
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Line 
-                  yAxisId="sales"
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="#F15A29" 
-                  strokeWidth={3}
-                  dot={{ fill: '#F15A29', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: '#F15A29', strokeWidth: 2 }}
-                />
-                <Line 
-                  yAxisId="volume"
-                  type="monotone" 
-                  dataKey="volume" 
-                  stroke="#3b82f6" 
-                  strokeWidth={3}
-                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-
-      {/* Sales Data Table - Below the chart */}
-      <div className="bg-white p-4 rounded-xl shadow-md">
+        {/* Sales Data Table - Integrated in the grouped section */}
+        <div className="p-4">
         {isLoading ? (
           // Loading skeleton
           <div className="flex flex-col gap-4">
@@ -783,6 +785,7 @@ export default function SalesPage() {
             </p>
           </div>
         )}
+        </div>
       </div>
     </MainLayout>
   );
