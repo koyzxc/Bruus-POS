@@ -1,11 +1,23 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeLocalDb } from "../db/local";
+import { syncService } from "./sync-service";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
+
+// Initialize offline-first system
+console.log('🔧 Initializing offline-first system...');
+const localDbInitialized = initializeLocalDb();
+if (localDbInitialized) {
+  console.log('✅ Offline-first system ready!');
+  console.log('📱 Your POS system can now work without internet!');
+} else {
+  console.log('⚠️ Local database initialization failed, falling back to online-only mode');
+}
 
 app.use((req, res, next) => {
   const start = Date.now();
