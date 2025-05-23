@@ -47,15 +47,16 @@ The BRUUS system comprehensively addresses these challenges by:
 
 ### a. DESCRIPTION OF THE PROJECT DOMAIN
 
-The coffee shop industry has experienced remarkable growth over the past decade, with local establishments competing alongside major chains in rapidly expanding markets worldwide. However, many small to medium-sized coffee shops continue to rely on outdated point-of-sale systems and manual inventory management processes that significantly impact operational efficiency and profitability.
+The coffee shop industry in Butuan City has experienced remarkable growth over the past 5 years, with local establishments rapidly expanding to meet the increasing demand for specialty coffee and café experiences. However, many of these small to medium-sized coffee shops continue to rely on outdated point-of-sale systems and manual inventory management processes that significantly impact operational efficiency and profitability.
 
-The coffee shop industry relies heavily on efficient POS systems to manage high transaction volumes and dynamic inventory needs. However, many small businesses use outdated or manual systems, leading to operational bottlenecks, financial inaccuracies, and customer dissatisfaction. This project targets coffee shop owners seeking modern, integrated solutions to streamline sales and inventory management.
+The coffee shop industry relies heavily on efficient POS systems to manage high transaction volumes and dynamic inventory needs. However, many small businesses in Butuan City use outdated or manual systems, leading to operational bottlenecks, financial inaccuracies, and customer dissatisfaction. This project targets coffee shop owners in Butuan City seeking modern, integrated solutions to streamline sales and inventory management during this period of rapid industry growth.
 
-**Market Context:**
-- **Growing coffee culture** in urban markets worldwide driving increased transaction volumes and operational complexity
-- **Mobile-first operations** requiring tablet-optimized interfaces for space-constrained environments
-- **Small business requirements** including cost-effective solutions, simplified workflows, and reliable performance
-- **Technology gaps** between expensive enterprise solutions and inadequate basic systems leaving small businesses underserved
+**Butuan City Market Context:**
+- **Rapid coffee culture growth** in Butuan City over the last 5 years driving increased transaction volumes and operational complexity
+- **Emerging local establishments** competing with expanding chain presence, requiring efficient operational systems
+- **Mobile-first operations** requiring tablet-optimized interfaces for space-constrained café environments
+- **Local business requirements** including cost-effective solutions, cash-heavy transactions, and Philippine Peso support
+- **Technology gaps** between expensive enterprise solutions and inadequate basic systems leaving local coffee shop owners underserved
 
 ### b. CURRENT SYSTEM ANALYSIS
 
