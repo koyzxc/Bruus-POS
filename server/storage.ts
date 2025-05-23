@@ -26,6 +26,11 @@ export interface IStorage {
   getAllUsers: () => Promise<User[]>;
   updateUser: (id: number, userData: Partial<InsertUser>) => Promise<User>;
   deleteUser: (id: number) => Promise<void>;
+  updateUserPermissions: (id: number, permissions: {
+    canAddProducts: boolean;
+    canManageInventory: boolean;
+    canViewSales: boolean;
+  }) => Promise<User>;
   
   // Products methods
   getProductsByCategory: (category: string) => Promise<typeof products.$inferSelect[]>;
@@ -96,6 +101,22 @@ class DatabaseStorage implements IStorage {
 
   async deleteUser(id: number): Promise<void> {
     await db.delete(users).where(eq(users.id, id));
+  }
+
+  async updateUserPermissions(id: number, permissions: {
+    canAddProducts: boolean;
+    canManageInventory: boolean;
+    canViewSales: boolean;
+  }): Promise<User> {
+    const [user] = await db.update(users)
+      .set({
+        canAddProducts: permissions.canAddProducts,
+        canManageInventory: permissions.canManageInventory,
+        canViewSales: permissions.canViewSales
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
   }
   
   // Products methods

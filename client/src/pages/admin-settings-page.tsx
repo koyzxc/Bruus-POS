@@ -16,8 +16,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { User } from "@shared/schema";
-import { UserPlus, Edit2, Trash2, Shield, Users, ChevronUp, ChevronDown } from "lucide-react";
+import { UserPlus, Edit2, Trash2, Shield, Users, ChevronUp, ChevronDown, Settings } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
+import PermissionManager from "@/components/PermissionManager";
 
 // Form schemas
 const createUserSchema = z.object({
@@ -51,6 +52,7 @@ export default function AdminSettingsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   
   // Sorting state
@@ -234,6 +236,12 @@ export default function AdminSettingsPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  // Handle manage permissions
+  const handleManagePermissions = (userToManage: User) => {
+    setSelectedUser(userToManage);
+    setIsPermissionDialogOpen(true);
+  };
+
   // Get role color
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -350,6 +358,18 @@ export default function AdminSettingsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {/* Manage Permissions button (only for baristas) */}
+                          {userItem.role === "barista" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleManagePermissions(userItem)}
+                              className="h-8 w-8 p-0 text-[#F15A29] hover:text-[#D4471A]"
+                              title="Manage Permissions"
+                            >
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
