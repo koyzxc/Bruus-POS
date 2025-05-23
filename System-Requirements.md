@@ -60,7 +60,9 @@
 - **Database**: PostgreSQL with MySQL compatibility
   - Real-time data synchronization
   - Offline SQLite backup capability
-- **Cloud Storage**: AWS S3 (or similar) for product images
+- **Image Storage**: Local device storage for product images
+  - Images uploaded directly from iPad camera/gallery
+  - Stored in device memory (no external cloud storage required)
 
 ### **Required Browser Features**
 - JavaScript enabled (essential)
