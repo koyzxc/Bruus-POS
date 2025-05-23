@@ -75,26 +75,32 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
             </div>
             
             {/* Show management buttons in Inventory section */}
-            {activeSection === "INV" && canManageProducts && (
+            {activeSection === "INV" && (
               <div className="space-y-3 mt-6">
-                <Button
-                  onClick={() => {
-                    const event = new CustomEvent('addNewProduct');
-                    window.dispatchEvent(event);
-                  }}
-                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border-0 flex items-center justify-start gap-2 pl-2 opacity-90 text-sm"
-                >
-                  <PlusCircle className="h-5 w-5" />
-                  Add New Product
-                </Button>
+                {/* Add New Product - only show if user can add products */}
+                {user?.canAddProducts && (
+                  <Button
+                    onClick={() => {
+                      const event = new CustomEvent('addNewProduct');
+                      window.dispatchEvent(event);
+                    }}
+                    className="w-full bg-transparent hover:bg-[#FF7A47] text-white border-0 flex items-center justify-start gap-2 pl-2 opacity-90 text-sm"
+                  >
+                    <PlusCircle className="h-5 w-5" />
+                    Add New Product
+                  </Button>
+                )}
                 
-                <Button
-                  onClick={onOpenInventoryForm}
-                  className="w-full bg-transparent hover:bg-[#FF7A47] text-white border-0 flex items-center justify-start gap-2 pl-2 opacity-90 text-sm"
-                >
-                  <PlusCircle className="h-5 w-5" />
-                  Add New Ingredient
-                </Button>
+                {/* Add New Ingredient - only show if user can manage inventory */}
+                {user?.canManageInventory && (
+                  <Button
+                    onClick={onOpenInventoryForm}
+                    className="w-full bg-transparent hover:bg-[#FF7A47] text-white border-0 flex items-center justify-start gap-2 pl-2 opacity-90 text-sm"
+                  >
+                    <PlusCircle className="h-5 w-5" />
+                    Add New Ingredient
+                  </Button>
+                )}
               </div>
             )}
           </>
