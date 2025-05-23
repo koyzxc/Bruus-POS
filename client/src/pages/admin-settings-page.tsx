@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { User } from "@shared/schema";
-import { UserPlus, Edit2, Trash2, Shield, Users } from "lucide-react";
+import { UserPlus, Edit2, Trash2, Shield, Users, ChevronUp, ChevronDown } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
 
 // Form schemas
@@ -49,6 +49,10 @@ export default function AdminSettingsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  
+  // Sorting state
+  const [sortField, setSortField] = useState<"username" | "role" | "createdAt">("username");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Redirect if not owner
   if (user?.role !== "owner") {
@@ -74,6 +78,44 @@ export default function AdminSettingsPage() {
   // Fetch all users
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
+  });
+
+  // Handle sorting
+  const handleSort = (field: "username" | "role" | "createdAt") => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  // Sort users based on current sort settings
+  const sortedUsers = [...users].sort((a, b) => {
+    let aValue: string | Date;
+    let bValue: string | Date;
+
+    switch (sortField) {
+      case "username":
+        aValue = a.username.toLowerCase();
+        bValue = b.username.toLowerCase();
+        break;
+      case "role":
+        aValue = a.role.toLowerCase();
+        bValue = b.role.toLowerCase();
+        break;
+      case "createdAt":
+        aValue = new Date(a.createdAt);
+        bValue = new Date(b.createdAt);
+        break;
+      default:
+        aValue = a.username.toLowerCase();
+        bValue = b.username.toLowerCase();
+    }
+
+    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+    return 0;
   });
 
   // Create user form
@@ -193,6 +235,16 @@ export default function AdminSettingsPage() {
     }
   };
 
+  // Get sort icon
+  const getSortIcon = (field: "username" | "role" | "createdAt") => {
+    if (sortField !== field) {
+      return <ChevronUp className="h-4 w-4 opacity-30" />;
+    }
+    return sortDirection === "asc" ? 
+      <ChevronUp className="h-4 w-4" /> : 
+      <ChevronDown className="h-4 w-4" />;
+  };
+
   return (
     <MainLayout 
       activeCategory={activeCategory}
@@ -230,9 +282,33 @@ export default function AdminSettingsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort("username")}
+                  >
+                    <div className="flex items-center gap-1">
+                      Username
+                      {getSortIcon("username")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort("role")}
+                  >
+                    <div className="flex items-center gap-1">
+                      Role
+                      {getSortIcon("role")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort("createdAt")}
+                  >
+                    <div className="flex items-center gap-1">
+                      Created
+                      {getSortIcon("createdAt")}
+                    </div>
+                  </TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -250,7 +326,7 @@ export default function AdminSettingsPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  users.map((userItem) => (
+                  sortedUsers.map((userItem) => (
                     <TableRow key={userItem.id}>
                       <TableCell className="font-medium">{userItem.username}</TableCell>
                       <TableCell>
