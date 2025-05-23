@@ -381,7 +381,7 @@ export default function AdminSettingsPage() {
 
         {/* Create User Dialog */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogContent>
+          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>Create New User</DialogTitle>
               <DialogDescription>
@@ -452,7 +452,7 @@ export default function AdminSettingsPage() {
 
         {/* Edit User Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent>
+          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>Edit User</DialogTitle>
               <DialogDescription>
