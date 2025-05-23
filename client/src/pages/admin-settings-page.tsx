@@ -328,7 +328,7 @@ export default function AdminSettingsPage() {
                       {getSortIcon("createdAt")}
                     </div>
                   </TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right align-middle">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -346,18 +346,18 @@ export default function AdminSettingsPage() {
                   </TableRow>
                 ) : (
                   sortedUsers.map((userItem) => (
-                    <TableRow key={userItem.id}>
-                      <TableCell className="font-medium">{userItem.username}</TableCell>
-                      <TableCell>
+                    <TableRow key={userItem.id} className="h-12">
+                      <TableCell className="font-medium align-middle">{userItem.username}</TableCell>
+                      <TableCell className="align-middle">
                         <Badge className={getRoleColor(userItem.role)}>
                           {userItem.role}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="align-middle">
                         {new Date(userItem.createdAt).toLocaleDateString()}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-1">
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1 h-10">
                           {/* Manage Permissions button (only for baristas) */}
                           {userItem.role === "barista" && (
                             <Button
