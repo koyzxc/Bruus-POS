@@ -12,7 +12,7 @@ import { LowStockAlert } from "@/components/LowStockAlert";
 type SidebarProps = {
   activeCategory: string;
   setActiveCategory: (category: string) => void;
-  activeSection?: "MENU" | "INV" | "SALES" | "ADMIN";
+  activeSection?: "MENU" | "INV" | "SALES";
   onOpenInventoryForm?: () => void;
 };
 

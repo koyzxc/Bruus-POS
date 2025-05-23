@@ -1,25 +1,17 @@
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
-import { Shield } from "lucide-react";
 
 type TopNavProps = {
-  activeSection: "MENU" | "INV" | "SALES" | "ADMIN";
+  activeSection: "MENU" | "INV" | "SALES";
 };
 
 export default function TopNav({ activeSection }: TopNavProps) {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
   
   const navItems = [
     { label: "MENU", path: "/", section: "MENU" },
     { label: "INV.", path: "/inventory", section: "INV" },
     { label: "SALES", path: "/sales", section: "SALES" },
   ];
-
-  // Add admin section for owner users
-  if (user?.role === "owner") {
-    navItems.push({ label: "ADMIN", path: "/admin/settings", section: "ADMIN" });
-  }
   
   return (
     <div className="flex justify-end space-x-2 mb-6">
@@ -31,14 +23,7 @@ export default function TopNav({ activeSection }: TopNavProps) {
           }`}
           onClick={() => setLocation(item.path)}
         >
-          {item.section === "ADMIN" ? (
-            <div className="flex items-center gap-1">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">{item.label}</span>
-            </div>
-          ) : (
-            item.label
-          )}
+          {item.label}
         </button>
       ))}
     </div>

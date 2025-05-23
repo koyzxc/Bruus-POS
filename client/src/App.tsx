@@ -16,7 +16,7 @@ function Router() {
       <ProtectedRoute path="/inventory" component={InventoryPage} />
       <ProtectedRoute path="/sales" component={SalesPage} />
       <ProtectedRoute path="/admin" component={AdminPage} />
-      <ProtectedRoute path="/admin/settings" component={AdminSettingsPage} />
+
       <Route component={NotFound} />
     </Switch>
   );

@@ -7,7 +7,7 @@ type MainLayoutProps = {
   children: ReactNode;
   activeCategory: string;
   setActiveCategory: (category: string) => void;
-  activeSection: "MENU" | "INV" | "SALES" | "ADMIN";
+  activeSection: "MENU" | "INV" | "SALES";
   onOpenInventoryForm?: () => void;
 };
 
