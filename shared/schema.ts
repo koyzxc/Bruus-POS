@@ -9,6 +9,10 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   role: text("role", { enum: ["owner", "barista"] }).notNull().default("barista"),
+  // Barista permissions (only applicable for barista role)
+  canAddProducts: boolean("can_add_products").default(true),
+  canManageInventory: boolean("can_manage_inventory").default(true),
+  canViewSales: boolean("can_view_sales").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -16,6 +20,9 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
   role: true,
+  canAddProducts: true,
+  canManageInventory: true,
+  canViewSales: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -148,6 +148,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to delete user" });
     }
   });
+
+  // Update user permissions endpoint
+  app.put("/api/admin/users/:id/permissions", async (req: Request, res: Response) => {
+    if (!req.isAuthenticated() || req.user?.role !== "owner") {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    try {
+      const userId = parseInt(req.params.id);
+      const { canAddProducts, canManageInventory, canViewSales } = req.body;
+      
+      // Update user permissions
+      const updatedUser = await storage.updateUserPermissions(userId, {
+        canAddProducts,
+        canManageInventory,
+        canViewSales
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user permissions:", error);
+      res.status(500).json({ error: "Failed to update permissions" });
+    }
+  });
   
   // Serve static files from the 'public' directory
   app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
