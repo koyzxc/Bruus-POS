@@ -21,8 +21,8 @@ async function updatePasswords() {
       .where(eq(users.username, "owner"));
     console.log("Updated owner password successfully");
     
-    // Update barista password to baristabruus2025
-    const baristaHash = await hashPassword("baristabruus2025");
+    // Update barista password to bruusbarista2025
+    const baristaHash = await hashPassword("bruusbarista2025");
     await db.update(users)
       .set({ password: baristaHash })
       .where(eq(users.username, "barista"));

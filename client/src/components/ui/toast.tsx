@@ -10,23 +10,16 @@ const ToastProvider = ToastPrimitives.Provider
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
->(({ className, ...props }, ref) => {
-  // Check if we're on the main menu page (dashboard)
-  const isMainMenu = window.location.pathname === '/';
-  
-  return (
-    <ToastPrimitives.Viewport
-      ref={ref}
-      className={cn(
-        isMainMenu 
-          ? "fixed bottom-[180px] left-0 z-[100] flex max-h-screen w-64 md:w-72 flex-col-reverse p-4"
-          : "fixed top-4 right-4 z-[100] flex max-h-screen w-64 md:w-72 flex-col p-4",
-        className
-      )}
-      {...props}
-    />
-  );
-})
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Viewport
+    ref={ref}
+    className={cn(
+      "fixed bottom-[180px] left-0 z-[100] flex max-h-screen w-64 md:w-72 flex-col-reverse p-4",
+      className
+    )}
+    {...props}
+  />
+))
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(

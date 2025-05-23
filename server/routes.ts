@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, hashPassword } from "./auth";
+import { setupAuth } from "./auth";
 import { z } from "zod";
 import { db, pool } from "@db";
 import { products, insertProductSchema, inventory, insertInventorySchema, productIngredients, orderItems } from "@shared/schema";
@@ -42,94 +42,6 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
-
-  // User management routes (owner only)
-  app.get("/api/users", async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || req.user.role !== "owner") {
-      return res.status(403).json({ error: "Access denied" });
-    }
-    
-    try {
-      const users = await storage.getAllUsers();
-      res.json(users);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(500).json({ error: "Failed to fetch users" });
-    }
-  });
-
-  app.post("/api/users", async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || req.user.role !== "owner") {
-      return res.status(403).json({ error: "Access denied" });
-    }
-    
-    try {
-      const { username, password, role } = req.body;
-      
-      if (!username || !password || !role) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-      
-      const existingUser = await storage.getUserByUsername(username);
-      if (existingUser) {
-        return res.status(400).json({ error: "Username already exists" });
-      }
-      
-      // Hash password before storing
-      const hashedPassword = await hashPassword(password);
-      const user = await storage.createUser({ username, password: hashedPassword, role });
-      res.status(201).json(user);
-    } catch (error) {
-      console.error("Error creating user:", error);
-      res.status(500).json({ error: "Failed to create user" });
-    }
-  });
-
-  app.put("/api/users/:id", async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || req.user.role !== "owner") {
-      return res.status(403).json({ error: "Access denied" });
-    }
-    
-    try {
-      const userId = parseInt(req.params.id);
-      const { username, password, role } = req.body;
-      
-      if (!username || !role) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-      
-      // Hash password if provided
-      let updateData: any = { username, role };
-      if (password && password.trim() !== "") {
-        updateData.password = await hashPassword(password);
-      }
-      const user = await storage.updateUser(userId, updateData);
-      res.json(user);
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({ error: "Failed to update user" });
-    }
-  });
-
-  app.delete("/api/users/:id", async (req: Request, res: Response) => {
-    if (!req.isAuthenticated() || req.user.role !== "owner") {
-      return res.status(403).json({ error: "Access denied" });
-    }
-    
-    try {
-      const userId = parseInt(req.params.id);
-      
-      if (userId === req.user.id) {
-        return res.status(400).json({ error: "Cannot delete your own account" });
-      }
-      
-      await storage.deleteUser(userId);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      res.status(500).json({ error: "Failed to delete user" });
-    }
-  });
   
   // Serve static files from the 'public' directory
   app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
