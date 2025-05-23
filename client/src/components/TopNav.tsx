@@ -32,10 +32,7 @@ export default function TopNav({ activeSection }: TopNavProps) {
           onClick={() => setLocation(item.path)}
         >
           {item.section === "ADMIN" ? (
-            <div className="flex items-center gap-1">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">{item.label}</span>
-            </div>
+            <Shield className="h-4 w-4" />
           ) : (
             item.label
           )}
