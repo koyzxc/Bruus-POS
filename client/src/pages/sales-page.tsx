@@ -581,37 +581,38 @@ export default function SalesPage() {
               </div>
             </div>
 
-            {/* Date Selection */}
-            <div className="flex flex-col gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start font-normal text-left bg-white"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formattedDateRange()}
-                    <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    selected={dateRange}
-                    onSelect={(range) => {
-                      setDateRange(range as { from: Date; to: Date });
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              {/* Date shortcut buttons underneath */}
-              <div className="flex gap-2">
-                <Button onClick={handleTodayClick} variant="outline" className="flex-1">Today</Button>
-                <Button onClick={handleWeekClick} variant="outline" className="flex-1">This Week</Button>
-                <Button onClick={handleMonthClick} variant="outline" className="flex-1">This Month</Button>
-              </div>
+          {/* Right side - Date Selection (Compact) */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+            {/* Date range picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-start font-normal text-left bg-white min-w-[200px]"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formattedDateRange()}
+                  <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={(range) => {
+                    setDateRange(range as { from: Date; to: Date });
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            
+            {/* Compact date shortcut buttons */}
+            <div className="flex gap-1">
+              <Button onClick={handleTodayClick} variant="outline" size="sm" className="px-3">Today</Button>
+              <Button onClick={handleWeekClick} variant="outline" size="sm" className="px-3">Week</Button>
+              <Button onClick={handleMonthClick} variant="outline" size="sm" className="px-3">Month</Button>
             </div>
           </div>
         </div>
