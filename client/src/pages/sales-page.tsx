@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
+import { useAuth } from "@/hooks/use-auth";
+import { Card, CardContent } from "@/components/ui/card";
+import { Shield } from "lucide-react";
 import { SalesData, Product } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -39,6 +42,7 @@ type FilterState = {
 }
 
 export default function SalesPage() {
+  const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState("COFFEE");
   const today = new Date();
   const [dateRange, setDateRange] = useState<{
@@ -260,6 +264,27 @@ export default function SalesPage() {
     return "OTHERS";
   };
   
+  // Check if user has permission to view sales data
+  if (!user?.canViewSales) {
+    return (
+      <MainLayout
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        activeSection="SALES"
+      >
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md text-center">
+            <CardContent className="pt-6">
+              <Shield className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Access Restricted</h2>
+              <p className="text-gray-600">You don't have permission to view financial data.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout
       activeCategory={activeCategory}

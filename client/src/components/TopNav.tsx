@@ -13,8 +13,12 @@ export default function TopNav({ activeSection }: TopNavProps) {
   const navItems = [
     { label: "MENU", path: "/", section: "MENU" },
     { label: "INV.", path: "/inventory", section: "INV" },
-    { label: "SALES", path: "/sales", section: "SALES" },
   ];
+
+  // Add SALES section only if user has permission
+  if (user?.canViewSales) {
+    navItems.push({ label: "SALES", path: "/sales", section: "SALES" });
+  }
 
   // Add admin section for owner users
   if (user?.role === "owner") {
