@@ -618,9 +618,9 @@ export default function SalesPage() {
         </div>
       </div>
 
-      {/* Sales Chart - Only show for sales data view */}
-      {!showNonSelling && salesData && salesData.length > 0 && (
-        <div className="bg-white p-6 rounded-xl shadow-md">
+      {/* Sales Overview Chart - Show at the top */}
+      {!showNonSelling && (
+        <div className="bg-white p-6 rounded-xl shadow-md mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Sales Overview</h3>
             <div className="flex items-center gap-4 text-sm">
@@ -694,7 +694,7 @@ export default function SalesPage() {
         </div>
       )}
 
-      {/* Sales Data Table */}
+      {/* Sales Data Table - Below the chart */}
       <div className="bg-white p-4 rounded-xl shadow-md">
         {isLoading ? (
           // Loading skeleton
