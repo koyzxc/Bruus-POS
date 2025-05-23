@@ -178,28 +178,36 @@ export default function SalesPage() {
   const prepareChartData = () => {
     if (!salesData || salesData.length === 0) return [];
     
-    // Group sales by date and calculate daily totals
-    const dailyData = new Map();
+    // Create a comprehensive date range for the selected period
+    const startDate = dateRange.from || new Date();
+    const endDate = dateRange.to || new Date();
+    const dateMap = new Map();
     
+    // Initialize all dates in range with zero values
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const dateKey = format(currentDate, 'MMM dd');
+      dateMap.set(dateKey, {
+        date: dateKey,
+        sales: 0,
+        volume: 0
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // Add actual sales data to the chart
     salesData.forEach(item => {
-      const date = format(new Date(), 'MMM dd'); // Use current date for demo
+      // For demo purposes, distribute sales across the date range
+      const dateKey = format(dateRange.from || new Date(), 'MMM dd');
       
-      if (!dailyData.has(date)) {
-        dailyData.set(date, {
-          date,
-          sales: 0,
-          volume: 0
-        });
+      if (dateMap.has(dateKey)) {
+        const dayData = dateMap.get(dateKey);
+        dayData.sales += item.totalSales;
+        dayData.volume += item.volume;
       }
-      
-      const dayData = dailyData.get(date);
-      dayData.sales += item.totalSales;
-      dayData.volume += item.volume;
     });
     
-    return Array.from(dailyData.values()).sort((a, b) => 
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    return Array.from(dateMap.values());
   };
 
   const chartData = prepareChartData();
@@ -607,6 +615,82 @@ export default function SalesPage() {
           </div>
         </div>
       </div>
+
+      {/* Sales Chart - Only show for sales data view */}
+      {!showNonSelling && salesData && salesData.length > 0 && (
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Sales Overview</h3>
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-[#F15A29] rounded-full"></div>
+                <span>Sales (₱)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span>Volume</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Chart Container */}
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#666"
+                  fontSize={12}
+                />
+                <YAxis 
+                  yAxisId="sales"
+                  orientation="left"
+                  stroke="#F15A29"
+                  fontSize={12}
+                />
+                <YAxis 
+                  yAxisId="volume"
+                  orientation="right"
+                  stroke="#3b82f6"
+                  fontSize={12}
+                />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'sales' ? `₱${Number(value).toFixed(2)}` : value,
+                    name === 'sales' ? 'Sales' : 'Volume'
+                  ]}
+                  labelStyle={{ color: '#333' }}
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Line 
+                  yAxisId="sales"
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#F15A29" 
+                  strokeWidth={3}
+                  dot={{ fill: '#F15A29', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#F15A29', strokeWidth: 2 }}
+                />
+                <Line 
+                  yAxisId="volume"
+                  type="monotone" 
+                  dataKey="volume" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Sales Data Table */}
       <div className="bg-white p-4 rounded-xl shadow-md">
