@@ -356,41 +356,50 @@ export default function AdminSettingsPage() {
                       <TableCell className="align-middle">
                         {new Date(userItem.createdAt).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1 h-10">
-                          {/* Manage Permissions button (only for baristas) */}
-                          {userItem.role === "barista" && (
+                      <TableCell className="text-right align-middle">
+                        <div className="flex items-center justify-end gap-1">
+                          {/* Manage Permissions button (only for baristas) - fixed width container */}
+                          <div className="w-8 flex justify-center">
+                            {userItem.role === "barista" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleManagePermissions(userItem)}
+                                className="h-8 w-8 p-0 text-[#F15A29] hover:text-[#D4471A] hover:bg-orange-50"
+                                title="Manage Permissions"
+                              >
+                                <Settings className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                          
+                          {/* Edit button - always present */}
+                          <div className="w-8 flex justify-center">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleManagePermissions(userItem)}
-                              className="h-8 w-8 p-0 text-[#F15A29] hover:text-[#D4471A] hover:bg-orange-50"
-                              title="Manage Permissions"
+                              onClick={() => handleEditUser(userItem)}
+                              className="h-8 w-8 p-0 hover:bg-gray-100"
+                              title="Edit User"
                             >
-                              <Settings className="h-4 w-4" />
+                              <Edit2 className="h-4 w-4" />
                             </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditUser(userItem)}
-                            className="h-8 w-8 p-0 hover:bg-gray-100"
-                            title="Edit User"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          {/* Don't allow deleting current user */}
-                          {userItem.id !== user?.id && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteUser(userItem)}
-                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                              title="Delete User"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
+                          </div>
+                          
+                          {/* Delete button - fixed width container */}
+                          <div className="w-8 flex justify-center">
+                            {userItem.id !== user?.id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteUser(userItem)}
+                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Delete User"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                     </TableRow>
