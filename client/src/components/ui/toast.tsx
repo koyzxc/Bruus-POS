@@ -17,7 +17,8 @@ const ToastViewport = React.forwardRef<
   // Check if current page should have upper right toast positioning
   const isUpperRightPage = location.includes('/admin') || 
                            location.includes('/sales') || 
-                           location.includes('/inventory');
+                           location.includes('/inventory') ||
+                           location.includes('/auth');
   
   const positionClass = isUpperRightPage 
     ? "fixed top-4 right-4 z-[100] flex max-h-screen w-64 md:w-72 flex-col p-4"
@@ -59,7 +60,8 @@ const Toast = React.forwardRef<
   // Check if current page should have upper right toast positioning
   const isUpperRightPage = location.includes('/admin') || 
                            location.includes('/sales') || 
-                           location.includes('/inventory');
+                           location.includes('/inventory') ||
+                           location.includes('/auth');
   
   const animationClass = isUpperRightPage 
     ? "data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-right-full"
