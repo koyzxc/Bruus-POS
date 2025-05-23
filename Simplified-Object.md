@@ -10,9 +10,9 @@ graph TD
     barista["barista : User<br/>id = 2<br/>username = barista<br/>role = barista<br/>createdAt = 2025-01-22"]
 
     %% Product Objects
-    latte_m["latte_medium : Product<br/>id = 15<br/>name = Latte<br/>price = 4.50<br/>category = COFFEE<br/>size = M"]
+    latte_m["latte_medium : Product<br/>id = 15<br/>name = Latte<br/>price = ₱120.00<br/>category = COFFEE<br/>size = M"]
     
-    latte_l["latte_large : Product<br/>id = 16<br/>name = Latte<br/>price = 5.50<br/>category = COFFEE<br/>size = L"]
+    latte_l["latte_large : Product<br/>id = 16<br/>name = Latte<br/>price = ₱140.00<br/>category = COFFEE<br/>size = L"]
 
     %% Inventory Objects
     milk["milk : Inventory<br/>id = 42<br/>name = Milk<br/>currentStock = 2698<br/>minimumStock = 500<br/>unit = ml"]
@@ -20,12 +20,12 @@ graph TD
     coffee_beans["coffee_beans : Inventory<br/>id = 41<br/>name = Coffee Beans<br/>currentStock = 850<br/>minimumStock = 200<br/>unit = g"]
 
     %% Order Object
-    order["order_41 : Order<br/>id = 41<br/>orderNumber = BRUUS-2025-0041<br/>total = 10.00<br/>amountPaid = 15.00<br/>change = 5.00<br/>userId = 2"]
+    order["order_41 : Order<br/>id = 41<br/>orderNumber = BRUUS-2025-0041<br/>total = ₱260.00<br/>amountPaid = ₱300.00<br/>change = ₱40.00<br/>userId = 2"]
 
     %% Order Items
-    item1["item1 : OrderItem<br/>id = 81<br/>orderId = 41<br/>productId = 15<br/>productName = Latte<br/>size = M<br/>price = 4.50<br/>quantity = 1"]
+    item1["item1 : OrderItem<br/>id = 81<br/>orderId = 41<br/>productId = 15<br/>productName = Latte<br/>size = M<br/>price = ₱120.00<br/>quantity = 1"]
     
-    item2["item2 : OrderItem<br/>id = 82<br/>orderId = 41<br/>productId = 16<br/>productName = Latte<br/>size = L<br/>price = 5.50<br/>quantity = 1"]
+    item2["item2 : OrderItem<br/>id = 82<br/>orderId = 41<br/>productId = 16<br/>productName = Latte<br/>size = L<br/>price = ₱140.00<br/>quantity = 1"]
 
     %% Ingredient Links
     ingredient1["link1 : ProductIngredient<br/>productId = 15<br/>inventoryId = 42<br/>quantityUsed = 150<br/>size = M"]
@@ -69,8 +69,8 @@ graph TD
 - **Barista**: Daily operations, processes customer orders
 
 ### **☕ Product Instances**
-- **Latte Medium**: $4.50, requires 150ml milk + 20g coffee beans
-- **Latte Large**: $5.50, uses more ingredients for larger size
+- **Latte Medium**: ₱120.00, requires 150ml milk + 20g coffee beans
+- **Latte Large**: ₱140.00, uses more ingredients for larger size
 
 ### **📦 Current Inventory**
 - **Milk**: 2698ml available (above 500ml minimum - no alert)
