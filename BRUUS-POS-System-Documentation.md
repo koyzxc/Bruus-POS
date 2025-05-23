@@ -4,42 +4,42 @@
 
 ### A. OVERVIEW OF THE PROJECT
 
-The **BRUUS Unified POS and Inventory Platform** is a modern, iPad-optimized solution designed specifically for Philippine coffee shops. Built with offline-first architecture, it streamlines operations by unifying sales processing, real-time inventory tracking, and automated alerts while supporting Philippine Peso (₱) transactions.
+The **BRUUS Unified POS and Inventory Platform with Automated Alerts** is a cutting-edge, iPad 10-optimized solution designed specifically for Philippine coffee shop operations. Built with React + TypeScript frontend, Node.js backend, and PostgreSQL + SQLite hybrid database architecture, it delivers seamless sales processing, real-time inventory management, and comprehensive business analytics with full offline capability.
 
 #### PROBLEM STATEMENT
-The current coffee shop POS systems suffer from critical inefficiencies:
-- **Weak security** with no role-based access, allowing unauthorized personnel to view sensitive data
-- **Manual inventory tracking**, leading to errors and delays in restocking
-- **No low-stock alerts**, risking ingredient shortages during peak hours
-- **Poor mobile optimization**, causing operational delays on tablet devices
-- **Inability to track sales analytics** by product or identify non-selling items
-- **System instability** (crashes, lagging), disrupting order processing
-- **No offline capability**, failing during internet outages
+Current coffee shop POS systems in the Philippines suffer from critical operational inefficiencies:
+- **Inadequate security frameworks** with no role-based access control, exposing sensitive financial data to unauthorized staff
+- **Manual inventory management** requiring constant human intervention, leading to stock-outs and overordering
+- **Absence of intelligent alerts** for low-stock situations, causing service disruptions during peak business hours
+- **Desktop-only interfaces** incompatible with modern tablet-based workflows, reducing operational efficiency
+- **Limited business intelligence** with no sales analytics or product performance tracking capabilities
+- **System reliability issues** including frequent crashes, performance lag, and complete failure during internet outages
+- **Currency limitations** with poor or no Philippine Peso (₱) support for local market operations
 
 ### a. OBJECTIVES OF THE STUDY
-The BRUUS system aims to:
-- **Implement role-based access control** (Owner/Barista) to secure sensitive data
-- **Automate real-time inventory updates** with low-stock alerts
-- **Provide comprehensive sales analytics** (daily/weekly reports by product)
-- **Design a stable, iPad-optimized interface** with intuitive touch controls
-- **Enable offline operation** with automatic sync when reconnected
-- **Support Philippine Peso pricing** with realistic ₱100-150 product ranges
+The BRUUS system comprehensively addresses these challenges by:
+- **Implementing enterprise-grade role-based authentication** with Owner and Barista access levels, securing sensitive business data
+- **Delivering automated real-time inventory synchronization** with intelligent low-stock alerting and automatic ingredient deduction
+- **Providing actionable business intelligence** through comprehensive sales analytics, product performance tracking, and non-selling item identification
+- **Establishing iPad 10-first responsive design** with touch-optimized interface elements and intuitive navigation workflows
+- **Enabling robust offline-first operation** with local SQLite backup and automatic cloud synchronization upon reconnection
+- **Supporting complete Philippine market localization** including native ₱ currency formatting, realistic pricing ranges (₱100-150), and local business process optimization
 
 ### b. SCOPE AND LIMITATIONS
 
-**Scope:**
-- Complete POS system with order processing and role-based authentication
-- Advanced inventory management with automated alerts and real-time updates
-- Sales analytics dashboard with product performance insights
-- iPad 10-optimized responsive design
-- Hybrid online/offline data synchronization
-- Philippine market localization (₱ currency, local business workflows)
+**Comprehensive Project Scope:**
+- **Complete POS ecosystem** featuring order processing, payment calculation, receipt generation, and role-based user authentication
+- **Advanced inventory management platform** with real-time stock tracking, automated alerts, multi-unit measurements (ml, g, kg, pc, oz), and ingredient usage calculations
+- **Business intelligence dashboard** providing sales analytics, product performance insights, daily/weekly reporting, and strategic decision-making data
+- **iPad 10-optimized responsive architecture** ensuring seamless touch interaction, intuitive layouts, and coffee shop workflow optimization
+- **Hybrid cloud-local data synchronization** enabling continuous operation during connectivity issues with automatic sync restoration
+- **Philippine market specialization** including ₱ currency support, local pricing optimization, cash-heavy transaction workflows, and regulatory compliance
 
-**Limitations:**
-- Does not include direct supplier ordering (alerts only)
-- Limited to coffee shop menu items (no complex restaurant features)
-- Offline mode delays real-time sync until reconnection
-- Single-location support (not multi-branch)
+**Defined System Limitations:**
+- **Supply chain integration scope:** Provides low-stock alerts but excludes direct automated supplier ordering systems
+- **Menu complexity boundaries:** Optimized for coffee shop operations, excludes complex multi-course restaurant features
+- **Connectivity dependencies:** Offline mode maintains core functionality but delays real-time analytics until reconnection
+- **Geographic scaling:** Single-location architecture, multi-branch operations require separate implementation
 
 ---
 
@@ -47,55 +47,110 @@ The BRUUS system aims to:
 
 ### a. DESCRIPTION OF THE PROJECT DOMAIN
 
-The Philippine coffee shop industry relies heavily on efficient POS systems to manage high transaction volumes and dynamic inventory needs. Small to medium coffee shops often struggle with outdated systems, leading to operational bottlenecks, financial inaccuracies, and customer dissatisfaction. BRUUS targets Filipino coffee shop owners seeking modern, cost-effective solutions optimized for local operations.
+The Philippine coffee shop industry represents a rapidly growing market segment requiring sophisticated point-of-sale solutions to manage high-volume transactions, complex inventory dynamics, and evolving customer expectations. Small to medium-sized establishments face unique challenges including limited technical resources, cost-sensitive operations, and the need for systems that accommodate local business practices including cash-heavy transactions and Philippine Peso pricing structures.
+
+**Market Context:**
+- **Growing coffee culture** in urban Philippine markets driving increased transaction volumes
+- **Mobile-first operations** requiring tablet-optimized interfaces for space-constrained environments
+- **Local business requirements** including ₱ currency support, cash handling, and culturally appropriate workflows
+- **Technology gaps** between expensive enterprise solutions and inadequate basic systems
 
 ### b. CURRENT SYSTEM ANALYSIS
 
-**Existing system problems:**
-- Lacks role-based security, exposing financial data to all staff
-- Requires manual inventory input, increasing human error risk
-- Provides no low-stock notifications or sales analytics
-- Uses desktop-only interfaces, incompatible with mobile/tablet workflow
-- Suffers from frequent crashes and performance issues
-- No offline capability, causing complete shutdowns during connectivity issues
+**Critical deficiencies in existing Philippine coffee shop POS systems:**
 
-### c. JUSTIFICATION OF THE PROPOSED SYSTEM
+**Security Vulnerabilities:**
+- **Absence of role-based access control** allowing any staff member access to sensitive financial data, sales reports, and business analytics
+- **Weak authentication mechanisms** with shared passwords and no user accountability tracking
+- **Unencrypted data transmission** exposing customer and business information
 
-**BRUUS addresses these gaps by:**
-- **Enhanced security** through role-based access (Owner/Barista roles)
-- **Automated inventory management** with real-time updates and smart alerts
-- **Actionable business insights** via comprehensive sales analytics
-- **iPad-first design** optimized for touch interaction and coffee shop workflows
-- **Offline-first architecture** ensuring continuous operation during outages
-- **Philippine market focus** with ₱ currency support and local pricing optimization
-- **Cost-effective solution** reducing operational overhead and improving profitability
+**Operational Inefficiencies:**
+- **Manual inventory management** requiring staff to manually update stock levels, leading to frequent errors and time waste
+- **Lack of automated alerts** resulting in unexpected stock-outs during peak business periods
+- **No integration between sales and inventory** causing disconnected data and operational blind spots
+
+**Technology Limitations:**
+- **Desktop-only interfaces** incompatible with modern tablet-based coffee shop workflows
+- **No offline capability** causing complete system failure during internet connectivity issues
+- **Poor performance** with frequent crashes, lag, and system instability disrupting customer service
+
+**Business Intelligence Gaps:**
+- **Absence of sales analytics** preventing data-driven decision making about menu optimization
+- **No product performance tracking** making it impossible to identify top-sellers or underperforming items
+- **Limited reporting capabilities** providing no insights into daily, weekly, or seasonal trends
+
+### c. JUSTIFICATION OF THE PROPOSED BRUUS SYSTEM
+
+**BRUUS directly addresses each identified deficiency through targeted technological solutions:**
+
+**Enhanced Security Architecture:**
+- **Role-based authentication system** with distinct Owner (jec) and Barista access levels, protecting sensitive business data
+- **Secure session management** using bcrypt password hashing and encrypted cookie-based authentication
+- **HTTPS encryption** for all data transmission ensuring customer and business information protection
+
+**Automated Operations Management:**
+- **Real-time inventory synchronization** automatically deducting ingredients when orders are processed
+- **Intelligent low-stock alerting** providing proactive notifications when inventory reaches configured minimum thresholds
+- **Seamless sales-inventory integration** ensuring data consistency and operational accuracy
+
+**Advanced Technology Platform:**
+- **iPad 10-optimized responsive design** providing touch-friendly interfaces perfect for coffee shop environments
+- **Offline-first architecture** with local SQLite backup ensuring continuous operation during connectivity interruptions
+- **High-performance React + TypeScript frontend** delivering stable, fast, and reliable user experience
+
+**Comprehensive Business Intelligence:**
+- **Real-time sales analytics** enabling data-driven menu optimization and strategic decision making
+- **Product performance tracking** identifying top-selling items and highlighting underperforming products
+- **Comprehensive reporting dashboard** providing daily, weekly, and custom period business insights
+
+**Philippine Market Optimization:**
+- **Native Philippine Peso (₱) support** with proper currency formatting and realistic pricing ranges (₱100-150)
+- **Cash-heavy transaction workflows** accommodating local payment preferences and business practices
+- **Cost-effective implementation** providing enterprise-level features at small business-friendly pricing
 
 ---
 
 ## II. STAKEHOLDER AND USER ANALYSIS
 
-### A. USER PERSONAS
+### A. DETAILED USER PERSONAS
 
-#### 1. Coffee Shop Owner (jec)
-- **Goals:** Secure system oversight, real-time inventory tracking, comprehensive sales analytics, automated business alerts
-- **Behaviors:** Monitors daily sales, manages staff permissions, reviews performance reports, makes strategic decisions
-- **Pain Points:** Weak security exposing sensitive data, manual inventory causing errors, lack of business insights
-- **BRUUS Solutions:** Admin dashboard, user management, sales analytics, automated low-stock alerts
+#### 1. Coffee Shop Owner (Username: jec, Role: Owner)
+**Professional Profile:**
+- **Primary Goals:** Complete business oversight with secure access to all financial data, strategic inventory management, comprehensive sales analytics, and automated operational alerts
+- **Daily Behaviors:** Reviews morning sales reports, monitors real-time inventory levels, manages staff access permissions, analyzes product performance data, makes strategic menu and pricing decisions
+- **Critical Pain Points:** Current systems expose sensitive financial data to unauthorized staff, manual inventory management causes frequent errors and stock-outs, absence of business intelligence prevents data-driven decision making
+- **BRUUS System Benefits:** Full administrative dashboard access, complete user management control, comprehensive sales analytics with daily/weekly reporting, automated low-stock alerts with configurable thresholds, secure role-based access protecting sensitive business data
 
-#### 2. Barista Staff
-- **Goals:** Efficient order processing, intuitive interface, reliable system performance
-- **Behaviors:** Processes customer orders, manages product inventory, uses POS throughout busy periods
-- **Pain Points:** System crashes during peak hours, complex interfaces slowing service, manual inventory updates
-- **BRUUS Solutions:** Touch-optimized interface, automatic inventory deduction, offline capability
+**Specific Use Cases:**
+- Accessing admin settings through secure shield icon navigation
+- Managing barista user accounts and password updates
+- Reviewing sales analytics with date range filtering
+- Configuring inventory minimum thresholds
+- Monitoring non-selling products for menu optimization
 
-### B. STAKEHOLDER IDENTIFICATION
+#### 2. Barista Staff (Username: barista, Role: Barista)
+**Operational Profile:**
+- **Primary Goals:** Efficient customer order processing, intuitive iPad interface operation, reliable system performance during peak hours, minimal manual inventory management
+- **Daily Behaviors:** Processes customer orders using touch interface, selects product sizes (Medium/Large), calculates payments and change in Philippine Peso, updates basic inventory information, handles high-volume transactions
+- **Critical Pain Points:** System crashes during busy periods disrupt customer service, complex interfaces slow order processing, manual inventory updates waste time and cause errors, poor mobile optimization reduces efficiency
+- **BRUUS System Benefits:** Touch-optimized iPad 10 interface, automatic inventory deduction upon order completion, offline capability ensuring continuous service, intuitive product selection with organized size options, real-time stock visibility
 
-| Stakeholder | Interest in BRUUS Project |
-|-------------|---------------------------|
-| **Coffee Shop Owner** | Secure system, automated inventory, business analytics, cost reduction |
-| **Barista Staff** | Stable POS, intuitive interface, reduced manual work, faster service |
-| **Customers** | Faster service, accurate orders, consistent experience |
-| **Business Partners** | Reliable order processing, inventory visibility |
+**Specific Use Cases:**
+- Processing orders through touch-friendly product selection
+- Calculating change for Philippine Peso transactions
+- Adding new products with image upload capability
+- Viewing current inventory levels and low-stock alerts
+- Continuing operations during internet connectivity issues
+
+### B. COMPREHENSIVE STAKEHOLDER IDENTIFICATION
+
+| Stakeholder Category | Specific Interest in BRUUS Project | Expected Benefits |
+|---------------------|-----------------------------------|-------------------|
+| **Primary Business Owner** | Secure system administration, automated inventory management, comprehensive business analytics, cost reduction through operational efficiency | Complete administrative control, data-driven decision making, reduced operational overhead, improved profitability |
+| **Daily Operations Staff (Baristas)** | Stable POS operation, intuitive touch interface, reduced manual work, faster customer service capability | Improved workflow efficiency, reduced training time, enhanced job satisfaction, reliable system performance |
+| **Coffee Shop Customers** | Faster service delivery, accurate order processing, consistent pricing, reliable transaction completion | Reduced wait times, accurate orders, transparent pricing in Philippine Peso, improved overall experience |
+| **Business Suppliers** | Reliable inventory tracking, predictable ordering patterns, automated restock notifications | Better demand forecasting, improved supply chain efficiency, timely restocking alerts |
+| **Technical Support Partners** | Modern technology stack, comprehensive documentation, clear system architecture | Easier maintenance and support, reduced troubleshooting time, clear upgrade pathways |
 
 ### C. USER STORIES AND REQUIREMENTS
 
