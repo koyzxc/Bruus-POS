@@ -56,7 +56,7 @@ export default function AdminSettingsPage() {
       <MainLayout 
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
-        activeSection="INV"
+        activeSection="ADMIN"
       >
         <div className="flex items-center justify-center min-h-[400px]">
           <Card className="w-full max-w-md text-center">
@@ -197,7 +197,7 @@ export default function AdminSettingsPage() {
     <MainLayout 
       activeCategory={activeCategory}
       setActiveCategory={setActiveCategory}
-      activeSection="INV"
+      activeSection="ADMIN"
     >
       <div className="space-y-6">
         {/* Header */}
