@@ -352,29 +352,30 @@ export default function SalesPage() {
     >
       {/* Analytics Header & Controls */}
       <div className="mb-6 bg-white p-4 rounded-xl shadow-md">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1">
-            <div className="flex flex-wrap justify-between items-center mb-2 gap-2">
-              <h2 className="text-xl font-bold">Sales Analytics</h2>
-              
-              <div className="flex items-center gap-2">
-                {/* Filter button with count badge */}
-                {!showNonSelling && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        className="flex items-center gap-2 bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
-                      >
-                        <Filter className="h-4 w-4" />
-                        <span>Filters</span>
-                        {activeFilterCount > 0 && (
-                          <span className="flex items-center justify-center h-5 w-5 rounded-full bg-[#F15A29] text-white text-xs">
-                            {activeFilterCount}
-                          </span>
-                        )}
-                      </Button>
-                    </DropdownMenuTrigger>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Left side - Title, Filters and Non-Selling Toggle */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            <h2 className="text-xl font-bold">Sales Analytics</h2>
+            
+            <div className="flex items-center gap-2">
+              {/* Filter button with count badge */}
+              {!showNonSelling && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center gap-2 bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
+                    >
+                      <Filter className="h-4 w-4" />
+                      <span>Filters</span>
+                      {activeFilterCount > 0 && (
+                        <span className="flex items-center justify-center h-5 w-5 rounded-full bg-[#F15A29] text-white text-xs">
+                          {activeFilterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-72">
                       <DropdownMenuLabel>Apply Filters</DropdownMenuLabel>
                       
