@@ -146,6 +146,12 @@ export default function AdminSettingsPage() {
   // Create user mutation
   const createUserMutation = useMutation({
     mutationFn: async (data: CreateUserFormValues) => {
+      // Check if username already exists
+      const existingUser = users?.find(u => u.username.toLowerCase() === data.username.toLowerCase());
+      if (existingUser) {
+        throw new Error("Username already exists. Please choose a different username.");
+      }
+      
       const res = await apiRequest("POST", "/api/admin/users", data);
       return await res.json();
     },
@@ -170,6 +176,41 @@ export default function AdminSettingsPage() {
   // Edit user mutation
   const editUserMutation = useMutation({
     mutationFn: async (data: EditUserFormValues) => {
+      // Check if username already exists (excluding current user)
+      const existingUser = users?.find(u => 
+        u.username.toLowerCase() === data.username.toLowerCase() && 
+        u.id !== selectedUser?.id
+      );
+      if (existingUser) {
+        throw new Error("Username already exists. Please choose a different username.");
+      }
+
+      // Validate password change if provided
+      if (data.password && data.password.trim() !== "") {
+        // Check if new password is the same as old password by making a test login attempt
+        try {
+          const testLogin = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: selectedUser?.username,
+              password: data.password
+            })
+          });
+          
+          if (testLogin.ok) {
+            throw new Error("New password cannot be the same as the current password. Please choose a different password.");
+          }
+        } catch (loginError: any) {
+          // If login fails with same password, that's good - means password is different
+          // If it's our custom error message, throw it
+          if (loginError.message.includes("New password cannot be the same")) {
+            throw loginError;
+          }
+          // Otherwise continue with update (login failed = password is different)
+        }
+      }
+
       // Only send password if it's provided
       const updateData = {
         username: data.username,
