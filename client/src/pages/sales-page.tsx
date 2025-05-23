@@ -581,15 +581,15 @@ export default function SalesPage() {
               </div>
             </div>
 
-          {/* Right side - Date Selection (Compact) */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+          {/* Right side - Date Selection */}
+          <div className="flex flex-col gap-2">
             {/* Date range picker */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="justify-start font-normal text-left bg-white min-w-[200px]"
+                  className="justify-start font-normal text-left bg-white min-w-[250px]"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {formattedDateRange()}
@@ -608,11 +608,11 @@ export default function SalesPage() {
               </PopoverContent>
             </Popover>
             
-            {/* Compact date shortcut buttons */}
+            {/* Date shortcut buttons below */}
             <div className="flex gap-1">
-              <Button onClick={handleTodayClick} variant="outline" size="sm" className="px-3">Today</Button>
-              <Button onClick={handleWeekClick} variant="outline" size="sm" className="px-3">Week</Button>
-              <Button onClick={handleMonthClick} variant="outline" size="sm" className="px-3">Month</Button>
+              <Button onClick={handleTodayClick} variant="outline" size="sm" className="flex-1">Today</Button>
+              <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1">Week</Button>
+              <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1">Month</Button>
             </div>
           </div>
         </div>
@@ -630,7 +630,7 @@ export default function SalesPage() {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>Volume</span>
+                <span>Orders</span>
               </div>
             </div>
           </div>
@@ -660,7 +660,7 @@ export default function SalesPage() {
                 <Tooltip 
                   formatter={(value, name) => [
                     name === 'sales' ? `₱${Number(value).toFixed(2)}` : value,
-                    name === 'sales' ? 'Sales' : 'Volume'
+                    name === 'sales' ? 'Sales' : 'Orders'
                   ]}
                   labelStyle={{ color: '#333' }}
                   contentStyle={{ 
