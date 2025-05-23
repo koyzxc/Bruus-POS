@@ -1,0 +1,82 @@
+ A project charter is a formal document outlining project objectives, scope, stakeholders,
+ timeline, and resources, essential for project planning and execution. This section outlines
+ the content of the project charter, including:
+ 1. Brief Introduction of the System
+ Introduce the problem statement, supporting research, and the group's rationale for
+ the project idea. Explain how the group formulated the overall solution to the
+ problem, which is the system proposed.
+ 2. Problem Statements
+ Provide both general and specific problem statements that the project aims to solve.
+ 3. Project Objectives
+ Define general and specific objectives, ensuring alignment with the corresponding
+ problem statements. Formulate objectives using the SMART approach (Specific,
+ Measurable, Achievable, Relevant, Time-bound).
+4. Project Scope and Limitations
+ Define the boundaries of the project, specifying what is included and excluded.
+ Identify any constraints or limitations that may impact project execution
+ 5. Stakeholders
+ Identify stakeholders involved in the project and their roles. Present an
+ organizational chart illustrating the hierarchy and relationships among project team
+ membersand stakeholders.
+ 6. Project Schedule
+ Develop a Gantt chart outlining the project schedule and timeline. Provide a link to
+ the Gantt chart hosted on Google Sheets or other software.
+ 7. Resource Management Plan
+ Identify the resources required for the project, including personnel, equipment, and
+ materials. Estimate the cost associated with each resource.
+ 8. Risk ManagementPlan
+ Identify potential risks associated with the project. Classify each risk by type and
+ severity. Outline mitigation strategies for each risk, assigning responsibility to
+ individuals. Ensure the plan addresses risk identification, assessment, response
+ planning, and monitoring throughout the project lifecycle.
+ User Stories
+ 1. Based on the elicitation results, identify and list down user stories for each
+ stakeholder involved in the project.
+ 2. User stories should capture the specific needs, goals, and requirements of each
+ stakeholder in relation to the software project.
+ 3. Ensure that user stories are concise, actionable, and written from the perspective of
+ the end user.
+ Functional and Non-Functional Requirements
+ 1. Review the identified user stories to extract potential functional and non-functional
+ requirements.
+ 2. Functional requirements describe what the system should do to meet the needs of
+ stakeholders, while non-functional requirements specify quality attributes such as
+ performance, security, and usability.
+ 3. Analyze each user story to determine the functional features or capabilities it entails,
+ and document these as functional requirements.
+4. Separate non-functional requirements from functional requirements and categorize
+ them accordingly, ensuring comprehensive coverage of system attributes and
+ qualities.
+ Development Methodologies
+ 1. Evaluate various development methodologies such as Waterfall, Agile, Scrum,
+ Kanban, or Extreme Programming.
+ 2. Select the methodology that best aligns with the project requirements, team
+ dynamics, and organizational context.
+ 3. Ensure that other parts of the document, including project planning, execution, and
+ monitoring, coincide with the chosen development methodology.
+ Hardware and Software Requirements
+ 1. List the hardware components required for the system, including servers, computers,
+ networking devices, and peripherals.
+ 2. Specify the software requirements, including operating systems, databases,
+ programming languages, frameworks, and third-party libraries.
+ 3. Include any additional tools or utilities necessary for development, testing, and
+ deployment.
+ Software Diagrams
+ Include the following in your documentation. Utilize diagramming tools like draw.io or
+ Lucidchart:
+ 1. UMLDiagrams
+  Use Case Diagram: Illustrates interactions between users (actors) and the
+ system, depicting user goals and system functionalities.
+  Sequence Diagram: Shows the sequence of interactions between objects or
+ components in a system over time, highlighting the flow of messages.
+  Class and Object Diagram: Describes the structure of classes and objects in
+ the system, including attributes, methods, and relationships.
+ 2. Flowchart
+ Create a flowchart representing the logical flow of processes, decisions, and actions
+ within the system. Use standard flowchart symbols to depict different elements such
+ as start/end points, processes, decisions, inputs/outputs, and connectors.
+3. Entity Relationship Diagram (for relational databases)
+ Create an ERD representing the logical structure of the database, including entities,
+ attributes, and relationships. Define primary and foreign keys to establish
+ relationships between entities. Ensure the ERD accurately reflects the data model
+ and supports the requirements of the system.
