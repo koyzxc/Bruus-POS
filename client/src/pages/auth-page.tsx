@@ -126,22 +126,6 @@ export default function AuthPage() {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Right side with hero section */}
-      <div className="hidden md:flex md:w-1/2 bg-[#804000] text-white">
-        <div className="p-12 flex flex-col justify-center items-center text-center">
-          <Coffee size={80} strokeWidth={1.5} className="mb-6" />
-          <h2 className="text-4xl font-bold mb-4">Bruus POS System</h2>
-          <p className="text-xl mb-6">Unified POS and Inventory Platform with Automated Alerts</p>
-          <ul className="text-left space-y-4 list-disc pl-5">
-            <li>Manage inventory with real-time tracking</li>
-            <li>Process coffee orders quickly</li>
-            <li>View sales data and analytics</li>
-            <li>Receive alerts for low stock items</li>
-            <li>Role-based access control</li>
-          </ul>
-        </div>
-      </div>
     </div>
   );
 }
