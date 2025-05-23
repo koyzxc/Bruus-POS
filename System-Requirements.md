@@ -2,69 +2,106 @@
 
 ## 📱 Hardware Requirements
 
-### **Primary Device**
-- **iPad 10th Generation** (recommended)
-  - 10.9-inch Liquid Retina display
-  - A14 Bionic chip or newer
-  - 64GB storage minimum (128GB recommended)
-  - Wi-Fi + Cellular capability
-  - Touch ID or Face ID
+### **a) POS Terminals/Tablets with Touchscreens**
+- **iPad 10th Generation** (Primary Recommendation)
+  - 10.9-inch Liquid Retina touchscreen display
+  - A14 Bionic chip or newer for smooth performance
+  - 64GB storage minimum (128GB recommended for extended use)
+  - Wi-Fi + Cellular capability for connectivity redundancy
+  - Touch ID or Face ID for secure access
+  - Battery life: 10+ hours for full-day operation
+  - Drop protection case recommended for coffee shop environment
+
+### **Alternative Tablet Options**
+- **iPad 9th Generation** (Budget Option)
+  - 10.2-inch Retina display
+  - A13 Bionic chip (sufficient for POS operations)
+  - 64GB storage minimum
+- **Samsung Galaxy Tab A8** (Android Alternative)
+  - 10.5-inch touchscreen
+  - Compatible web browser required
 
 ### **Network Infrastructure**
-- **Internet Connection**
-  - Broadband: 25 Mbps download / 5 Mbps upload (minimum)
-  - Backup: Mobile hotspot or cellular data
-  - Wi-Fi router with WPA3 security
+- **Primary Internet Connection**
+  - Fiber/DSL: 25 Mbps download / 5 Mbps upload (minimum)
+  - Business-grade connection recommended for stability
+- **Backup Connectivity**
+  - Mobile hotspot device with unlimited data plan
+  - Cellular data capability on tablets
+- **Wi-Fi Equipment**
+  - Business-grade Wi-Fi 6 router
+  - WPA3 security protocol
+  - Coverage for entire coffee shop area
 
-### **Optional Hardware**
-- Receipt printer (Bluetooth/USB compatible)
-- Cash drawer with electronic lock
-- Barcode scanner (if needed for inventory)
-- External battery pack for extended operation
+### **Optional Hardware (Recommended)**
+- **Receipt Printer**: Thermal printer (Bluetooth/USB compatible)
+- **Cash Drawer**: Electronic cash drawer with security lock
+- **Barcode Scanner**: For inventory management (if needed)
+- **External Battery Pack**: For extended operation during power outages
+- **Payment Terminal**: For card payments integration (future)
 
 ---
 
 ## 💻 Software Requirements
 
-### **Operating System**
-- **iPadOS 15.0** or later
-- Automatic updates enabled
-- Safari browser (latest version)
+### **b) Operating System & Browser**
+- **iPadOS 15.0** or later (recommended: iPadOS 16+)
+- Automatic system updates enabled for security
+- **Safari browser** (latest version) - primary browser
+- **Chrome/Firefox** (alternative browsers for compatibility)
 
-### **Core Technologies**
-- **Frontend**: React 18+ with TypeScript
-- **Backend**: Node.js 18+ with Express
-- **Runtime**: Modern web browser with JavaScript enabled
-- **Authentication**: Session-based with secure cookies
+### **Core Technologies Stack**
+- **Frontend**: React.js (responsive UI)
+  - TypeScript for type safety
+  - Modern JavaScript (ES6+)
+- **Backend**: Node.js + Express.js
+  - RESTful API architecture
+  - Session-based authentication
+- **Database**: PostgreSQL with MySQL compatibility
+  - Real-time data synchronization
+  - Offline SQLite backup capability
+- **Cloud Storage**: AWS S3 (or similar) for product images
 
-### **Development Stack**
-- Vite build tool
-- Tailwind CSS for styling
-- React Query for data management
-- Drizzle ORM for database operations
+### **Required Browser Features**
+- JavaScript enabled (essential)
+- Local storage support (for offline mode)
+- Touch event support (for tablet interaction)
+- Cookie support (for user sessions)
+- HTTPS/SSL support (for secure connections)
 
 ---
 
 ## 🗄️ Database Requirements
 
-### **Primary Database**
-- **PostgreSQL 14+**
+### **c) Database Structure & Tables**
+- **Primary Database**: PostgreSQL 14+ (MySQL compatible)
   - Cloud-hosted (recommended: Neon, AWS RDS, or similar)
-  - Connection pooling enabled
   - SSL/TLS encryption required
-  - Automatic backups (daily minimum)
+  - Connection pooling enabled
+  - Automatic daily backups minimum
 
-### **Database Specifications**
+### **Required Database Tables**
+- **Users Table**: UserID, Role, Password (hashed)
+  - Supports Owner and Barista roles
+  - Secure password hashing (bcrypt)
+- **Products Table**: ProductID, Name, Price, ImageURL, SizeOptions
+  - Support for Medium (M) and Large (L) sizes
+  - Price in Philippine Pesos (₱)
+  - Category classification (COFFEE, PASTRY, etc.)
+- **Sales Table**: SaleID, ProductID, Quantity, Timestamp
+  - Transaction tracking with timestamps
+  - Link to user who processed the sale
+- **Inventory Table**: ItemID, CurrentStock, MinimumThreshold
+  - Real-time stock tracking
+  - Automatic low-stock alerts
+  - Unit measurements (ml, g, kg, pc, oz)
+
+### **Database Performance Specifications**
 - **Storage**: 10GB minimum (50GB recommended for growth)
-- **Memory**: 2GB RAM minimum
-- **Connections**: 100 concurrent connections
-- **Performance**: <100ms query response time
-
-### **Backup Database**
-- **Local SQLite**
-  - Stored on device for offline operation
-  - Automatic sync when online
-  - 1GB local storage allocation
+- **Memory**: 2GB RAM minimum for optimal performance
+- **Connections**: Support 100 concurrent connections
+- **Response Time**: <100ms query response time
+- **Backup**: Local SQLite for offline operation (1GB allocation)
 
 ---
 
