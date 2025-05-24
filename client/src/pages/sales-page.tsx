@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import { useAuth } from "@/hooks/use-auth";
@@ -294,11 +294,10 @@ export default function SalesPage() {
     // Skip filtering if no sales data
     if (!item) return false;
     
-    // Search filter - filter by product name
-    if (searchTerm) {
-      const productName = item.productName?.toLowerCase() || '';
-      console.log('Search term:', searchTerm, 'Product name:', productName, 'Match:', productName.includes(searchTerm.toLowerCase()));
-      if (!productName.includes(searchTerm.toLowerCase())) {
+    // Search filter - filter by product name (exactly like inventory)
+    if (searchTerm.trim()) {
+      const query = searchTerm.toLowerCase().trim();
+      if (!item.productName?.toLowerCase().includes(query)) {
         return false;
       }
     }
