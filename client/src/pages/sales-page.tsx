@@ -376,6 +376,24 @@ export default function SalesPage() {
       {/* Sales Overview Chart - At the very top */}
       {!showNonSelling && (
         <div className="bg-white p-6 rounded-xl shadow-md mb-6">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-medium text-blue-700">Total Orders</span>
+              </div>
+              <div className="text-2xl font-bold text-blue-900">{salesData?.length || 0}</div>
+            </div>
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg border border-orange-200">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-3 h-3 bg-[#F15A29] rounded-full"></div>
+                <span className="text-sm font-medium text-orange-700">Total Sales</span>
+              </div>
+              <div className="text-2xl font-bold text-orange-900">₱{totalSales.toFixed(2)}</div>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Sales Overview</h3>
             <div className="flex items-center gap-4 text-sm">
