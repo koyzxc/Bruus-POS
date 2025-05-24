@@ -297,6 +297,7 @@ export default function SalesPage() {
     // Search filter - filter by product name
     if (searchTerm) {
       const productName = item.productName?.toLowerCase() || '';
+      console.log('Search term:', searchTerm, 'Product name:', productName, 'Match:', productName.includes(searchTerm.toLowerCase()));
       if (!productName.includes(searchTerm.toLowerCase())) {
         return false;
       }
@@ -354,7 +355,7 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
+  const displayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
