@@ -174,13 +174,15 @@ export default function SalesPage() {
   const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
   const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
   
-  // Debug: Log the calculated totals
+  // Debug: Log the calculated totals and chart data
   console.log("Debug totals:", { 
     salesDataLength: salesData?.length,
     totalVolume, 
     totalSales,
     sampleData: salesData?.slice(0, 2)
   });
+  
+  console.log("Chart data sample:", chartData.slice(0, 3));
 
   // Prepare chart data from sales data
   const prepareChartData = () => {
@@ -452,16 +454,6 @@ export default function SalesPage() {
                   }}
                 />
                 <Line 
-                  yAxisId="sales"
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="#F15A29" 
-                  strokeWidth={4}
-                  dot={false}
-                  activeDot={{ r: 8, fill: '#F15A29', stroke: '#F15A29', strokeWidth: 2 }}
-                  connectNulls={false}
-                />
-                <Line 
                   yAxisId="volume"
                   type="monotone" 
                   dataKey="volume" 
@@ -470,6 +462,18 @@ export default function SalesPage() {
                   dot={false}
                   activeDot={{ r: 8, fill: '#3b82f6', stroke: '#3b82f6', strokeWidth: 2 }}
                   connectNulls={false}
+                  name="Orders"
+                />
+                <Line 
+                  yAxisId="sales"
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#F15A29" 
+                  strokeWidth={4}
+                  dot={false}
+                  activeDot={{ r: 8, fill: '#F15A29', stroke: '#F15A29', strokeWidth: 2 }}
+                  connectNulls={false}
+                  name="Sales"
                 />
               </LineChart>
             </ResponsiveContainer>
