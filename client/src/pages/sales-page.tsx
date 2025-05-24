@@ -197,9 +197,13 @@ export default function SalesPage() {
     
     // Add actual sales data to the chart using exact order timestamps
     salesData.forEach(item => {
-      // Use the exact date when each individual order was created
+      // Use the exact date when each individual order was created (in UTC to avoid timezone issues)
       const orderDate = item.createdAt ? new Date(item.createdAt) : new Date();
-      const dateKey = format(orderDate, 'MMM dd');
+      // Extract the actual date from the UTC timestamp to avoid timezone shifts
+      const year = orderDate.getUTCFullYear();
+      const month = orderDate.getUTCMonth();
+      const day = orderDate.getUTCDate();
+      const dateKey = format(new Date(year, month, day), 'MMM dd');
       
       // Debug: Log the actual dates being processed
       console.log(`Order date: ${item.createdAt}, Formatted: ${dateKey}, Sales: ${item.totalSales}`);
