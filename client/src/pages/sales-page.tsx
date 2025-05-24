@@ -173,6 +173,14 @@ export default function SalesPage() {
   // Calculate totals for sales data
   const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
   const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
+  
+  // Debug: Log the calculated totals
+  console.log("Debug totals:", { 
+    salesDataLength: salesData?.length,
+    totalVolume, 
+    totalSales,
+    sampleData: salesData?.slice(0, 2)
+  });
 
   // Prepare chart data from sales data
   const prepareChartData = () => {
