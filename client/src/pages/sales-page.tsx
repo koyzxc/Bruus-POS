@@ -837,7 +837,7 @@ export default function SalesPage() {
             {!showNonSelling && salesData && salesData.length > 0 && (
               <div className="mt-4 flex justify-end gap-6 border-t pt-4">
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Total Orders</p>
+                  <p className="text-sm text-gray-500">Total Unit Sold</p>
                   <p className="text-lg font-semibold">{totalVolume}</p>
                 </div>
                 <div className="text-right">
