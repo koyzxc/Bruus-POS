@@ -501,9 +501,8 @@ export default function SalesPage() {
         </div>
       )}
 
-      {/* Sales Analytics - Grouped section with controls AND data table */}
+      {/* Controls positioned between chart and data table */}
       <div className="bg-white rounded-xl shadow-md">
-        {/* Analytics Header & Controls */}
         <div className="px-4 py-3 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
             {/* Left side - Non-Selling Toggle and Filters */}
