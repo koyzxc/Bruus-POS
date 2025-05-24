@@ -434,18 +434,24 @@ export default function SalesPage() {
                   orientation="left"
                   stroke="#F15A29"
                   fontSize={12}
+                  domain={[0, 'dataMax']}
                 />
                 <YAxis 
                   yAxisId="volume"
                   orientation="right"
                   stroke="#3b82f6"
                   fontSize={12}
+                  domain={[0, 'dataMax']}
                 />
                 <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'sales' ? `₱${Number(value).toFixed(2)}` : value,
-                    name === 'sales' ? 'Sales' : 'Orders'
-                  ]}
+                  formatter={(value, name) => {
+                    if (name === 'Sales') {
+                      return [`₱${Number(value).toFixed(2)}`, 'Sales'];
+                    } else if (name === 'Orders') {
+                      return [value, 'Orders'];
+                    }
+                    return [value, name];
+                  }}
                   labelStyle={{ color: '#333' }}
                   contentStyle={{ 
                     backgroundColor: 'white', 
