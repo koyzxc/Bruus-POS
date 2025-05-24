@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { 
   Popover, 
   PopoverContent, 
@@ -29,7 +30,8 @@ import {
   AlertTriangle, 
   ChevronDown, 
   FilterX, 
-  Filter 
+  Filter,
+  Search
 } from "lucide-react";
 import {
   LineChart,
@@ -67,6 +69,9 @@ export default function SalesPage() {
   
   // State to toggle between selling and non-selling products
   const [showNonSelling, setShowNonSelling] = useState(false);
+  
+  // State for search functionality
+  const [searchQuery, setSearchQuery] = useState("");
   
   // State for filters
   const [filters, setFilters] = useState<FilterState>({
@@ -290,6 +295,14 @@ export default function SalesPage() {
     // Skip filtering if no sales data
     if (!item) return false;
     
+    // Search filter - filter by product name
+    if (searchQuery.trim()) {
+      const productName = item.productName?.toLowerCase() || '';
+      if (!productName.includes(searchQuery.toLowerCase().trim())) {
+        return false;
+      }
+    }
+    
     // Category filter - only show products from selected category
     if (activeCategory !== 'ALL') {
       if (item.categoryName !== activeCategory) {
@@ -320,10 +333,18 @@ export default function SalesPage() {
     return true;
   });
   
-  // Filter non-selling products by selected category
+  // Filter non-selling products by selected category and search
   const filteredNonSellingData = nonSellingData?.filter(item => {
     // Skip if no data
     if (!item) return false;
+    
+    // Search filter - filter by product name
+    if (searchQuery.trim()) {
+      const productName = item.name?.toLowerCase() || '';
+      if (!productName.includes(searchQuery.toLowerCase().trim())) {
+        return false;
+      }
+    }
     
     // Only show products from selected category
     if (activeCategory !== 'ALL') {
@@ -764,6 +785,20 @@ export default function SalesPage() {
                 <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Search Bar Section */}
+        <div className="px-4 py-3 border-b border-gray-200">
+          <div className="relative w-80">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white border border-gray-300 focus:border-[#F15A29] focus:ring-[#F15A29]"
+            />
           </div>
         </div>
 
