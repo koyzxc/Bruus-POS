@@ -670,6 +670,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Fetching sales data with date range: ${fromDate?.toISOString()} to ${toDate?.toISOString()}`);
       
       const salesData = await storage.getSalesData(fromDate, toDate);
+      
+      // Debug: Log the first few records to see if createdAt is included
+      console.log("Sales data sample:", JSON.stringify(salesData.slice(0, 2), null, 2));
+      
       res.json(salesData);
     } catch (error) {
       console.error("Error fetching sales data:", error);
