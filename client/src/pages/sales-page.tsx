@@ -174,15 +174,13 @@ export default function SalesPage() {
   const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
   const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
   
-  // Debug: Log the calculated totals and chart data
+  // Debug: Log the calculated totals
   console.log("Debug totals:", { 
     salesDataLength: salesData?.length,
     totalVolume, 
     totalSales,
     sampleData: salesData?.slice(0, 2)
   });
-  
-  console.log("Chart data sample:", chartData.slice(0, 3));
 
   // Prepare chart data from sales data
   const prepareChartData = () => {
@@ -227,6 +225,9 @@ export default function SalesPage() {
   };
 
   const chartData = prepareChartData();
+  
+  // Debug: Log chart data to verify both sales and volume data
+  console.log("Chart data sample:", chartData.slice(0, 3));
   
   // Aggregate sales data for table display (group by product)
   const aggregatedSalesData = salesData ? salesData.reduce((acc, item) => {
