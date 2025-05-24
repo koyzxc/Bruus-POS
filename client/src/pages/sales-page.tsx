@@ -504,9 +504,231 @@ export default function SalesPage() {
 
       {/* Sales Analytics - Grouped section with controls AND data table */}
       <div className="bg-white rounded-xl shadow-md">
-        {/* Date Selection Controls Only */}
+        {/* Date Selection Controls with Filters */}
         <div className="px-4 py-3 border-b border-gray-200">
-          <div className="flex justify-end">
+          <div className="flex justify-between items-start">
+            {/* Left side - Filter Controls */}
+            <div className="flex items-center gap-2">
+              {/* Show Non-Selling button first */}
+              <Button 
+                variant={showNonSelling ? "default" : "outline"}
+                onClick={() => setShowNonSelling(!showNonSelling)}
+                className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
+              >
+                {showNonSelling ? (
+                  <>
+                    <AlertTriangle className="h-4 w-4" /> 
+                    <span>Non-Selling Products</span>
+                  </>
+                ) : (
+                  <>
+                    <BarChart2 className="h-4 w-4" /> 
+                    <span>Show Non-Selling</span>
+                  </>
+                )}
+              </Button>
+
+              {/* Filter button with count badge */}
+              {!showNonSelling && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center gap-2 bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
+                    >
+                      <Filter className="h-4 w-4" />
+                      <span>Filters</span>
+                      {activeFilterCount > 0 && (
+                        <Badge variant="secondary" className="ml-1 bg-[#F15A29] text-white">
+                          {activeFilterCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-72">
+                    {/* Active filters display */}
+                    {activeFilterCount > 0 && (
+                      <>
+                        <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Active Filters</DropdownMenuLabel>
+                        <div className="p-2 space-y-1">
+                          {filters.volumeOperator && (
+                            <div className="flex items-center justify-between text-xs bg-blue-50 p-2 rounded">
+                              <span>Unit Sold {getOperatorText(filters.volumeOperator)} {filters.volumeValue}</span>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => setVolumeFilter(null, "")}
+                                className="h-5 w-5 p-0 hover:bg-blue-200"
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          )}
+                          {filters.salesOperator && (
+                            <div className="flex items-center justify-between text-xs bg-orange-50 p-2 rounded">
+                              <span>Sales {getOperatorText(filters.salesOperator)} ₱{filters.salesValue}</span>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => setSalesFilter(null, "")}
+                                className="h-5 w-5 p-0 hover:bg-orange-200"
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <DropdownMenuSeparator />
+                        <div className="p-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={clearAllFilters}
+                            className="w-full text-xs"
+                          >
+                            Clear All Filters
+                          </Button>
+                        </div>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    
+                    {/* Volume Filters */}
+                    <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Unit Sold Filters</DropdownMenuLabel>
+                    <div className="p-2 grid grid-cols-2 gap-2">
+                      {/* Greater than */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.volumeOperator === "gt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Unit Sold >", filters.volumeValue || "");
+                          if (value !== null) {
+                            setVolumeFilter("gt", value);
+                          }
+                        }}
+                      >
+                        Greater than &gt;
+                      </Button>
+                      
+                      {/* Less than */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.volumeOperator === "lt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Unit Sold <", filters.volumeValue || "");
+                          if (value !== null) {
+                            setVolumeFilter("lt", value);
+                          }
+                        }}
+                      >
+                        Less than &lt;
+                      </Button>
+                      
+                      {/* Greater than or equal */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.volumeOperator === "gte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Unit Sold ≥", filters.volumeValue || "");
+                          if (value !== null) {
+                            setVolumeFilter("gte", value);
+                          }
+                        }}
+                      >
+                        Greater than or equal ≥
+                      </Button>
+                      
+                      {/* Less than or equal */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.volumeOperator === "lte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Unit Sold ≤", filters.volumeValue || "");
+                          if (value !== null) {
+                            setVolumeFilter("lte", value);
+                          }
+                        }}
+                      >
+                        Less than or equal ≤
+                      </Button>
+                    </div>
+                    
+                    <DropdownMenuSeparator />
+                    
+                    {/* Sales Filters */}
+                    <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Sales Filters</DropdownMenuLabel>
+                    <div className="p-2 grid grid-cols-2 gap-2">
+                      {/* Greater than */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.salesOperator === "gt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Sales > ₱", filters.salesValue || "");
+                          if (value !== null) {
+                            setSalesFilter("gt", value);
+                          }
+                        }}
+                      >
+                        Greater than &gt;
+                      </Button>
+                      
+                      {/* Less than */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.salesOperator === "lt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Sales < ₱", filters.salesValue || "");
+                          if (value !== null) {
+                            setSalesFilter("lt", value);
+                          }
+                        }}
+                      >
+                        Less than &lt;
+                      </Button>
+                      
+                      {/* Greater than or equal */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.salesOperator === "gte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Sales ≥ ₱", filters.salesValue || "");
+                          if (value !== null) {
+                            setSalesFilter("gte", value);
+                          }
+                        }}
+                      >
+                        Greater than or equal ≥
+                      </Button>
+                      
+                      {/* Less than or equal */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={`text-xs justify-start ${filters.salesOperator === "lte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
+                        onClick={() => {
+                          const value = prompt("Enter value for Sales ≤ ₱", filters.salesValue || "");
+                          if (value !== null) {
+                            setSalesFilter("lte", value);
+                          }
+                        }}
+                      >
+                        Less than or equal ≤
+                      </Button>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+
+            {/* Right side - Date controls */}
             <div className="flex flex-col gap-2">
               {/* Date range picker at top */}
               <div className="flex justify-end">
@@ -541,232 +763,9 @@ export default function SalesPage() {
                 <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1 text-xs">Week</Button>
                 <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
               </div>
-              
-              {/* Filter Controls - Moved up below date controls */}
-              <div className="flex items-center gap-2 justify-start mt-3">
-                {/* Show Non-Selling button first */}
-                <Button 
-                  variant={showNonSelling ? "default" : "outline"}
-                  onClick={() => setShowNonSelling(!showNonSelling)}
-                  className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
-                >
-                  {showNonSelling ? (
-                    <>
-                      <AlertTriangle className="h-4 w-4" /> 
-                      <span>Non-Selling Products</span>
-                    </>
-                  ) : (
-                    <>
-                      <BarChart2 className="h-4 w-4" /> 
-                      <span>Show Non-Selling</span>
-                    </>
-                  )}
-                </Button>
-
-                {/* Filter button with count badge */}
-                {!showNonSelling && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex items-center gap-2 bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
-                      >
-                        <Filter className="h-4 w-4" />
-                        <span>Filters</span>
-                        {activeFilterCount > 0 && (
-                          <Badge variant="secondary" className="ml-1 bg-[#F15A29] text-white">
-                            {activeFilterCount}
-                          </Badge>
-                        )}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-72">
-                      {/* Active filters display */}
-                      {activeFilterCount > 0 && (
-                        <>
-                          <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Active Filters</DropdownMenuLabel>
-                          <div className="p-2 space-y-1">
-                            {filters.volumeOperator && (
-                              <div className="flex items-center justify-between text-xs bg-blue-50 p-2 rounded">
-                                <span>Unit Sold {getOperatorText(filters.volumeOperator)} {filters.volumeValue}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => setVolumeFilter(null, "")}
-                                  className="h-5 w-5 p-0 hover:bg-blue-200"
-                                >
-                                  ×
-                                </Button>
-                              </div>
-                            )}
-                            {filters.salesOperator && (
-                              <div className="flex items-center justify-between text-xs bg-orange-50 p-2 rounded">
-                                <span>Sales {getOperatorText(filters.salesOperator)} ₱{filters.salesValue}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => setSalesFilter(null, "")}
-                                  className="h-5 w-5 p-0 hover:bg-orange-200"
-                                >
-                                  ×
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                          <DropdownMenuSeparator />
-                          <div className="p-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={clearAllFilters}
-                              className="w-full text-xs"
-                            >
-                              Clear All Filters
-                            </Button>
-                          </div>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      
-                      {/* Volume Filters */}
-                      <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Unit Sold Filters</DropdownMenuLabel>
-                      <div className="p-2 grid grid-cols-2 gap-2">
-                        {/* Greater than */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.volumeOperator === "gt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Unit Sold >", filters.volumeValue || "");
-                            if (value !== null) {
-                              setVolumeFilter("gt", value);
-                            }
-                          }}
-                        >
-                          Greater than &gt;
-                        </Button>
-                        
-                        {/* Less than */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.volumeOperator === "lt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Unit Sold <", filters.volumeValue || "");
-                            if (value !== null) {
-                              setVolumeFilter("lt", value);
-                            }
-                          }}
-                        >
-                          Less than &lt;
-                        </Button>
-                        
-                        {/* Greater than or equal */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.volumeOperator === "gte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Unit Sold ≥", filters.volumeValue || "");
-                            if (value !== null) {
-                              setVolumeFilter("gte", value);
-                            }
-                          }}
-                        >
-                          Greater than or equal ≥
-                        </Button>
-                        
-                        {/* Less than or equal */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.volumeOperator === "lte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Unit Sold ≤", filters.volumeValue || "");
-                            if (value !== null) {
-                              setVolumeFilter("lte", value);
-                            }
-                          }}
-                        >
-                          Less than or equal ≤
-                        </Button>
-                      </div>
-                      
-                      <DropdownMenuSeparator />
-                      
-                      {/* Sales Filters */}
-                      <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Sales Filters</DropdownMenuLabel>
-                      <div className="p-2 grid grid-cols-2 gap-2">
-                        {/* Greater than */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.salesOperator === "gt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Sales > ₱", filters.salesValue || "");
-                            if (value !== null) {
-                              setSalesFilter("gt", value);
-                            }
-                          }}
-                        >
-                          Greater than &gt;
-                        </Button>
-                        
-                        {/* Less than */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.salesOperator === "lt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Sales < ₱", filters.salesValue || "");
-                            if (value !== null) {
-                              setSalesFilter("lt", value);
-                            }
-                          }}
-                        >
-                          Less than &lt;
-                        </Button>
-                        
-                        {/* Greater than or equal */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.salesOperator === "gte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Sales ≥ ₱", filters.salesValue || "");
-                            if (value !== null) {
-                              setSalesFilter("gte", value);
-                            }
-                          }}
-                        >
-                          Greater than or equal ≥
-                        </Button>
-                        
-                        {/* Less than or equal */}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className={`text-xs justify-start ${filters.salesOperator === "lte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
-                          onClick={() => {
-                            const value = prompt("Enter value for Sales ≤ ₱", filters.salesValue || "");
-                            if (value !== null) {
-                              setSalesFilter("lte", value);
-                            }
-                          }}
-                        >
-                          Less than or equal ≤
-                        </Button>
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
             </div>
           </div>
         </div>
-
-
 
         {/* Sales Data Table - Integrated in the grouped section */}
         <div className="p-4">
