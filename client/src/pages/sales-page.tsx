@@ -444,20 +444,31 @@ export default function SalesPage() {
                   domain={[0, 'dataMax']}
                 />
                 <Tooltip 
-                  formatter={(value, name) => {
-                    if (name === 'Sales') {
-                      return [`₱${Number(value).toFixed(2)}`, 'Sales'];
-                    } else if (name === 'Orders') {
-                      return [value, 'Orders'];
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length > 0) {
+                      // Show only the data for the line being hovered
+                      const data = payload[0];
+                      if (data.name === 'Sales') {
+                        return (
+                          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+                            <p className="text-gray-700 font-medium">{label}</p>
+                            <p className="text-orange-600 font-semibold">
+                              Sales: ₱{Number(data.value).toFixed(2)}
+                            </p>
+                          </div>
+                        );
+                      } else if (data.name === 'Orders') {
+                        return (
+                          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+                            <p className="text-gray-700 font-medium">{label}</p>
+                            <p className="text-blue-600 font-semibold">
+                              Orders: {data.value}
+                            </p>
+                          </div>
+                        );
+                      }
                     }
-                    return [value, name];
-                  }}
-                  labelStyle={{ color: '#333' }}
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    return null;
                   }}
                 />
                 <Line 
