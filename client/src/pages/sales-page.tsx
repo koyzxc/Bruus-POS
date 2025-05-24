@@ -449,8 +449,8 @@ export default function SalesPage() {
                   dataKey="sales" 
                   stroke="#F15A29" 
                   strokeWidth={3}
-                  dot={{ fill: '#F15A29', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: '#F15A29', strokeWidth: 2 }}
+                  dot={false}
+                  activeDot={{ r: 6, fill: '#F15A29', stroke: '#F15A29', strokeWidth: 2 }}
                 />
                 <Line 
                   yAxisId="volume"
@@ -458,8 +458,8 @@ export default function SalesPage() {
                   dataKey="volume" 
                   stroke="#3b82f6" 
                   strokeWidth={3}
-                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                  dot={false}
+                  activeDot={{ r: 6, fill: '#3b82f6', stroke: '#3b82f6', strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
