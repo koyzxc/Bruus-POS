@@ -415,7 +415,7 @@ export default function SalesPage() {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>Orders</span>
+                <span>Unit Sold</span>
               </div>
             </div>
           </div>
@@ -464,7 +464,7 @@ export default function SalesPage() {
                           )}
                           {ordersData && (
                             <p className="text-blue-600 font-semibold">
-                              Orders: {ordersData.value}
+                              Unit Sold: {ordersData.value}
                             </p>
                           )}
                         </div>
@@ -505,12 +505,8 @@ export default function SalesPage() {
       <div className="bg-white rounded-xl shadow-md">
         {/* Analytics Header & Controls */}
         <div className="p-4 border-b border-gray-200">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Left side - Title, Filters and Non-Selling Toggle */}
-            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-              <h2 className="text-xl font-bold">Sales Analytics</h2>
-            </div>
-            
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            {/* Left side - Filters and Non-Selling Toggle */}
             <div className="flex items-center gap-2">
               {/* Filter button with count badge */}
               {!showNonSelling && (
@@ -792,7 +788,7 @@ export default function SalesPage() {
                     <TableHead className="py-4 px-6 text-center text-white">Category</TableHead>
                     {!showNonSelling && (
                       <>
-                        <TableHead className="py-4 px-6 text-center text-white">Orders</TableHead>
+                        <TableHead className="py-4 px-6 text-center text-white">Unit Sold</TableHead>
                         <TableHead className="py-4 px-6 text-center text-white">Total Sales</TableHead>
                       </>
                     )}
