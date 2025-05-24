@@ -195,9 +195,9 @@ export default function SalesPage() {
       currentDate.setDate(currentDate.getDate() + 1);
     }
     
-    // Add actual sales data to the chart using real order dates
+    // Add actual sales data to the chart using exact order timestamps
     salesData.forEach(item => {
-      // Use the actual date when the order was created
+      // Use the exact date when each individual order was created
       const orderDate = item.createdAt ? new Date(item.createdAt) : new Date();
       const dateKey = format(orderDate, 'MMM dd');
       
@@ -212,6 +212,23 @@ export default function SalesPage() {
   };
 
   const chartData = prepareChartData();
+  
+  // Aggregate sales data for table display (group by product)
+  const aggregatedSalesData = salesData ? salesData.reduce((acc, item) => {
+    const key = `${item.productId}-${item.size}`;
+    if (!acc[key]) {
+      acc[key] = {
+        ...item,
+        volume: 0,
+        totalSales: 0
+      };
+    }
+    acc[key].volume += item.volume;
+    acc[key].totalSales += item.totalSales;
+    return acc;
+  }, {} as Record<string, any>) : {};
+  
+  const aggregatedSalesArray = Object.values(aggregatedSalesData);
   
   // Filter setting functions
   const setVolumeFilter = (operator: ComparisonOperator, value: string) => {
@@ -250,8 +267,8 @@ export default function SalesPage() {
     }
   };
   
-  // Apply filters to sales data
-  const filteredSalesData = salesData?.filter(item => {
+  // Apply filters to aggregated sales data for table display
+  const filteredSalesData = aggregatedSalesArray?.filter(item => {
     // Skip filtering if no sales data
     if (!item) return false;
     
@@ -299,7 +316,7 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : salesData);
+  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions

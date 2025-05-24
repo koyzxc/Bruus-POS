@@ -440,36 +440,18 @@ class DatabaseStorage implements IStorage {
         ? await query.where(and(...conditions))
         : await query;
       
-      // Aggregate by product and include date information
-      const salesMap = new Map();
-      
-      for (const record of orderRecords) {
-        // Create a unique key from product ID and size
-        const key = `${record.productId}-${record.size || "M"}`;
-        if (!salesMap.has(key)) {
-          salesMap.set(key, {
-            id: record.productId,
-            productId: record.productId,
-            productName: record.productName,
-            price: Number(record.price),
-            size: record.size || "M",
-            volume: 0,
-            totalSales: 0,
-            createdAt: record.createdAt // Include the order date
-          });
-        }
-        
-        const item = salesMap.get(key);
-        item.volume += record.quantity;
-        item.totalSales += Number(record.price) * record.quantity;
-        
-        // Keep the most recent order date for this product
-        if (new Date(record.createdAt) > new Date(item.createdAt)) {
-          item.createdAt = record.createdAt;
-        }
-      }
-      
-      return Array.from(salesMap.values());
+      // Return individual order records with exact timestamps
+      return orderRecords.map(record => ({
+        id: record.productId,
+        productId: record.productId,
+        productName: record.productName,
+        price: Number(record.price),
+        size: record.size || "M",
+        volume: record.quantity,
+        totalSales: Number(record.price) * record.quantity,
+        categoryName: record.categoryName,
+        createdAt: record.createdAt
+      }));
     } catch (error) {
       console.error("Error getting sales data:", error);
       throw error;
