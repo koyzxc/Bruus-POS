@@ -490,10 +490,10 @@ export default function SalesPage() {
                   yAxisId="volume"
                   type="monotone" 
                   dataKey="volume" 
-                  stroke="#FF6B35" 
+                  stroke="#3b82f6" 
                   strokeWidth={5}
                   dot={false}
-                  activeDot={{ r: 8, fill: '#FF6B35', stroke: '#FF6B35', strokeWidth: 2 }}
+                  activeDot={{ r: 8, fill: '#3b82f6', stroke: '#3b82f6', strokeWidth: 2 }}
                   connectNulls={false}
                   name="Orders"
                 />
