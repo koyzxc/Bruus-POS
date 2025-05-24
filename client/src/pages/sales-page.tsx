@@ -891,6 +891,7 @@ export default function SalesPage() {
             </p>
           </div>
         )}
+        </div>
       </div>
     </MainLayout>
   );
