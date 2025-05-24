@@ -29,12 +29,8 @@ import {
   AlertTriangle, 
   ChevronDown, 
   FilterX, 
-  Filter,
-  Search,
-  ChevronUp,
-  ArrowUpDown
+  Filter 
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   LineChart,
   Line,
@@ -78,18 +74,6 @@ export default function SalesPage() {
     volumeValue: "",
     salesOperator: null,
     salesValue: ""
-  });
-  
-  // State for search
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  // State for sorting
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: 'asc' | 'desc' | null;
-  }>({
-    key: '',
-    direction: null
   });
   
   // Count active filters for badge display
@@ -289,47 +273,6 @@ export default function SalesPage() {
       salesValue: ""
     });
   };
-
-  // Sorting function
-  const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  // Sort data function
-  const sortData = (data: any[]) => {
-    if (!sortConfig.key || !sortConfig.direction) return data;
-    
-    return [...data].sort((a, b) => {
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
-      
-      // Handle different data types
-      if (sortConfig.key === 'productName' || sortConfig.key === 'name') {
-        aValue = showNonSelling ? a.name : a.productName;
-        bValue = showNonSelling ? b.name : b.productName;
-        aValue = aValue?.toLowerCase() || '';
-        bValue = bValue?.toLowerCase() || '';
-      } else if (sortConfig.key === 'price' || sortConfig.key === 'totalSales') {
-        aValue = Number(aValue) || 0;
-        bValue = Number(bValue) || 0;
-      } else if (sortConfig.key === 'volume') {
-        aValue = Number(aValue) || 0;
-        bValue = Number(bValue) || 0;
-      }
-      
-      if (aValue < bValue) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  };
   
   // Filter comparison helper function
   const compareValues = (value: number, compareValue: number, operator: ComparisonOperator): boolean => {
@@ -346,14 +289,6 @@ export default function SalesPage() {
   const filteredSalesData = aggregatedSalesArray?.filter(item => {
     // Skip filtering if no sales data
     if (!item) return false;
-    
-    // Search filter
-    if (searchQuery) {
-      const productName = item.productName?.toLowerCase() || '';
-      if (!productName.includes(searchQuery.toLowerCase())) {
-        return false;
-      }
-    }
     
     // Category filter - only show products from selected category
     if (activeCategory !== 'ALL') {
@@ -398,14 +333,8 @@ export default function SalesPage() {
     return true;
   });
   
-  // Determine which data to use and apply sorting
-  let displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
-  
-  // Apply sorting if data exists
-  if (displayData && displayData.length > 0) {
-    displayData = sortData(displayData);
-  }
-  
+  // Determine which data and loading state to use
+  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
@@ -798,22 +727,6 @@ export default function SalesPage() {
                 </DropdownMenu>
               )}
             </div>
-          </div>
-          
-          {/* Search Bar - Under the filter buttons */}
-          <div className="px-4 py-3">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white"
-              />
-            </div>
-          </div>
-        </div>
 
             {/* Right side - Date controls */}
             <div className="flex flex-col gap-2">
@@ -853,10 +766,8 @@ export default function SalesPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Sales Data Table - Integrated in the grouped section */}
-      <div className="bg-white rounded-xl shadow-md mt-6">
+        {/* Sales Data Table - Integrated in the grouped section */}
         <div className="p-4">
         {isLoading ? (
           // Loading skeleton
@@ -872,61 +783,13 @@ export default function SalesPage() {
               <Table>
                 <TableHeader className="sticky top-0 bg-[#F15A29] text-white">
                   <TableRow>
-                    <TableHead 
-                      className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#D94E24] transition-colors"
-                      onClick={() => handleSort(showNonSelling ? 'name' : 'productName')}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        Product
-                        {sortConfig.key === (showNonSelling ? 'name' : 'productName') ? (
-                          sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ArrowUpDown className="h-4 w-4 opacity-50" />
-                        )}
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#D94E24] transition-colors"
-                      onClick={() => handleSort('price')}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        Price
-                        {sortConfig.key === 'price' ? (
-                          sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ArrowUpDown className="h-4 w-4 opacity-50" />
-                        )}
-                      </div>
-                    </TableHead>
+                    <TableHead className="py-4 px-6 text-center text-white">Product</TableHead>
+                    <TableHead className="py-4 px-6 text-center text-white">Price</TableHead>
                     <TableHead className="py-4 px-6 text-center text-white">Category</TableHead>
                     {!showNonSelling && (
                       <>
-                        <TableHead 
-                          className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#D94E24] transition-colors"
-                          onClick={() => handleSort('volume')}
-                        >
-                          <div className="flex items-center justify-center gap-2">
-                            Unit Sold
-                            {sortConfig.key === 'volume' ? (
-                              sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ArrowUpDown className="h-4 w-4 opacity-50" />
-                            )}
-                          </div>
-                        </TableHead>
-                        <TableHead 
-                          className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#D94E24] transition-colors"
-                          onClick={() => handleSort('totalSales')}
-                        >
-                          <div className="flex items-center justify-center gap-2">
-                            Total Sales
-                            {sortConfig.key === 'totalSales' ? (
-                              sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ArrowUpDown className="h-4 w-4 opacity-50" />
-                            )}
-                          </div>
-                        </TableHead>
+                        <TableHead className="py-4 px-6 text-center text-white">Unit Sold</TableHead>
+                        <TableHead className="py-4 px-6 text-center text-white">Total Sales</TableHead>
                       </>
                     )}
                   </TableRow>
@@ -994,7 +857,6 @@ export default function SalesPage() {
           </div>
         )}
         </div>
-      </div>
       </div>
     </MainLayout>
   );
