@@ -674,6 +674,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Debug: Log the first few records to see if createdAt is included
       console.log("Sales data sample:", JSON.stringify(salesData.slice(0, 2), null, 2));
       
+      // Force no cache on this response
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
       res.json(salesData);
     } catch (error) {
       console.error("Error fetching sales data:", error);
