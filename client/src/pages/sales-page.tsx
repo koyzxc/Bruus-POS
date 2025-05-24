@@ -10,7 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { 
   Popover, 
   PopoverContent, 
@@ -30,8 +29,7 @@ import {
   AlertTriangle, 
   ChevronDown, 
   FilterX, 
-  Filter,
-  Search
+  Filter 
 } from "lucide-react";
 import {
   LineChart,
@@ -69,9 +67,6 @@ export default function SalesPage() {
   
   // State to toggle between selling and non-selling products
   const [showNonSelling, setShowNonSelling] = useState(false);
-  
-  // State for search functionality
-  const [searchQuery, setSearchQuery] = useState("");
   
   // State for filters
   const [filters, setFilters] = useState<FilterState>({
@@ -295,14 +290,6 @@ export default function SalesPage() {
     // Skip filtering if no sales data
     if (!item) return false;
     
-    // Search filter - filter by product name
-    if (searchQuery.trim()) {
-      const productName = item.productName?.toLowerCase() || '';
-      if (!productName.includes(searchQuery.toLowerCase().trim())) {
-        return false;
-      }
-    }
-    
     // Category filter - only show products from selected category
     if (activeCategory !== 'ALL') {
       if (item.categoryName !== activeCategory) {
@@ -333,18 +320,10 @@ export default function SalesPage() {
     return true;
   });
   
-  // Filter non-selling products by selected category and search
+  // Filter non-selling products by selected category
   const filteredNonSellingData = nonSellingData?.filter(item => {
     // Skip if no data
     if (!item) return false;
-    
-    // Search filter - filter by product name
-    if (searchQuery.trim()) {
-      const productName = item.name?.toLowerCase() || '';
-      if (!productName.includes(searchQuery.toLowerCase().trim())) {
-        return false;
-      }
-    }
     
     // Only show products from selected category
     if (activeCategory !== 'ALL') {
@@ -355,7 +334,7 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
+  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
@@ -785,20 +764,6 @@ export default function SalesPage() {
                 <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
               </div>
             </div>
-
-            {/* Search Bar - positioned below the buttons */}
-            <div className="mt-3">
-              <div className="relative w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white border border-gray-300 focus:border-[#F15A29] focus:ring-[#F15A29]"
-                />
-              </div>
-            </div>
           </div>
         </div>
 
@@ -812,7 +777,7 @@ export default function SalesPage() {
               <Skeleton key={index} className="h-16 w-full" />
             ))}
           </div>
-        ) : (
+        ) : displayData && displayData.length > 0 ? (
           <>
             <div className="overflow-auto max-h-[500px]">
               <Table>
