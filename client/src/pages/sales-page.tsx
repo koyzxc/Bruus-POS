@@ -734,14 +734,14 @@ export default function SalesPage() {
 
           {/* Right side - Date Selection */}
           <div className="flex flex-col gap-2">
-            {/* Date range picker and time buttons inline */}
-            <div className="flex items-center gap-2">
+            {/* Date range picker at top */}
+            <div className="flex justify-end">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="justify-start font-normal text-left bg-white min-w-[200px]"
+                    className="justify-start font-normal text-left bg-white w-[250px]"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formattedDateRange()}
@@ -759,13 +759,13 @@ export default function SalesPage() {
                   />
                 </PopoverContent>
               </Popover>
-              
-              {/* Date shortcut buttons inline */}
-              <div className="flex gap-1">
-                <Button onClick={handleTodayClick} variant="outline" size="sm" className="text-xs px-3">Today</Button>
-                <Button onClick={handleWeekClick} variant="outline" size="sm" className="text-xs px-3">Week</Button>
-                <Button onClick={handleMonthClick} variant="outline" size="sm" className="text-xs px-3">Month</Button>
-              </div>
+            </div>
+            
+            {/* Date shortcut buttons below - aligned with date picker */}
+            <div className="flex gap-1 w-[250px] ml-auto">
+              <Button onClick={handleTodayClick} variant="outline" size="sm" className="flex-1 text-xs">Today</Button>
+              <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1 text-xs">Week</Button>
+              <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
             </div>
           </div>
         </div>
