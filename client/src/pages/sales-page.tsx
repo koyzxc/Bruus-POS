@@ -175,9 +175,15 @@ export default function SalesPage() {
     enabled: showNonSelling, // Only fetch when showing non-selling products
   });
   
+  // Calculate totals for sales data
+  const totalVolume = salesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
+  const totalSales = salesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
+  
   // Debug: Log the calculated totals
   console.log("Debug totals:", { 
     salesDataLength: salesData?.length,
+    totalVolume, 
+    totalSales,
     sampleData: salesData?.slice(0, 2)
   });
 
@@ -288,11 +294,10 @@ export default function SalesPage() {
     // Skip filtering if no sales data
     if (!item) return false;
     
-    // Search filter - filter by product name (case insensitive)
-    if (searchTerm && searchTerm.trim() !== '') {
+    // Search filter - filter by product name
+    if (searchTerm) {
       const productName = item.productName?.toLowerCase() || '';
-      const search = searchTerm.toLowerCase().trim();
-      if (!productName.includes(search)) {
+      if (!productName.includes(searchTerm.toLowerCase())) {
         return false;
       }
     }
@@ -325,7 +330,7 @@ export default function SalesPage() {
     }
     
     return true;
-  }) || aggregatedSalesArray;
+  });
   
   // Filter non-selling products by selected category
   const filteredNonSellingData = nonSellingData?.filter(item => {
@@ -348,17 +353,8 @@ export default function SalesPage() {
     return true;
   });
   
-  // Calculate totals using filtered data
-  const totalVolume = filteredSalesData?.reduce((sum, item) => sum + item.volume, 0) || 0;
-  const totalSales = filteredSalesData?.reduce((sum, item) => sum + item.totalSales, 0) || 0;
-  
-  // Debug filtered data
-  console.log("Search term:", searchTerm);
-  console.log("Filtered data length:", filteredSalesData?.length || 0);
-  console.log("Filtered data:", filteredSalesData?.slice(0, 2));
-  
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData || aggregatedSalesArray);
+  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
