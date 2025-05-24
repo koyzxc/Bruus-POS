@@ -504,8 +504,8 @@ export default function SalesPage() {
       {/* Sales Analytics - Grouped section with controls AND data table */}
       <div className="bg-white rounded-xl shadow-md">
         {/* Analytics Header & Controls */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="px-4 py-3 border-b border-gray-200">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
             {/* Left side - Non-Selling Toggle and Filters */}
             <div className="flex items-center gap-2">
               {/* Show Non-Selling button first */}
@@ -763,9 +763,9 @@ export default function SalesPage() {
             
             {/* Date shortcut buttons below - aligned with date picker */}
             <div className="flex gap-1 w-[250px] ml-auto">
-              <Button onClick={handleTodayClick} variant="outline" size="sm" className="flex-1">Today</Button>
-              <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1">Week</Button>
-              <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1">Month</Button>
+              <Button onClick={handleTodayClick} variant="outline" size="sm" className="flex-1 text-xs">Today</Button>
+              <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1 text-xs">Week</Button>
+              <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
             </div>
           </div>
         </div>
