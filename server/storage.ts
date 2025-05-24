@@ -415,19 +415,19 @@ class DatabaseStorage implements IStorage {
         productName: sql`CASE 
           WHEN ${products.id} IS NULL THEN NULL 
           ELSE ${products.name} 
-        END`,
+        END`.as('productName'),
         // Price should be preserved from order_items for accurate sales history
         price: orderItems.price,
         // Size from products table only if product exists, otherwise NULL
         size: sql`CASE 
           WHEN ${products.id} IS NULL THEN NULL 
           ELSE ${products.size} 
-        END`,
+        END`.as('size'),
         // Include the category name for proper categorization
         categoryName: sql`CASE 
           WHEN ${products.id} IS NULL THEN NULL
           ELSE (SELECT ${categories.name} FROM ${categories} WHERE ${categories.id} = ${products.categoryId})
-        END`,
+        END`.as('categoryName'),
         quantity: orderItems.quantity,
         createdAt: orders.createdAt
       })
