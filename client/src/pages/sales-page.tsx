@@ -393,7 +393,7 @@ export default function SalesPage() {
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span className="text-sm font-medium text-blue-700">Total Orders</span>
+                <span className="text-sm font-medium text-blue-700">Total Unit Sold</span>
               </div>
               <div className="text-2xl font-bold text-blue-900">{salesData?.length || 0}</div>
             </div>
