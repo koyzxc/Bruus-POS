@@ -528,11 +528,9 @@ export default function SalesPage() {
         <div className="px-4 py-3 border-b border-gray-200">
           <div className="flex justify-between items-start">
             {/* Left side - Filter Controls */}
-            <div className="flex flex-col gap-3">
-              {/* Buttons row */}
-              <div className="flex items-center gap-2">
-                {/* Show Non-Selling button */}
-                <Button 
+            <div className="flex items-center gap-2">
+              {/* Show Non-Selling button */}
+              <Button 
                 variant={showNonSelling ? "default" : "outline"}
                 onClick={() => setShowNonSelling(!showNonSelling)}
                 className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
@@ -748,9 +746,8 @@ export default function SalesPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-              </div>
               
-              {/* Search bar row */}
+              {/* Search bar */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
