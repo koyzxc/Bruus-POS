@@ -503,12 +503,51 @@ export default function SalesPage() {
 
       {/* Sales Analytics - Grouped section with controls AND data table */}
       <div className="bg-white rounded-xl shadow-md">
-        {/* Analytics Header & Controls */}
+        {/* Date Selection Controls Only */}
         <div className="px-4 py-3 border-b border-gray-200">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-            {/* Left side - Non-Selling Toggle and Filters */}
-            <div className="flex items-center gap-2">
-              {/* Show Non-Selling button first */}
+          <div className="flex justify-end">
+            <div className="flex flex-col gap-2">
+              {/* Date range picker at top */}
+              <div className="flex justify-end">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start font-normal text-left bg-white w-[250px]"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formattedDateRange()}
+                      <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={(range) => {
+                        setDateRange(range as { from: Date; to: Date });
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              {/* Date shortcut buttons below - aligned with date picker */}
+              <div className="flex gap-1 w-[250px] ml-auto">
+                <Button onClick={handleTodayClick} variant="outline" size="sm" className="flex-1 text-xs">Today</Button>
+                <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1 text-xs">Week</Button>
+                <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Controls - Above Table Header */}
+        <div className="px-4 py-2">
+          <div className="flex items-center gap-2">
+            {/* Show Non-Selling button first */}
               <Button 
                 variant={showNonSelling ? "default" : "outline"}
                 onClick={() => setShowNonSelling(!showNonSelling)}
@@ -728,45 +767,7 @@ export default function SalesPage() {
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                )}
-              </div>
-            </div>
-
-          {/* Right side - Date Selection */}
-          <div className="flex flex-col gap-2">
-            {/* Date range picker at top */}
-            <div className="flex justify-end">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="justify-start font-normal text-left bg-white w-[250px]"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formattedDateRange()}
-                    <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="range"
-                    selected={dateRange}
-                    onSelect={(range) => {
-                      setDateRange(range as { from: Date; to: Date });
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            
-            {/* Date shortcut buttons below - aligned with date picker */}
-            <div className="flex gap-1 w-[250px] ml-auto">
-              <Button onClick={handleTodayClick} variant="outline" size="sm" className="flex-1 text-xs">Today</Button>
-              <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1 text-xs">Week</Button>
-              <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
-            </div>
+            )}
           </div>
         </div>
 
