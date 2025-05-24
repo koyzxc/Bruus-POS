@@ -227,7 +227,8 @@ export default function SalesPage() {
   const chartData = prepareChartData();
   
   // Debug: Log chart data to verify both sales and volume data
-  console.log("Chart data sample:", chartData.slice(0, 3));
+  console.log("Full chart data:", chartData);
+  console.log("Chart data with values:", chartData.filter(d => d.sales > 0 || d.volume > 0));
   
   // Aggregate sales data for table display (group by product)
   const aggregatedSalesData = salesData ? salesData.reduce((acc, item) => {
@@ -420,12 +421,11 @@ export default function SalesPage() {
           </div>
           
           {/* Chart Container */}
-          <div className="h-80 w-full">
+          <div className="h-80 w-full border-0" style={{ outline: 'none' }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart 
                 data={chartData} 
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                style={{ outline: 'none', border: 'none' }}
+                margin={{ top: 10, right: 40, left: 20, bottom: 10 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
@@ -476,26 +476,26 @@ export default function SalesPage() {
                   }}
                 />
                 <Line 
-                  yAxisId="volume"
-                  type="monotone" 
-                  dataKey="volume" 
-                  stroke="#3b82f6" 
-                  strokeWidth={4}
-                  dot={false}
-                  activeDot={{ r: 8, fill: '#3b82f6', stroke: '#3b82f6', strokeWidth: 2 }}
-                  connectNulls={false}
-                  name="Orders"
-                />
-                <Line 
                   yAxisId="sales"
                   type="monotone" 
                   dataKey="sales" 
                   stroke="#F15A29" 
-                  strokeWidth={4}
+                  strokeWidth={5}
                   dot={false}
                   activeDot={{ r: 8, fill: '#F15A29', stroke: '#F15A29', strokeWidth: 2 }}
                   connectNulls={false}
                   name="Sales"
+                />
+                <Line 
+                  yAxisId="volume"
+                  type="monotone" 
+                  dataKey="volume" 
+                  stroke="#2563eb" 
+                  strokeWidth={5}
+                  dot={false}
+                  activeDot={{ r: 8, fill: '#2563eb', stroke: '#2563eb', strokeWidth: 2 }}
+                  connectNulls={false}
+                  name="Orders"
                 />
               </LineChart>
             </ResponsiveContainer>
