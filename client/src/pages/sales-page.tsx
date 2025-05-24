@@ -785,20 +785,20 @@ export default function SalesPage() {
                 <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Search Bar Section */}
-        <div className="px-4 py-3 border-b border-gray-200">
-          <div className="relative w-80">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border border-gray-300 focus:border-[#F15A29] focus:ring-[#F15A29]"
-            />
+            {/* Search Bar - positioned below the buttons */}
+            <div className="mt-3">
+              <div className="relative w-80">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-white border border-gray-300 focus:border-[#F15A29] focus:ring-[#F15A29]"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
