@@ -398,8 +398,14 @@ export default function SalesPage() {
     return true;
   });
   
-  // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
+  // Determine which data to use and apply sorting
+  let displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData && filteredSalesData.length > 0 ? filteredSalesData : aggregatedSalesArray);
+  
+  // Apply sorting if data exists
+  if (displayData && displayData.length > 0) {
+    displayData = sortData(displayData);
+  }
+  
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
@@ -988,6 +994,7 @@ export default function SalesPage() {
           </div>
         )}
         </div>
+      </div>
       </div>
     </MainLayout>
   );
