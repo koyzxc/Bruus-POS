@@ -812,7 +812,7 @@ export default function SalesPage() {
               <Skeleton key={index} className="h-16 w-full" />
             ))}
           </div>
-        ) : displayData && displayData.length > 0 ? (
+        ) : (
           <>
             <div className="overflow-auto max-h-[500px]">
               <Table>
