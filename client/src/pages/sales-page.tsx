@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   Popover, 
   PopoverContent, 
@@ -540,57 +541,96 @@ export default function SalesPage() {
                 <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1 text-xs">Week</Button>
                 <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1 text-xs">Month</Button>
               </div>
-            </div>
-          </div>
-        </div>
+              
+              {/* Filter Controls - Moved up below date controls */}
+              <div className="flex items-center gap-2 justify-start mt-3">
+                {/* Show Non-Selling button first */}
+                <Button 
+                  variant={showNonSelling ? "default" : "outline"}
+                  onClick={() => setShowNonSelling(!showNonSelling)}
+                  className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
+                >
+                  {showNonSelling ? (
+                    <>
+                      <AlertTriangle className="h-4 w-4" /> 
+                      <span>Non-Selling Products</span>
+                    </>
+                  ) : (
+                    <>
+                      <BarChart2 className="h-4 w-4" /> 
+                      <span>Show Non-Selling</span>
+                    </>
+                  )}
+                </Button>
 
-        {/* Filter Controls - Above Table Header */}
-        <div className="px-4 py-2">
-          <div className="flex items-center gap-2">
-            {/* Show Non-Selling button first */}
-              <Button 
-                variant={showNonSelling ? "default" : "outline"}
-                onClick={() => setShowNonSelling(!showNonSelling)}
-                className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
-              >
-                {showNonSelling ? (
-                  <>
-                    <AlertTriangle className="h-4 w-4" /> 
-                    <span>Non-Selling Products</span>
-                  </>
-                ) : (
-                  <>
-                    <BarChart2 className="h-4 w-4" /> 
-                    <span>Show Non-Selling</span>
-                  </>
-                )}
-              </Button>
-
-              {/* Filter button with count badge */}
-              {!showNonSelling && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="flex items-center gap-2 bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
-                    >
-                      <Filter className="h-4 w-4" />
-                      <span>Filters</span>
+                {/* Filter button with count badge */}
+                {!showNonSelling && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex items-center gap-2 bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]"
+                      >
+                        <Filter className="h-4 w-4" />
+                        <span>Filters</span>
+                        {activeFilterCount > 0 && (
+                          <Badge variant="secondary" className="ml-1 bg-[#F15A29] text-white">
+                            {activeFilterCount}
+                          </Badge>
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-72">
+                      {/* Active filters display */}
                       {activeFilterCount > 0 && (
-                        <span className="flex items-center justify-center h-5 w-5 rounded-full bg-[#F15A29] text-white text-xs">
-                          {activeFilterCount}
-                        </span>
+                        <>
+                          <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Active Filters</DropdownMenuLabel>
+                          <div className="p-2 space-y-1">
+                            {filters.volumeOperator && (
+                              <div className="flex items-center justify-between text-xs bg-blue-50 p-2 rounded">
+                                <span>Unit Sold {getOperatorText(filters.volumeOperator)} {filters.volumeValue}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => setVolumeFilter(null, "")}
+                                  className="h-5 w-5 p-0 hover:bg-blue-200"
+                                >
+                                  ×
+                                </Button>
+                              </div>
+                            )}
+                            {filters.salesOperator && (
+                              <div className="flex items-center justify-between text-xs bg-orange-50 p-2 rounded">
+                                <span>Sales {getOperatorText(filters.salesOperator)} ₱{filters.salesValue}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => setSalesFilter(null, "")}
+                                  className="h-5 w-5 p-0 hover:bg-orange-200"
+                                >
+                                  ×
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                          <DropdownMenuSeparator />
+                          <div className="p-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={clearAllFilters}
+                              className="w-full text-xs"
+                            >
+                              Clear All Filters
+                            </Button>
+                          </div>
+                          <DropdownMenuSeparator />
+                        </>
                       )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-72">
-                      <DropdownMenuLabel>Apply Filters</DropdownMenuLabel>
-                      
-                      <DropdownMenuSeparator />
                       
                       {/* Volume Filters */}
-                      <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Volume Filters</DropdownMenuLabel>
+                      <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Unit Sold Filters</DropdownMenuLabel>
                       <div className="p-2 grid grid-cols-2 gap-2">
                         {/* Greater than */}
                         <Button 
@@ -598,7 +638,7 @@ export default function SalesPage() {
                           size="sm"
                           className={`text-xs justify-start ${filters.volumeOperator === "gt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
                           onClick={() => {
-                            const value = prompt("Enter value for Volume > ", filters.volumeValue || "");
+                            const value = prompt("Enter value for Unit Sold >", filters.volumeValue || "");
                             if (value !== null) {
                               setVolumeFilter("gt", value);
                             }
@@ -613,7 +653,7 @@ export default function SalesPage() {
                           size="sm"
                           className={`text-xs justify-start ${filters.volumeOperator === "lt" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
                           onClick={() => {
-                            const value = prompt("Enter value for Volume < ", filters.volumeValue || "");
+                            const value = prompt("Enter value for Unit Sold <", filters.volumeValue || "");
                             if (value !== null) {
                               setVolumeFilter("lt", value);
                             }
@@ -628,7 +668,7 @@ export default function SalesPage() {
                           size="sm"
                           className={`text-xs justify-start ${filters.volumeOperator === "gte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
                           onClick={() => {
-                            const value = prompt("Enter value for Volume ≥ ", filters.volumeValue || "");
+                            const value = prompt("Enter value for Unit Sold ≥", filters.volumeValue || "");
                             if (value !== null) {
                               setVolumeFilter("gte", value);
                             }
@@ -643,7 +683,7 @@ export default function SalesPage() {
                           size="sm"
                           className={`text-xs justify-start ${filters.volumeOperator === "lte" ? "border-[#F15A29] bg-[#FFE6C7]" : ""}`}
                           onClick={() => {
-                            const value = prompt("Enter value for Volume ≤ ", filters.volumeValue || "");
+                            const value = prompt("Enter value for Unit Sold ≤", filters.volumeValue || "");
                             if (value !== null) {
                               setVolumeFilter("lte", value);
                             }
@@ -718,58 +758,15 @@ export default function SalesPage() {
                           Less than or equal ≤
                         </Button>
                       </div>
-                      
-                      <DropdownMenuSeparator />
-                      
-                      {/* Active Filters Section */}
-                      {activeFilterCount > 0 && (
-                        <>
-                          <DropdownMenuLabel className="text-xs font-medium pt-1 pb-0">Active Filters</DropdownMenuLabel>
-                          <div className="p-2 space-y-2">
-                            {filters.volumeOperator && (
-                              <div className="flex justify-between items-center p-1 bg-amber-50 text-amber-800 text-sm rounded">
-                                <span>Volume {getOperatorText(filters.volumeOperator)} {filters.volumeValue}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-6 w-6 p-0" 
-                                  onClick={() => setVolumeFilter(null, "")}
-                                >
-                                  <FilterX className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            )}
-                            
-                            {filters.salesOperator && (
-                              <div className="flex justify-between items-center p-1 bg-amber-50 text-amber-800 text-sm rounded">
-                                <span>Sales {getOperatorText(filters.salesOperator)} ₱{filters.salesValue}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-6 w-6 p-0" 
-                                  onClick={() => setSalesFilter(null, "")}
-                                >
-                                  <FilterX className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            )}
-                            
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="w-full text-xs" 
-                              onClick={clearAllFilters}
-                            >
-                              Clear All Filters
-                            </Button>
-                          </div>
-                        </>
-                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
-            )}
+                )}
+              </div>
+            </div>
           </div>
         </div>
+
+
 
         {/* Sales Data Table - Integrated in the grouped section */}
         <div className="p-4">
