@@ -29,7 +29,8 @@ import {
   AlertTriangle, 
   ChevronDown, 
   FilterX, 
-  Filter 
+  Filter,
+  Search
 } from "lucide-react";
 import {
   LineChart,
@@ -67,6 +68,9 @@ export default function SalesPage() {
   
   // State to toggle between selling and non-selling products
   const [showNonSelling, setShowNonSelling] = useState(false);
+  
+  // State for search
+  const [searchTerm, setSearchTerm] = useState("");
   
   // State for filters
   const [filters, setFilters] = useState<FilterState>({
@@ -290,6 +294,14 @@ export default function SalesPage() {
     // Skip filtering if no sales data
     if (!item) return false;
     
+    // Search filter - filter by product name
+    if (searchTerm) {
+      const productName = item.productName?.toLowerCase() || '';
+      if (!productName.includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+    }
+    
     // Category filter - only show products from selected category
     if (activeCategory !== 'ALL') {
       if (item.categoryName !== activeCategory) {
@@ -324,6 +336,14 @@ export default function SalesPage() {
   const filteredNonSellingData = nonSellingData?.filter(item => {
     // Skip if no data
     if (!item) return false;
+    
+    // Search filter - filter by product name
+    if (searchTerm) {
+      const productName = item.name?.toLowerCase() || '';
+      if (!productName.includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+    }
     
     // Only show products from selected category
     if (activeCategory !== 'ALL') {
@@ -509,7 +529,19 @@ export default function SalesPage() {
           <div className="flex justify-between items-start">
             {/* Left side - Filter Controls */}
             <div className="flex items-center gap-2">
-              {/* Show Non-Selling button first */}
+              {/* Search bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F15A29] focus:border-transparent"
+                />
+              </div>
+              
+              {/* Show Non-Selling button */}
               <Button 
                 variant={showNonSelling ? "default" : "outline"}
                 onClick={() => setShowNonSelling(!showNonSelling)}
