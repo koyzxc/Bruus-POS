@@ -201,6 +201,9 @@ export default function SalesPage() {
       const orderDate = item.createdAt ? new Date(item.createdAt) : new Date();
       const dateKey = format(orderDate, 'MMM dd');
       
+      // Debug: Log the actual dates being processed
+      console.log(`Order date: ${item.createdAt}, Formatted: ${dateKey}, Sales: ${item.totalSales}`);
+      
       if (dateMap.has(dateKey)) {
         const dayData = dateMap.get(dateKey);
         dayData.sales += item.totalSales;
