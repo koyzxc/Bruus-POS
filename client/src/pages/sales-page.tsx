@@ -197,13 +197,11 @@ export default function SalesPage() {
     
     // Add actual sales data to the chart using exact order timestamps
     salesData.forEach(item => {
-      // Use the exact date when each individual order was created (in UTC to avoid timezone issues)
+      // Use the exact date when each individual order was created and convert to PHT (UTC+8)
       const orderDate = item.createdAt ? new Date(item.createdAt) : new Date();
-      // Extract the actual date from the UTC timestamp to avoid timezone shifts
-      const year = orderDate.getUTCFullYear();
-      const month = orderDate.getUTCMonth();
-      const day = orderDate.getUTCDate();
-      const dateKey = format(new Date(year, month, day), 'MMM dd');
+      // Convert UTC to Philippine Time (UTC+8) to get the correct local date
+      const phtDate = new Date(orderDate.getTime() + (8 * 60 * 60 * 1000));
+      const dateKey = format(phtDate, 'MMM dd');
       
       // Debug: Log the actual dates being processed
       console.log(`Order date: ${item.createdAt}, Formatted: ${dateKey}, Sales: ${item.totalSales}`);
