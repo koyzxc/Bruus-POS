@@ -297,7 +297,9 @@ export default function SalesPage() {
     // Search filter - filter by product name (exactly like inventory)
     if (searchTerm.trim()) {
       const query = searchTerm.toLowerCase().trim();
-      if (!item.productName?.toLowerCase().includes(query)) {
+      const productName = item.productName?.toLowerCase() || '';
+      console.log('Filtering:', { searchTerm, query, productName, includes: productName.includes(query) });
+      if (!productName.includes(query)) {
         return false;
       }
     }
