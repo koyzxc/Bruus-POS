@@ -288,10 +288,11 @@ export default function SalesPage() {
     // Skip filtering if no sales data
     if (!item) return false;
     
-    // Search filter - filter by product name
-    if (searchTerm) {
+    // Search filter - filter by product name (case insensitive)
+    if (searchTerm && searchTerm.trim() !== '') {
       const productName = item.productName?.toLowerCase() || '';
-      if (!productName.includes(searchTerm.toLowerCase())) {
+      const search = searchTerm.toLowerCase().trim();
+      if (!productName.includes(search)) {
         return false;
       }
     }
@@ -324,7 +325,7 @@ export default function SalesPage() {
     }
     
     return true;
-  });
+  }) || aggregatedSalesArray;
   
   // Filter non-selling products by selected category
   const filteredNonSellingData = nonSellingData?.filter(item => {
