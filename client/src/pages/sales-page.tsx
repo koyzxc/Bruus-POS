@@ -456,18 +456,20 @@ export default function SalesPage() {
                   type="monotone" 
                   dataKey="sales" 
                   stroke="#F15A29" 
-                  strokeWidth={3}
+                  strokeWidth={4}
                   dot={false}
-                  activeDot={{ r: 6, fill: '#F15A29', stroke: '#F15A29', strokeWidth: 2 }}
+                  activeDot={{ r: 8, fill: '#F15A29', stroke: '#F15A29', strokeWidth: 2 }}
+                  connectNulls={false}
                 />
                 <Line 
                   yAxisId="volume"
                   type="monotone" 
                   dataKey="volume" 
                   stroke="#3b82f6" 
-                  strokeWidth={3}
+                  strokeWidth={4}
                   dot={false}
-                  activeDot={{ r: 6, fill: '#3b82f6', stroke: '#3b82f6', strokeWidth: 2 }}
+                  activeDot={{ r: 8, fill: '#3b82f6', stroke: '#3b82f6', strokeWidth: 2 }}
+                  connectNulls={false}
                 />
               </LineChart>
             </ResponsiveContainer>
