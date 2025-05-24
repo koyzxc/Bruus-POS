@@ -761,8 +761,8 @@ export default function SalesPage() {
               </Popover>
             </div>
             
-            {/* Date shortcut buttons below - full width */}
-            <div className="flex gap-1">
+            {/* Date shortcut buttons below - aligned with date picker */}
+            <div className="flex gap-1 w-[250px] ml-auto">
               <Button onClick={handleTodayClick} variant="outline" size="sm" className="flex-1">Today</Button>
               <Button onClick={handleWeekClick} variant="outline" size="sm" className="flex-1">Week</Button>
               <Button onClick={handleMonthClick} variant="outline" size="sm" className="flex-1">Month</Button>
