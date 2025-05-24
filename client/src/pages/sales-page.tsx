@@ -398,7 +398,7 @@ export default function SalesPage() {
                 <div className="w-3 h-3 bg-[#F15A29] rounded-full"></div>
                 <span className="text-sm font-medium text-orange-700">Total Sales</span>
               </div>
-              <div className="text-2xl font-bold text-orange-900">₱{totalSales.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-orange-900">₱{(totalSales || 0).toFixed(2)}</div>
             </div>
           </div>
 
