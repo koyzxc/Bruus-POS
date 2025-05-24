@@ -356,7 +356,7 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
+  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData || aggregatedSalesArray);
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
