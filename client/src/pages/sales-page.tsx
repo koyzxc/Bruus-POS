@@ -506,8 +506,27 @@ export default function SalesPage() {
         {/* Analytics Header & Controls */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-            {/* Left side - Filters and Non-Selling Toggle */}
+            {/* Left side - Non-Selling Toggle and Filters */}
             <div className="flex items-center gap-2">
+              {/* Show Non-Selling button first */}
+              <Button 
+                variant={showNonSelling ? "default" : "outline"}
+                onClick={() => setShowNonSelling(!showNonSelling)}
+                className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
+              >
+                {showNonSelling ? (
+                  <>
+                    <AlertTriangle className="h-4 w-4" /> 
+                    <span>Non-Selling Products</span>
+                  </>
+                ) : (
+                  <>
+                    <BarChart2 className="h-4 w-4" /> 
+                    <span>Show Non-Selling</span>
+                  </>
+                )}
+              </Button>
+
               {/* Filter button with count badge */}
               {!showNonSelling && (
                 <DropdownMenu>
@@ -710,24 +729,6 @@ export default function SalesPage() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                
-                <Button 
-                  variant={showNonSelling ? "default" : "outline"}
-                  onClick={() => setShowNonSelling(!showNonSelling)}
-                  className={`flex items-center gap-2 ${showNonSelling ? 'bg-[#F15A29] hover:bg-[#D94E24] text-white' : 'bg-white hover:bg-[#FFE6C7] hover:text-[#F15A29]'}`}
-                >
-                  {showNonSelling ? (
-                    <>
-                      <AlertTriangle className="h-4 w-4" /> 
-                      <span>Non-Selling Products</span>
-                    </>
-                  ) : (
-                    <>
-                      <BarChart2 className="h-4 w-4" /> 
-                      <span>Show Non-Selling</span>
-                    </>
-                  )}
-                </Button>
               </div>
             </div>
 
