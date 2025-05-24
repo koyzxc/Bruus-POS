@@ -195,10 +195,11 @@ export default function SalesPage() {
       currentDate.setDate(currentDate.getDate() + 1);
     }
     
-    // Add actual sales data to the chart
+    // Add actual sales data to the chart using real order dates
     salesData.forEach(item => {
-      // For demo purposes, distribute sales across the date range
-      const dateKey = format(dateRange.from || new Date(), 'MMM dd');
+      // Use the actual date when the order was created
+      const orderDate = item.createdAt ? new Date(item.createdAt) : new Date();
+      const dateKey = format(orderDate, 'MMM dd');
       
       if (dateMap.has(dateKey)) {
         const dayData = dateMap.get(dateKey);

@@ -440,7 +440,7 @@ class DatabaseStorage implements IStorage {
         ? await query.where(and(...conditions))
         : await query;
       
-      // Aggregate by product
+      // Aggregate by product and include date information
       const salesMap = new Map();
       
       for (const record of orderRecords) {
@@ -454,13 +454,19 @@ class DatabaseStorage implements IStorage {
             price: Number(record.price),
             size: record.size || "M",
             volume: 0,
-            totalSales: 0
+            totalSales: 0,
+            createdAt: record.createdAt // Include the order date
           });
         }
         
         const item = salesMap.get(key);
         item.volume += record.quantity;
         item.totalSales += Number(record.price) * record.quantity;
+        
+        // Keep the most recent order date for this product
+        if (new Date(record.createdAt) > new Date(item.createdAt)) {
+          item.createdAt = record.createdAt;
+        }
       }
       
       return Array.from(salesMap.values());

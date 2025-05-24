@@ -164,6 +164,7 @@ export type SalesData = {
   volume: number;
   totalSales: number;
   categoryName?: string | null;
+  createdAt?: Date | string;
 };
 
 // Order summary type for checkout process
