@@ -733,8 +733,8 @@ export default function SalesPage() {
 
           {/* Right side - Date Selection */}
           <div className="flex flex-col gap-2">
-            {/* Date range picker and time buttons in one row */}
-            <div className="flex items-center gap-2">
+            {/* Date range picker at top */}
+            <div className="flex justify-end">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
