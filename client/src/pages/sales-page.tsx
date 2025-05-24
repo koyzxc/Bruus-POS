@@ -450,27 +450,25 @@ export default function SalesPage() {
                 <Tooltip 
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length > 0) {
-                      // Show only the data for the line being hovered
-                      const data = payload[0];
-                      if (data.name === 'Sales') {
-                        return (
-                          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
-                            <p className="text-gray-700 font-medium">{label}</p>
+                      // Show both Sales and Orders data in the tooltip
+                      const salesData = payload.find(p => p.name === 'Sales');
+                      const ordersData = payload.find(p => p.name === 'Orders');
+                      
+                      return (
+                        <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+                          <p className="text-gray-700 font-medium mb-2">{label}</p>
+                          {salesData && (
                             <p className="text-orange-600 font-semibold">
-                              Sales: ₱{Number(data.value).toFixed(2)}
+                              Sales: ₱{Number(salesData.value).toFixed(2)}
                             </p>
-                          </div>
-                        );
-                      } else if (data.name === 'Orders') {
-                        return (
-                          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
-                            <p className="text-gray-700 font-medium">{label}</p>
+                          )}
+                          {ordersData && (
                             <p className="text-blue-600 font-semibold">
-                              Orders: {data.value}
+                              Orders: {ordersData.value}
                             </p>
-                          </div>
-                        );
-                      }
+                          )}
+                        </div>
+                      );
                     }
                     return null;
                   }}
