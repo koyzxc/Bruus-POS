@@ -494,7 +494,7 @@ export default function SalesPage() {
       {/* TOP - Sales Overview Chart */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">TOP</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Sales overview</h2>
         </div>
         
         {!showNonSelling && (
@@ -517,8 +517,7 @@ export default function SalesPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Sales Overview</h3>
+          <div className="flex items-center justify-end mb-4">
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-[#F15A29] rounded-full"></div>
