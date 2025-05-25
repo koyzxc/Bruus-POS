@@ -335,6 +335,43 @@ export default function AdminSettingsPage() {
           </Button>
         </div>
 
+        {/* Interface Settings */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <Settings className="h-5 w-5 text-[#F15A29]" />
+              <div>
+                <CardTitle>Interface Settings</CardTitle>
+                <CardDescription>Control how the menu interface appears</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {showEditButtons ? (
+                  <Eye className="h-5 w-5 text-green-600" />
+                ) : (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                )}
+                <div>
+                  <p className="font-medium">Show Edit Buttons</p>
+                  <p className="text-sm text-gray-600">
+                    {showEditButtons 
+                      ? "Edit and delete buttons are visible on menu items" 
+                      : "Clean customer view - edit buttons are hidden"
+                    }
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={showEditButtons}
+                onCheckedChange={setShowEditButtons}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Users Table */}
         <Card>
           <CardHeader>
