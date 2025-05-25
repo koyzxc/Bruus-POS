@@ -54,6 +54,7 @@ export default function AdminSettingsPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   
   // Sorting state
   const [sortField, setSortField] = useState<"username" | "role" | "createdAt">("username");
@@ -274,6 +275,7 @@ export default function AdminSettingsPage() {
   // Handle delete user
   const handleDeleteUser = (userToDelete: User) => {
     setSelectedUser(userToDelete);
+    setDeleteConfirmation(""); // Reset confirmation text
     setIsDeleteDialogOpen(true);
   };
 
@@ -607,12 +609,26 @@ export default function AdminSettingsPage() {
                 This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <div className="py-4">
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">
+                  To confirm deletion, please type <span className="font-semibold text-red-600">"delete"</span> below:
+                </p>
+                <Input
+                  type="text"
+                  placeholder="Type 'delete' to confirm"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel onClick={() => setDeleteConfirmation("")}>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => selectedUser && deleteUserMutation.mutate(selectedUser.id)}
                 className="bg-red-600 hover:bg-red-700"
-                disabled={deleteUserMutation.isPending}
+                disabled={deleteUserMutation.isPending || deleteConfirmation !== "delete"}
               >
                 {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
               </AlertDialogAction>
