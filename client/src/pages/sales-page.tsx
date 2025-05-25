@@ -291,62 +291,28 @@ export default function SalesPage() {
   
   // Apply search filter to aggregated sales data
   const filteredSalesData = useMemo(() => {
-    if (!aggregatedSalesArray) return [];
+    if (!aggregatedSalesArray || aggregatedSalesArray.length === 0) return [];
     
-    // If no search term, return all data
-    if (!searchTerm.trim()) {
-      return aggregatedSalesArray.filter(item => {
-        if (!item) return false;
-        
-        // Category filter
-        if (activeCategory !== 'ALL') {
-          if (item.categoryName !== activeCategory) {
-            return false;
-          }
-        }
-        
-        // Volume filter
-        if (filters.volumeOperator && filters.volumeValue) {
-          const compareValue = parseFloat(filters.volumeValue);
-          if (!isNaN(compareValue)) {
-            if (!compareValues(item.volume, compareValue, filters.volumeOperator)) {
-              return false;
-            }
-          }
-        }
-        
-        // Sales filter
-        if (filters.salesOperator && filters.salesValue) {
-          const compareValue = parseFloat(filters.salesValue);
-          if (!isNaN(compareValue)) {
-            if (!compareValues(item.totalSales, compareValue, filters.salesOperator)) {
-              return false;
-            }
-          }
-        }
-        
-        return true;
-      });
-    }
-    
-    // If there is a search term, filter by product name
-    const query = searchTerm.toLowerCase().trim();
     return aggregatedSalesArray.filter(item => {
       if (!item) return false;
       
-      // Search filter - must match product name
-      const productName = item.productName?.toLowerCase() || '';
-      if (!productName.includes(query)) {
-        return false;
+      // Search filter
+      if (searchTerm.trim()) {
+        const query = searchTerm.toLowerCase().trim();
+        const productName = item.productName?.toLowerCase() || '';
+        if (!productName.includes(query)) {
+          return false;
+        }
       }
       
-      // Apply other filters
+      // Category filter
       if (activeCategory !== 'ALL') {
         if (item.categoryName !== activeCategory) {
           return false;
         }
       }
       
+      // Volume filter
       if (filters.volumeOperator && filters.volumeValue) {
         const compareValue = parseFloat(filters.volumeValue);
         if (!isNaN(compareValue)) {
@@ -356,6 +322,7 @@ export default function SalesPage() {
         }
       }
       
+      // Sales filter
       if (filters.salesOperator && filters.salesValue) {
         const compareValue = parseFloat(filters.salesValue);
         if (!isNaN(compareValue)) {
