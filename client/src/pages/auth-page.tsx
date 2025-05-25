@@ -41,19 +41,10 @@ export default function AuthPage() {
   }, [user, navigate]);
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage: "url('/coffee-beans-bg.png')",
-        backgroundColor: "#f5f5f5"
-      }}
-    >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-      
-      {/* Centered login form */}
-      <div className="flex items-center justify-center p-6 w-full relative z-10">
-        <Card className="w-full max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-white relative">
+      {/* Main content container */}
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <Card className="w-full max-w-md border-0 shadow-xl bg-white relative z-10">
           <CardHeader className="text-center">
             <div className="flex flex-col items-center mb-6">
               <div className="bg-black rounded-t-full px-12 pt-6 pb-2">
@@ -135,6 +126,16 @@ export default function AuthPage() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Coffee beans at the bottom */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-24 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/coffee-beans-bg.png')",
+          backgroundPosition: "bottom center",
+          backgroundSize: "cover"
+        }}
+      ></div>
     </div>
   );
 }
