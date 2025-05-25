@@ -44,11 +44,11 @@ export default function TopNav({ activeSection }: TopNavProps) {
           key={item.section}
           className={`nav-btn ${
             activeSection === item.section ? "active" : "inactive"
-          }`}
+          } ${item.section === "ADMIN" ? "flex items-center justify-center" : ""}`}
           onClick={() => setLocation(item.path)}
         >
           {item.section === "ADMIN" ? (
-            <Shield className="h-4 w-4" />
+            <Shield className="h-5 w-5" />
           ) : (
             item.label
           )}
@@ -59,13 +59,10 @@ export default function TopNav({ activeSection }: TopNavProps) {
       {user?.role === "barista" && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-[46px] px-4 rounded bg-[#F15A29] hover:bg-[#E14A1F] text-white font-medium transition duration-300"
-            >
-              <User className="h-5 w-5 mr-2" />
+            <button className="nav-btn active flex items-center gap-2">
+              <User className="h-4 w-4" />
               {user.username}
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem disabled className="font-medium">
