@@ -215,7 +215,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
       <div className="p-3 text-center">
-        <h3 className="text-base md:text-lg font-medium uppercase tracking-wide">
+        <h3 className="text-base md:text-lg font-medium uppercase tracking-wide truncate">
           {product.name}
         </h3>
         
