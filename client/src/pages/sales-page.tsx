@@ -289,50 +289,85 @@ export default function SalesPage() {
     }
   };
   
-  // Apply filters to aggregated sales data for table display
-  const filteredSalesData = aggregatedSalesArray?.filter(item => {
-    // Skip filtering if no sales data
-    if (!item) return false;
+  // Apply search filter to aggregated sales data
+  const filteredSalesData = useMemo(() => {
+    if (!aggregatedSalesArray) return [];
     
-    // Search filter - filter by product name (exactly like inventory)
-    if (searchTerm.trim()) {
-      const query = searchTerm.toLowerCase().trim();
+    // If no search term, return all data
+    if (!searchTerm.trim()) {
+      return aggregatedSalesArray.filter(item => {
+        if (!item) return false;
+        
+        // Category filter
+        if (activeCategory !== 'ALL') {
+          if (item.categoryName !== activeCategory) {
+            return false;
+          }
+        }
+        
+        // Volume filter
+        if (filters.volumeOperator && filters.volumeValue) {
+          const compareValue = parseFloat(filters.volumeValue);
+          if (!isNaN(compareValue)) {
+            if (!compareValues(item.volume, compareValue, filters.volumeOperator)) {
+              return false;
+            }
+          }
+        }
+        
+        // Sales filter
+        if (filters.salesOperator && filters.salesValue) {
+          const compareValue = parseFloat(filters.salesValue);
+          if (!isNaN(compareValue)) {
+            if (!compareValues(item.totalSales, compareValue, filters.salesOperator)) {
+              return false;
+            }
+          }
+        }
+        
+        return true;
+      });
+    }
+    
+    // If there is a search term, filter by product name
+    const query = searchTerm.toLowerCase().trim();
+    return aggregatedSalesArray.filter(item => {
+      if (!item) return false;
+      
+      // Search filter - must match product name
       const productName = item.productName?.toLowerCase() || '';
-      console.log('Filtering:', { searchTerm, query, productName, includes: productName.includes(query) });
       if (!productName.includes(query)) {
         return false;
       }
-    }
-    
-    // Category filter - only show products from selected category
-    if (activeCategory !== 'ALL') {
-      if (item.categoryName !== activeCategory) {
-        return false;
-      }
-    }
-    
-    // Volume filter
-    if (filters.volumeOperator && filters.volumeValue) {
-      const compareValue = parseFloat(filters.volumeValue);
-      if (!isNaN(compareValue)) {
-        if (!compareValues(item.volume, compareValue, filters.volumeOperator)) {
+      
+      // Apply other filters
+      if (activeCategory !== 'ALL') {
+        if (item.categoryName !== activeCategory) {
           return false;
         }
       }
-    }
-    
-    // Sales filter
-    if (filters.salesOperator && filters.salesValue) {
-      const compareValue = parseFloat(filters.salesValue);
-      if (!isNaN(compareValue)) {
-        if (!compareValues(item.totalSales, compareValue, filters.salesOperator)) {
-          return false;
+      
+      if (filters.volumeOperator && filters.volumeValue) {
+        const compareValue = parseFloat(filters.volumeValue);
+        if (!isNaN(compareValue)) {
+          if (!compareValues(item.volume, compareValue, filters.volumeOperator)) {
+            return false;
+          }
         }
       }
-    }
-    
-    return true;
-  });
+      
+      if (filters.salesOperator && filters.salesValue) {
+        const compareValue = parseFloat(filters.salesValue);
+        if (!isNaN(compareValue)) {
+          if (!compareValues(item.totalSales, compareValue, filters.salesOperator)) {
+            return false;
+          }
+        }
+      }
+      
+      return true;
+    });
+  }, [aggregatedSalesArray, searchTerm, activeCategory, filters]);
   
   // Filter non-selling products by selected category
   const filteredNonSellingData = nonSellingData?.filter(item => {
@@ -356,7 +391,7 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : (filteredSalesData || aggregatedSalesArray);
+  const displayData = showNonSelling ? filteredNonSellingData : (searchTerm.trim() ? filteredSalesData : aggregatedSalesArray);
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Format helper functions
