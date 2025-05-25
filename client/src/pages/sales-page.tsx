@@ -53,6 +53,8 @@ type FilterState = {
   volumeValue: string;
   salesOperator: ComparisonOperator;
   salesValue: string;
+  ordersOperator: ComparisonOperator;
+  ordersValue: string;
 }
 
 export default function SalesPage() {
@@ -84,13 +86,16 @@ export default function SalesPage() {
     volumeOperator: null,
     volumeValue: "",
     salesOperator: null,
-    salesValue: ""
+    salesValue: "",
+    ordersOperator: null,
+    ordersValue: ""
   });
   
   // Count active filters for badge display
   const activeFilterCount = [
     filters.volumeOperator,
-    filters.salesOperator
+    filters.salesOperator,
+    filters.ordersOperator
   ].filter(Boolean).length;
   
   // Date range preset handlers
@@ -276,6 +281,14 @@ export default function SalesPage() {
     });
   };
 
+  const setOrdersFilter = (operator: ComparisonOperator, value: string) => {
+    setFilters({
+      ...filters,
+      ordersOperator: operator,
+      ordersValue: value
+    });
+  };
+
   // Sorting function
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -308,7 +321,9 @@ export default function SalesPage() {
       volumeOperator: null,
       volumeValue: "",
       salesOperator: null,
-      salesValue: ""
+      salesValue: "",
+      ordersOperator: null,
+      ordersValue: ""
     });
   };
   
@@ -366,6 +381,21 @@ export default function SalesPage() {
         }
       }
       
+      // Orders filter (filter by number of orders - we need to count orders for this product)
+      if (filters.ordersOperator && filters.ordersValue) {
+        const compareValue = parseFloat(filters.ordersValue);
+        if (!isNaN(compareValue)) {
+          // Count orders for this product from salesData
+          const ordersCount = salesData?.filter(order => 
+            order.productId === item.productId && order.size === item.size
+          ).length || 0;
+          
+          if (!compareValues(ordersCount, compareValue, filters.ordersOperator)) {
+            return false;
+          }
+        }
+      }
+      
       return true;
     });
   }, [aggregatedSalesArray, searchTerm, activeCategory, filters]);
@@ -410,19 +440,7 @@ export default function SalesPage() {
   
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
-  // Debug logs
-  console.log('Display debug:', {
-    showNonSelling,
-    aggregatedSalesArrayLength: aggregatedSalesArray?.length,
-    filteredSalesDataLength: filteredSalesData?.length,
-    filteredNonSellingDataLength: filteredNonSellingData?.length,
-    displayDataLength: displayData?.length,
-    isLoading,
-    searchTerm,
-    activeCategory,
-    filters,
-    aggregatedSalesArraySample: aggregatedSalesArray?.slice(0, 2)
-  });
+
   
   // Format helper functions
   const getOperatorText = (operator: ComparisonOperator): string => {
