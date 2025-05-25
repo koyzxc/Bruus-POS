@@ -305,6 +305,30 @@ export default function ProductCard({ product }: ProductCardProps) {
               <p className="text-gray-500">No ingredients defined for this product.</p>
             )}
           </div>
+          {user?.role === "owner" && (
+            <div className="flex justify-end pt-4 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsIngredientsDialogOpen(false);
+                  // Trigger the edit product functionality
+                  window.dispatchEvent(new CustomEvent('editProduct', { 
+                    detail: { 
+                      product: {
+                        ...product,
+                        id: selectedSizeOption?.id || product.id
+                      }
+                    } 
+                  }));
+                }}
+                className="flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Edit Ingredients
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
       
