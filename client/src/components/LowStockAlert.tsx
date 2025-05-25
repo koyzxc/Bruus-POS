@@ -3,6 +3,7 @@ import { Inventory } from "@shared/schema";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -67,6 +68,7 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [showRestockForm, setShowRestockForm] = useState<boolean>(false);
   const [restockAmount, setRestockAmount] = useState<string>("");
+  const [selectedContainerType, setSelectedContainerType] = useState<string>("single");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -83,11 +85,27 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
     return () => clearInterval(interval);
   }, []);
 
+  // Calculate total amount based on container type
+  const calculateTotalAmount = (inputAmount: number): number => {
+    const numContainers = parseFloat(item.numberOfContainers || "1") || 1;
+    const quantityPerUnit = parseFloat((item.quantityPerUnit || "1").toString()) || 1;
+    
+    switch (selectedContainerType) {
+      case "container":
+        return inputAmount * quantityPerUnit;
+      case "case":
+        return inputAmount * numContainers * quantityPerUnit;
+      default: // "single"
+        return inputAmount;
+    }
+  };
+
   // Restock mutation
   const restockMutation = useMutation({
-    mutationFn: async (amount: number) => {
+    mutationFn: async (inputAmount: number) => {
+      const totalAmount = calculateTotalAmount(inputAmount);
       const currentStock = parseFloat(item.currentStock) || 0;
-      const newStock = currentStock + amount;
+      const newStock = currentStock + totalAmount;
       
       return await apiRequest("PUT", `/api/inventory/${item.id}`, {
         currentStock: newStock.toString()
@@ -175,35 +193,51 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
           {/* Quick Restock Form */}
           {showRestockForm && (
             <div className="mt-2 p-2 bg-green-50 rounded border border-green-200">
-              <div className="flex items-center gap-1">
-                <Input
-                  type="number"
-                  placeholder={`Add ${item.unit}`}
-                  value={restockAmount}
-                  onChange={(e) => setRestockAmount(e.target.value)}
-                  className="h-6 text-xs flex-1"
-                  min="0"
-                  step="any"
-                />
-                <Button
-                  size="sm"
-                  onClick={handleRestock}
-                  disabled={restockMutation.isPending}
-                  className="h-6 px-2 text-xs bg-green-600 hover:bg-green-700"
-                >
-                  {restockMutation.isPending ? "..." : "Add"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setShowRestockForm(false);
-                    setRestockAmount("");
-                  }}
-                  className="h-6 px-1 text-xs"
-                >
-                  ×
-                </Button>
+              <div className="space-y-2">
+                {/* Container Type Selector */}
+                <Select value={selectedContainerType} onValueChange={setSelectedContainerType}>
+                  <SelectTrigger className="h-6 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single">Single {item.unit}</SelectItem>
+                    <SelectItem value="container">Container ({item.quantityPerUnit || 1} {item.unit})</SelectItem>
+                    <SelectItem value="case">Case ({item.numberOfContainers || 1} containers)</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {/* Amount Input and Buttons */}
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    placeholder={`Add quantity`}
+                    value={restockAmount}
+                    onChange={(e) => setRestockAmount(e.target.value)}
+                    className="h-6 text-xs flex-1"
+                    min="0"
+                    step="any"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleRestock}
+                    disabled={restockMutation.isPending}
+                    className="h-6 px-2 text-xs bg-green-600 hover:bg-green-700"
+                  >
+                    {restockMutation.isPending ? "..." : "Add"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setShowRestockForm(false);
+                      setRestockAmount("");
+                      setSelectedContainerType("single");
+                    }}
+                    className="h-6 px-1 text-xs"
+                  >
+                    ×
+                  </Button>
+                </div>
               </div>
             </div>
           )}
