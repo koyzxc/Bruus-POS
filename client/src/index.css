@@ -103,7 +103,7 @@
   }
   
   .nav-btn {
-    @apply px-6 py-2 rounded font-medium transition duration-300;
+    @apply px-6 py-3 rounded font-medium transition duration-300 min-w-[80px] text-center;
   }
   
   .nav-btn.active {
