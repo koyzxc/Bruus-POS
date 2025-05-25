@@ -61,16 +61,12 @@ const formatStockDisplay = (value: string, unit: string): { value: string, unit:
 
 type LowStockAlertProps = {
   item: Inventory;
+  onRestockClick?: (item: Inventory) => void;
 };
 
-export function LowStockAlert({ item }: LowStockAlertProps) {
+export function LowStockAlert({ item, onRestockClick }: LowStockAlertProps) {
   // Use useState and useEffect for animation
   const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [showRestockForm, setShowRestockForm] = useState<boolean>(false);
-  const [restockAmount, setRestockAmount] = useState<string>("");
-  const [selectedContainerType, setSelectedContainerType] = useState<string>("single");
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   
   // Create animation effect when alert appears
   useEffect(() => {
@@ -177,7 +173,13 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
                 size="sm"
                 variant="outline"
                 className="h-5 w-5 p-0 bg-green-50 hover:bg-green-100 border-green-300"
-                onClick={() => setShowRestockForm(!showRestockForm)}
+                onClick={() => {
+                  if (onRestockClick) {
+                    onRestockClick(item);
+                  } else {
+                    setShowRestockForm(!showRestockForm);
+                  }
+                }}
               >
                 <Plus className="h-3 w-3 text-green-600" />
               </Button>

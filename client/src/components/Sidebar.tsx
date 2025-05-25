@@ -14,9 +14,10 @@ type SidebarProps = {
   setActiveCategory: (category: string) => void;
   activeSection?: "MENU" | "INV" | "SALES" | "ADMIN";
   onOpenInventoryForm?: () => void;
+  onRestockClick?: (item: Inventory) => void;
 };
 
-export default function Sidebar({ activeCategory, setActiveCategory, activeSection, onOpenInventoryForm }: SidebarProps) {
+export default function Sidebar({ activeCategory, setActiveCategory, activeSection, onOpenInventoryForm, onRestockClick }: SidebarProps) {
   const { user, logoutMutation } = useAuth();
   const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false);
   
@@ -112,7 +113,7 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
         {lowStockItems && lowStockItems.length > 0 && (
           <div className="mb-4 max-h-[160px] overflow-y-auto">
             {lowStockItems.map((item) => (
-              <LowStockAlert key={item.id} item={item} />
+              <LowStockAlert key={item.id} item={item} onRestockClick={onRestockClick} />
             ))}
           </div>
         )}
