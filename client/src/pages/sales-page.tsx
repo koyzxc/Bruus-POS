@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, ChevronUp, ChevronDown } from "lucide-react";
+import { Shield } from "lucide-react";
 import { SalesData, Product } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -28,6 +28,7 @@ import {
   CalendarIcon, 
   AlertTriangle, 
   ChevronDown, 
+  ChevronUp,
   FilterX, 
   Filter,
   Search
@@ -884,13 +885,63 @@ export default function SalesPage() {
               <Table>
                 <TableHeader className="sticky top-0 bg-[#F15A29] text-white">
                   <TableRow>
-                    <TableHead className="py-4 px-6 text-center text-white">Product</TableHead>
-                    <TableHead className="py-4 px-6 text-center text-white">Price</TableHead>
-                    <TableHead className="py-4 px-6 text-center text-white">Category</TableHead>
+                    <TableHead 
+                      className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#E14A20] transition-colors"
+                      onClick={() => handleSort('product')}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        Product
+                        {sortConfig?.key === 'product' && (
+                          sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#E14A20] transition-colors"
+                      onClick={() => handleSort('price')}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        Price
+                        {sortConfig?.key === 'price' && (
+                          sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#E14A20] transition-colors"
+                      onClick={() => handleSort('category')}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        Category
+                        {sortConfig?.key === 'category' && (
+                          sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
                     {!showNonSelling && (
                       <>
-                        <TableHead className="py-4 px-6 text-center text-white">Unit Sold</TableHead>
-                        <TableHead className="py-4 px-6 text-center text-white">Total Sales</TableHead>
+                        <TableHead 
+                          className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#E14A20] transition-colors"
+                          onClick={() => handleSort('volume')}
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            Unit Sold
+                            {sortConfig?.key === 'volume' && (
+                              sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                            )}
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className="py-4 px-6 text-center text-white cursor-pointer hover:bg-[#E14A20] transition-colors"
+                          onClick={() => handleSort('totalSales')}
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            Total Sales
+                            {sortConfig?.key === 'totalSales' && (
+                              sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                            )}
+                          </div>
+                        </TableHead>
                       </>
                     )}
                   </TableRow>
