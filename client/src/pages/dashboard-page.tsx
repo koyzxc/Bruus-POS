@@ -1,12 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import ProductCard from "@/components/ProductCard";
+import ProductForm from "@/components/ProductForm";
 import { Product } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const [activeCategory, setActiveCategory] = useState("COFFEE");
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
+  
+  // Listen for editProduct event from ProductCard
+  useEffect(() => {
+    const handleEditProduct = (event: CustomEvent) => {
+      const product = event.detail.product;
+      setSelectedProduct(product);
+      setShowProductForm(true);
+    };
+
+    window.addEventListener('editProduct', handleEditProduct as EventListener);
+    
+    return () => {
+      window.removeEventListener('editProduct', handleEditProduct as EventListener);
+    };
+  }, []);
   
   // Fetch products by category
   const { data: products, isLoading } = useQuery<Product[]>({
@@ -47,6 +65,16 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Product Form Dialog */}
+      <ProductForm
+        isOpen={showProductForm}
+        onClose={() => {
+          setShowProductForm(false);
+          setSelectedProduct(undefined);
+        }}
+        product={selectedProduct}
+      />
     </MainLayout>
   );
 }
