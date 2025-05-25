@@ -117,12 +117,15 @@ export default function Sidebar({ activeCategory, setActiveCategory, activeSecti
           </div>
         )}
         
-        <button
-          className="w-full py-3 bg-[#FFE6C7] text-[#333333] rounded font-medium hover:bg-[#F5D7B5] transition duration-300 text-base"
-          onClick={handleSignOut}
-        >
-          SIGN OUT
-        </button>
+        {/* Show sign out button only for Owner in ADMIN section */}
+        {user?.role === "owner" && activeSection === "ADMIN" && (
+          <button
+            className="w-full py-3 bg-[#FFE6C7] text-[#333333] rounded font-medium hover:bg-[#F5D7B5] transition duration-300 text-base"
+            onClick={handleSignOut}
+          >
+            SIGN OUT
+          </button>
+        )}
       </div>
       
       {isInventoryFormOpen && (
