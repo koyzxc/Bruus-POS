@@ -381,16 +381,30 @@ export default function InventoryPage() {
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right w-[180px]">
                         <div className="flex flex-col">
-                          {/* Format the stock value based on unit type */}
+                          {/* Display current stock appropriately based on container type */}
                           {(() => {
-                            const formattedStock = formatStockDisplay(item.currentStock, item.unit || "");
-                            return (
-                              <span className={`font-medium text-lg ${
-                                parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
-                              }`}>
-                                {formattedStock.value}{formattedStock.unit}
-                              </span>
-                            );
+                            // If it's a container-based item, show number of containers
+                            if (item.containerType !== "direct" && item.quantityPerUnit && item.secondaryUnit) {
+                              const containersInStock = Math.floor(parseFloat(item.currentStock) / parseFloat(item.quantityPerUnit));
+                              const unitLabel = item.secondaryUnit === "piece" ? "pc" : item.secondaryUnit;
+                              return (
+                                <span className={`font-medium text-lg ${
+                                  parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
+                                }`}>
+                                  {containersInStock} {unitLabel}
+                                </span>
+                              );
+                            } else {
+                              // For direct items, show the formatted stock as before
+                              const formattedStock = formatStockDisplay(item.currentStock, item.unit || "");
+                              return (
+                                <span className={`font-medium text-lg ${
+                                  parseFloat(item.currentStock) <= parseFloat(item.minimumThreshold) ? "text-red-500" : ""
+                                }`}>
+                                  {formattedStock.value}{formattedStock.unit}
+                                </span>
+                              );
+                            }
                           })()}
                           
                           {item.containerType !== "direct" && 
