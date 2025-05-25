@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/layouts/MainLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield } from "lucide-react";
+import { Shield, ChevronUp, ChevronDown } from "lucide-react";
 import { SalesData, Product } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -71,6 +71,12 @@ export default function SalesPage() {
   
   // State for search
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // State for sorting
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: 'asc' | 'desc';
+  } | null>(null);
   
   // State for filters
   const [filters, setFilters] = useState<FilterState>({
@@ -268,6 +274,33 @@ export default function SalesPage() {
       salesValue: value
     });
   };
+
+  // Sorting function
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Helper function to get value for sorting
+  const getValueForSorting = (item: any, key: string) => {
+    switch (key) {
+      case 'product':
+        return showNonSelling ? item.name?.toLowerCase() : item.productName?.toLowerCase();
+      case 'price':
+        return Number(item.price);
+      case 'category':
+        return item.categoryName?.toLowerCase();
+      case 'volume':
+        return Number(item.volume);
+      case 'totalSales':
+        return Number(item.totalSales);
+      default:
+        return '';
+    }
+  };
   
   const clearAllFilters = () => {
     setFilters({
@@ -358,7 +391,22 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
+  const baseDisplayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
+  
+  // Sort data based on current sort config
+  const displayData = useMemo(() => {
+    if (!baseDisplayData || !sortConfig) return baseDisplayData;
+    
+    return [...baseDisplayData].sort((a, b) => {
+      const aValue = getValueForSorting(a, sortConfig.key);
+      const bValue = getValueForSorting(b, sortConfig.key);
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [baseDisplayData, sortConfig, showNonSelling]);
+  
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
   
   // Debug logs
@@ -432,7 +480,7 @@ export default function SalesPage() {
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span className="text-sm font-medium text-blue-700">Total Unit Sold</span>
+                <span className="text-sm font-medium text-blue-700">Orders</span>
               </div>
               <div className="text-2xl font-bold text-blue-900">{salesData?.length || 0}</div>
             </div>
