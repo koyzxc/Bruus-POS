@@ -214,7 +214,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const imageUrl = req.file ? `/uploads/${path.basename(req.file.path)}` : null;
+      const imageUrl = req.file 
+        ? `/uploads/${path.basename(req.file.path)}` 
+        : req.body.imageUrl || null;
       
       if (!imageUrl) {
         return res.status(400).json({ message: "Product image is required" });
