@@ -491,9 +491,14 @@ export default function SalesPage() {
       setActiveCategory={setActiveCategory}
       activeSection="SALES"
     >
-      {/* Sales Overview Chart - At the very top */}
-      {!showNonSelling && (
-        <div className="bg-white p-6 rounded-xl shadow-md mb-6">
+      {/* TOP - Sales Overview Chart */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">TOP</h2>
+        </div>
+        
+        {!showNonSelling && (
+          <div className="bg-white p-6 rounded-xl shadow-md mb-6">
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
@@ -605,7 +610,8 @@ export default function SalesPage() {
             </ResponsiveContainer>
           </div>
         </div>
-      )}
+        )}
+      </div>
 
       {/* Sales Analytics - Grouped section with controls AND data table */}
       <div className="bg-white rounded-xl shadow-md">
