@@ -89,7 +89,7 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
       const currentStock = parseFloat(item.currentStock) || 0;
       const newStock = currentStock + amount;
       
-      return await apiRequest(`/api/inventory/${item.id}`, "PUT", {
+      return await apiRequest("PUT", `/api/inventory/${item.id}`, {
         currentStock: newStock.toString()
       });
     },
