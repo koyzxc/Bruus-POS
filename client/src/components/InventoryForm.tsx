@@ -365,9 +365,19 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                     <Input 
                       placeholder="e.g., Coffee Beans" 
                       {...field}
+                      autoFocus={false}
                       onFocus={(e) => {
                         // Prevent text selection when editing existing items
                         if (inventoryItem) {
+                          setTimeout(() => {
+                            e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                          }, 0);
+                        }
+                      }}
+                      onMouseUp={(e) => {
+                        // Prevent text selection on mouse up when editing
+                        if (inventoryItem) {
+                          e.preventDefault();
                           e.target.setSelectionRange(e.target.value.length, e.target.value.length);
                         }
                       }}
