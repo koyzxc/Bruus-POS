@@ -187,14 +187,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
       
-      <div className="h-36 md:h-40 w-full overflow-hidden relative bg-gray-50 flex items-center justify-center p-4">
+      <div className="h-32 w-full overflow-hidden relative bg-gray-50">
         {product.imageUrl && (
-          <div className="w-[100px] h-[100px] relative flex items-center justify-center">
+          <div className="w-full h-full relative">
             {product.imageUrl.endsWith('.svg') ? (
               <object
                 data={product.imageUrl}
                 type="image/svg+xml"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
                 aria-label={product.name}
               >
                 <img 
@@ -207,7 +207,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <img 
                 src={product.imageUrl} 
                 alt={product.name} 
-                className="w-full h-full object-contain rounded-md"
+                className="w-full h-full object-cover rounded-md"
                 loading="lazy"
               />
             )}
