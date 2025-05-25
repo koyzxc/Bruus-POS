@@ -391,8 +391,18 @@ export default function SalesPage() {
   });
   
   // Determine which data and loading state to use
-  const displayData = showNonSelling ? filteredNonSellingData : (searchTerm.trim() ? filteredSalesData : aggregatedSalesArray);
+  const displayData = showNonSelling ? filteredNonSellingData : filteredSalesData;
   const isLoading = showNonSelling ? isNonSellingLoading : isSalesLoading;
+  
+  // Debug logs
+  console.log('Display debug:', {
+    showNonSelling,
+    filteredSalesDataLength: filteredSalesData?.length,
+    filteredNonSellingDataLength: filteredNonSellingData?.length,
+    displayDataLength: displayData?.length,
+    isLoading,
+    searchTerm
+  });
   
   // Format helper functions
   const getOperatorText = (operator: ComparisonOperator): string => {
