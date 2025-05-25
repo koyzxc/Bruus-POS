@@ -364,11 +364,15 @@ export default function SalesPage() {
   // Debug logs
   console.log('Display debug:', {
     showNonSelling,
+    aggregatedSalesArrayLength: aggregatedSalesArray?.length,
     filteredSalesDataLength: filteredSalesData?.length,
     filteredNonSellingDataLength: filteredNonSellingData?.length,
     displayDataLength: displayData?.length,
     isLoading,
-    searchTerm
+    searchTerm,
+    activeCategory,
+    filters,
+    aggregatedSalesArraySample: aggregatedSalesArray?.slice(0, 2)
   });
   
   // Format helper functions
