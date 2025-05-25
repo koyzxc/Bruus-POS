@@ -138,6 +138,42 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
     enabled: !!product?.id, // Only run if product id exists
   });
   
+  // Reset form when product changes
+  useEffect(() => {
+    if (product) {
+      form.reset({
+        name: product.name,
+        mediumPrice: product.size === "M" && product.price ? product.price.toString() : "",
+        hasLargeSize: product.size === "L",
+        largePrice: product.size === "L" && product.price ? product.price.toString() : "",
+        categoryId: product.categoryId ? product.categoryId.toString() : "",
+        mediumIngredients: [],
+        largeIngredients: [],
+      });
+      setImagePreview(product.imageUrl || null);
+      
+      // Set active tab based on product size
+      if (product.size === "L") {
+        setActiveTab("large");
+      } else {
+        setActiveTab("medium");
+      }
+    } else {
+      // Reset for new product
+      form.reset({
+        name: "",
+        mediumPrice: "",
+        hasLargeSize: false,
+        largePrice: "",
+        categoryId: "",
+        mediumIngredients: [],
+        largeIngredients: [],
+      });
+      setImagePreview(null);
+      setActiveTab("medium");
+    }
+  }, [product, form]);
+
   // Update form with ingredients data when available
   useEffect(() => {
     if (productIngredients?.length > 0) {
