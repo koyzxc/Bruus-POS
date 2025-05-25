@@ -155,33 +155,33 @@ export default function ProductCard({ product }: ProductCardProps) {
   const currentPrice = selectedSizeOption ? selectedSizeOption.price : product.price;
   
   return (
-    <div className="product-card rounded-xl overflow-hidden bg-white shadow-md hover:shadow-lg transition duration-300 relative">
-      {/* Admin controls overlay */}
+    <div className="product-card rounded-xl overflow-hidden bg-white shadow-md hover:shadow-lg transition duration-300 relative group">
+      {/* Admin controls overlay - Only visible on long press/right click */}
       {user && (user.role === "owner" || user.role === "barista") && (
-        <div className="absolute top-2 right-2 z-10 flex gap-1">
+        <div className="absolute top-1 right-1 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button 
             size="icon"
             variant="ghost"
-            className="h-8 w-8 rounded-full bg-white bg-opacity-70 hover:bg-opacity-100 shadow-sm"
+            className="h-6 w-6 rounded-full bg-black bg-opacity-20 hover:bg-opacity-40"
             onClick={(e) => {
               e.stopPropagation();
               setIsIngredientsDialogOpen(true);
             }}
           >
-            <Info className="h-4 w-4 text-blue-600" />
+            <Info className="h-3 w-3 text-white" />
           </Button>
           
           {user.role === "owner" && (
             <Button 
               size="icon"
               variant="ghost"
-              className="h-8 w-8 rounded-full bg-white bg-opacity-70 hover:bg-opacity-100 shadow-sm"
+              className="h-6 w-6 rounded-full bg-black bg-opacity-20 hover:bg-opacity-40"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsDeleteDialogOpen(true);
               }}
             >
-              <Trash2 className="h-4 w-4 text-red-500" />
+              <Trash2 className="h-3 w-3 text-white" />
             </Button>
           )}
         </div>
