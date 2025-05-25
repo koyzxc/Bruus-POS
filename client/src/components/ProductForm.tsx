@@ -304,10 +304,14 @@ export default function ProductForm({ isOpen, onClose, product }: ProductFormPro
       formData.append("image", imageFiles[0]);
     } else if (product?.imageUrl) {
       // Keep existing image URL if no new image is selected
+      console.log("Using existing product imageUrl:", product.imageUrl);
       formData.append("imageUrl", product.imageUrl);
     } else if (imagePreview && !imagePreview.startsWith("blob:")) {
       // Use the image preview URL if available
+      console.log("Using imagePreview:", imagePreview);
       formData.append("imageUrl", imagePreview);
+    } else {
+      console.log("No image found - product:", product, "imagePreview:", imagePreview);
     }
     
     // Add ingredients
