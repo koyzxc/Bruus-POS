@@ -127,14 +127,15 @@ export default function AuthPage() {
         </Card>
       </div>
       
-      {/* Coffee beans at the bottom - reaching up to password level */}
+      {/* Coffee beans positioned behind password area */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-40"
+        className="absolute bottom-16 left-1/2 transform -translate-x-1/2 w-96 h-32 opacity-20"
         style={{
-          backgroundImage: "url('/coffee-beans-bg.png')",
-          backgroundPosition: "0 -280px",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat"
+          backgroundImage: "url('/coffee-beans-clean.png')",
+          backgroundPosition: "center",
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
+          zIndex: 1
         }}
       ></div>
     </div>
