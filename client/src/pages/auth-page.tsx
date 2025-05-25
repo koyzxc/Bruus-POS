@@ -129,11 +129,12 @@ export default function AuthPage() {
       
       {/* Coffee beans at the bottom */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-24 bg-cover bg-center bg-no-repeat"
+        className="absolute bottom-0 left-0 right-0 h-16 bg-repeat-x"
         style={{
           backgroundImage: "url('/coffee-beans-bg.png')",
-          backgroundPosition: "bottom center",
-          backgroundSize: "cover"
+          backgroundPosition: "bottom left",
+          backgroundSize: "auto 60px",
+          clipPath: "polygon(0 70%, 100% 70%, 100% 100%, 0 100%)"
         }}
       ></div>
     </div>
