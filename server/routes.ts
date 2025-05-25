@@ -570,14 +570,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if this inventory item is used in any product ingredients
-      const usedInProduct = await db.query.productIngredients.findFirst({
-        where: (pi, { eq }) => eq(pi.inventoryId, inventoryId)
+      const usedInProducts = await db.query.productIngredients.findMany({
+        where: (pi, { eq }) => eq(pi.inventoryId, inventoryId),
+        with: {
+          product: true
+        }
       });
       
-      if (usedInProduct) {
-        return res.status(400).json({ 
-          message: "Cannot delete inventory item as it is used in one or more products. Remove it from products first." 
-        });
+      if (usedInProducts.length > 0) {
+        // Remove this ingredient from all products that use it
+        await db.delete(productIngredients).where(eq(productIngredients.inventoryId, inventoryId));
       }
       
       // Delete the inventory item
