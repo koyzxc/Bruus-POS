@@ -56,7 +56,7 @@ type FilterState = {
 
 export default function SalesPage() {
   const { user } = useAuth();
-  const [activeCategory, setActiveCategory] = useState("COFFEE");
+  const [activeCategory, setActiveCategory] = useState("ALL");
   const today = new Date();
   const [dateRange, setDateRange] = useState<{
     from: Date;
