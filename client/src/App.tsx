@@ -7,6 +7,7 @@ import SalesPage from "@/pages/sales-page";
 import AdminPage from "@/pages/admin-page";
 import AdminSettingsPage from "@/pages/admin-settings-page";
 import { ProtectedRoute } from "./lib/protected-route";
+import { AdminSettingsProvider } from "@/contexts/admin-settings-context";
 
 function Router() {
   return (
@@ -23,7 +24,11 @@ function Router() {
 }
 
 function App() {
-  return <Router />;
+  return (
+    <AdminSettingsProvider>
+      <Router />
+    </AdminSettingsProvider>
+  );
 }
 
 export default App;

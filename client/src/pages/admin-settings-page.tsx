@@ -16,9 +16,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { User } from "@shared/schema";
-import { UserPlus, Edit2, Trash2, Shield, Users, ChevronUp, ChevronDown, Settings } from "lucide-react";
+import { UserPlus, Edit2, Trash2, Shield, Users, ChevronUp, ChevronDown, Settings, Eye, EyeOff } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
 import PermissionManager from "@/components/PermissionManager";
+import { useAdminSettings } from "@/contexts/admin-settings-context";
+import { Switch } from "@/components/ui/switch";
 
 // Form schemas
 const createUserSchema = z.object({
@@ -46,6 +48,7 @@ export default function AdminSettingsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { showEditButtons, setShowEditButtons } = useAdminSettings();
   
   // State management for layout
   const [activeCategory, setActiveCategory] = useState("ADMIN");

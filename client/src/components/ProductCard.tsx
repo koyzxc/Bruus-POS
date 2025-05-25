@@ -1,6 +1,7 @@
 import { Product } from "@shared/schema";
 import { useCart } from "@/contexts/cart-context";
 import { useAuth } from "@/hooks/use-auth";
+import { useAdminSettings } from "@/contexts/admin-settings-context";
 import { Button } from "@/components/ui/button";
 import { Trash2, Edit, Info } from "lucide-react";
 import { useState } from "react";
@@ -50,6 +51,7 @@ type ProductCardProps = {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const { user } = useAuth();
+  const { showEditButtons } = useAdminSettings();
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isIngredientsDialogOpen, setIsIngredientsDialogOpen] = useState(false);
@@ -156,8 +158,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   return (
     <div className="product-card rounded-xl overflow-hidden bg-white shadow-md hover:shadow-lg transition duration-300 relative group">
-      {/* Admin controls overlay - Only visible on long press/right click */}
-      {user && (user.role === "owner" || user.role === "barista") && (
+      {/* Admin controls overlay - Only visible when enabled in settings */}
+      {user && (user.role === "owner" || user.role === "barista") && showEditButtons && (
         <div className="absolute top-1 right-1 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button 
             size="icon"
