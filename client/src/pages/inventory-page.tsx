@@ -234,6 +234,7 @@ export default function InventoryPage() {
       setActiveCategory={setActiveCategory}
       activeSection="INV"
       onOpenInventoryForm={handleOpenInventoryForm}
+      onRestockClick={handleRestockInventory}
     >
 
       {/* Inventory Form Dialog */}

@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
 import OrderPanel from "@/components/OrderPanel";
+import { Inventory } from "@shared/schema";
 
 type MainLayoutProps = {
   children: ReactNode;
@@ -9,6 +10,7 @@ type MainLayoutProps = {
   setActiveCategory: (category: string) => void;
   activeSection: "MENU" | "INV" | "SALES" | "ADMIN";
   onOpenInventoryForm?: () => void;
+  onRestockClick?: (item: Inventory) => void;
 };
 
 export default function MainLayout({
@@ -17,6 +19,7 @@ export default function MainLayout({
   setActiveCategory,
   activeSection,
   onOpenInventoryForm,
+  onRestockClick,
 }: MainLayoutProps) {
 
   return (
@@ -27,6 +30,7 @@ export default function MainLayout({
         setActiveCategory={setActiveCategory}
         activeSection={activeSection}
         onOpenInventoryForm={onOpenInventoryForm}
+        onRestockClick={onRestockClick}
       />
       
       {/* Middle Content */}
