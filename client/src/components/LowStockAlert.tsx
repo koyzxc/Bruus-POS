@@ -1,6 +1,11 @@
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
 import { Inventory } from "@shared/schema";
 import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 // Helper function to format stock values based on unit type and quantity
 const formatStockDisplay = (value: string, unit: string): { value: string, unit: string } => {
@@ -60,6 +65,10 @@ type LowStockAlertProps = {
 export function LowStockAlert({ item }: LowStockAlertProps) {
   // Use useState and useEffect for animation
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [showRestockForm, setShowRestockForm] = useState<boolean>(false);
+  const [restockAmount, setRestockAmount] = useState<string>("");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   // Create animation effect when alert appears
   useEffect(() => {
@@ -73,6 +82,48 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
     
     return () => clearInterval(interval);
   }, []);
+
+  // Restock mutation
+  const restockMutation = useMutation({
+    mutationFn: async (amount: number) => {
+      const currentStock = parseFloat(item.currentStock) || 0;
+      const newStock = currentStock + amount;
+      
+      return await apiRequest(`/api/inventory/${item.id}`, "PUT", {
+        currentStock: newStock.toString()
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Stock Updated",
+        description: `Added ${restockAmount} ${item.unit} to ${item.name}`,
+      });
+      setRestockAmount("");
+      setShowRestockForm(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/inventory/low-stock"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update stock",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleRestock = () => {
+    const amount = parseFloat(restockAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid positive number",
+        variant: "destructive",
+      });
+      return;
+    }
+    restockMutation.mutate(amount);
+  };
   
   // Calculate percentage for progress bar, ensuring it's a number
   const percentage = React.useMemo(() => {
@@ -97,12 +148,22 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
             <p className="text-xs font-bold">
               {item.name}
             </p>
-            <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full font-medium">
-              {(() => {
-                const formattedStock = formatStockDisplay(item.currentStock, item.unit || "");
-                return `${formattedStock.value}${formattedStock.unit}`;
-              })()}
-            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800 rounded-full font-medium">
+                {(() => {
+                  const formattedStock = formatStockDisplay(item.currentStock, item.unit || "");
+                  return `${formattedStock.value}${formattedStock.unit}`;
+                })()}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-5 w-5 p-0 bg-green-50 hover:bg-green-100 border-green-300"
+                onClick={() => setShowRestockForm(!showRestockForm)}
+              >
+                <Plus className="h-3 w-3 text-green-600" />
+              </Button>
+            </div>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
             <div 
@@ -110,6 +171,42 @@ export function LowStockAlert({ item }: LowStockAlertProps) {
               style={{ width: `${percentage}%` }}
             ></div>
           </div>
+          
+          {/* Quick Restock Form */}
+          {showRestockForm && (
+            <div className="mt-2 p-2 bg-green-50 rounded border border-green-200">
+              <div className="flex items-center gap-1">
+                <Input
+                  type="number"
+                  placeholder={`Add ${item.unit}`}
+                  value={restockAmount}
+                  onChange={(e) => setRestockAmount(e.target.value)}
+                  className="h-6 text-xs flex-1"
+                  min="0"
+                  step="any"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleRestock}
+                  disabled={restockMutation.isPending}
+                  className="h-6 px-2 text-xs bg-green-600 hover:bg-green-700"
+                >
+                  {restockMutation.isPending ? "..." : "Add"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowRestockForm(false);
+                    setRestockAmount("");
+                  }}
+                  className="h-6 px-1 text-xs"
+                >
+                  ×
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
