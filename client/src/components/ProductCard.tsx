@@ -215,8 +215,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
       <div className="p-3 text-center">
-        <h3 className="text-base md:text-lg font-medium uppercase tracking-wide truncate" title={product.name}>
-          {product.name.length > 15 ? `${product.name.substring(0, 15)}...` : product.name}
+        <h3 className="text-sm md:text-base font-medium uppercase tracking-wide leading-tight min-h-[2.5rem] flex items-center justify-center px-1">
+          <span className="text-center break-words line-clamp-2">
+            {product.name}
+          </span>
         </h3>
         
         {/* Size options */}
