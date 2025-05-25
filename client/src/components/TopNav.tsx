@@ -61,10 +61,10 @@ export default function TopNav({ activeSection }: TopNavProps) {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              size="sm"
-              className="h-10 w-10 rounded-full bg-[#F15A29] hover:bg-[#E14A1F] text-white"
+              className="h-[46px] px-4 rounded bg-[#F15A29] hover:bg-[#E14A1F] text-white font-medium transition duration-300"
             >
-              <User className="h-4 w-4" />
+              <User className="h-5 w-5 mr-2" />
+              {user.username}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
