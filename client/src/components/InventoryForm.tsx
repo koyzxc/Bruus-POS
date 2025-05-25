@@ -364,7 +364,13 @@ export default function InventoryForm({ isOpen, onClose, inventoryItem }: Invent
                   <FormControl>
                     <Input 
                       placeholder="e.g., Coffee Beans" 
-                      {...field} 
+                      {...field}
+                      onFocus={(e) => {
+                        // Prevent text selection when editing existing items
+                        if (inventoryItem) {
+                          e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
