@@ -50,49 +50,48 @@ async function createInventoryItems() {
   console.log("Creating inventory items...");
   
   // Coffee ingredients
-  await db.insert(inventory).values([
-    { name: "Coffee Beans", currentStock: "2000.00", minimumThreshold: "500.00", unit: "g" },
-    { name: "Milk", currentStock: "5000.00", minimumThreshold: "1000.00", unit: "ml" },
-    { name: "Sugar", currentStock: "3000.00", minimumThreshold: "500.00", unit: "g" },
-    { name: "Cups", currentStock: "100", minimumThreshold: "20", unit: "pcs" },
-    { name: "Water", currentStock: "10000.00", minimumThreshold: "2000.00", unit: "ml" }
-  ]);
-  
-  // Coffee flavorings
-  await db.insert(inventory).values([
-    { name: "Chocolate Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
-    { name: "Caramel Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
-    { name: "Vanilla Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
-    { name: "Whipped Cream", currentStock: "1000.00", minimumThreshold: "200.00", unit: "g" }
-  ]);
-  
-  // Shake ingredients
-  await db.insert(inventory).values([
-    { name: "Ice", currentStock: "5000.00", minimumThreshold: "1000.00", unit: "g" },
-    { name: "Chocolate Powder", currentStock: "1000.00", minimumThreshold: "200.00", unit: "g" },
-    { name: "Strawberry Syrup", currentStock: "1000.00", minimumThreshold: "200.00", unit: "ml" },
-    { name: "Banana", currentStock: "30", minimumThreshold: "10", unit: "pcs" },
-    { name: "Matcha Powder", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" }
-  ]);
-  
-  // Food ingredients
-  await db.insert(inventory).values([
-    { name: "Bread", currentStock: "20", minimumThreshold: "5", unit: "pcs" },
-    { name: "Butter", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" },
-    { name: "Chicken", currentStock: "2000.00", minimumThreshold: "500.00", unit: "g" },
-    { name: "Lettuce", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" },
-    { name: "Tomato", currentStock: "10", minimumThreshold: "3", unit: "pcs" },
-    { name: "Cheese", currentStock: "500.00", minimumThreshold: "100.00", unit: "g" },
-    { name: "Eggs", currentStock: "24", minimumThreshold: "6", unit: "pcs" }
-  ]);
-  
-  // Others
-  await db.insert(inventory).values([
-    { name: "Yakult", currentStock: "24", minimumThreshold: "6", unit: "pcs" },
-    { name: "Bottled Water", currentStock: "36", minimumThreshold: "12", unit: "pcs" },
-    { name: "Juice Concentrate", currentStock: "2000.00", minimumThreshold: "500.00", unit: "ml" }
-  ]);
-  
+ await db.insert(inventory).values([
+  {
+    name: "Coffee Beans",
+    currentStock: "2000.00",
+    minimumThreshold: "500.00",
+    containerType: "Bag",
+    numberOfContainers: "1",
+    unit: "g"
+  },
+  {
+    name: "Milk",
+    currentStock: "5000.00",
+    minimumThreshold: "1000.00",
+    containerType: "Bottle",
+    numberOfContainers: "1",
+    unit: "ml"
+  },
+  {
+    name: "Sugar",
+    currentStock: "3000.00",
+    minimumThreshold: "500.00",
+    containerType: "Bag",
+    numberOfContainers: "1",
+    unit: "g"
+  },
+  {
+    name: "Cups",
+    currentStock: "100",
+    minimumThreshold: "20",
+    containerType: "Box",
+    numberOfContainers: "1",
+    unit: "pcs"
+  },
+  {
+    name: "Water",
+    currentStock: "10000.00",
+    minimumThreshold: "2000.00",
+    containerType: "Bottle",
+    numberOfContainers: "1",
+    unit: "ml"
+  }
+]);
   console.log("Inventory items created");
 }
 
